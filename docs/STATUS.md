@@ -139,9 +139,12 @@ Intel Xeon CPUs for the determinism measurements.
 
 - Off hardware the daemons run a simulated TEE that announces itself and
   refuses to start without `tee.insecure_simulation: true`.
-- No AWS Nitro or Intel SGX adapter attests: the verifiers exist, the
-  registry refuses both families until a live enclave has been verified end
-  to end ([ROADMAP.md](../ROADMAP.md)).
+- No AWS Nitro or Intel SGX adapter attests. The Nitro verifier is written
+  from AWS's specification and proven offline on the four production
+  documents of May 2026 (ADR 0024, `acpctl attest nitro`); its producer and
+  sealer are unproven, the SGX verifiers do not exist, and the registry
+  refuses both families until a live enclave has been verified end to end
+  ([ROADMAP.md](../ROADMAP.md)).
 - The largest model measured is 32B, on one confidential GPU, on the pinned
   runtime; cross-device equivalence is measured at 0.5B and 7B; every
   failover number is at 0.5B.

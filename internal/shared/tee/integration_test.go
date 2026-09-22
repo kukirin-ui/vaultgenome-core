@@ -4,12 +4,11 @@
 // adapters using the fake hardware harness from fake_hardware_test.go.
 //
 // These tests exercise every line of the adapter Quote / Verify / Seal
-// / Unseal path against an in-process synthetic backend. They DO NOT test
-// the on-the-wire CBOR/COSE/sgx_quote3_t/SEV-SNP-1184B binary formats —
-// see fake_hardware_test.go for the rationale (no CBOR/COSE/JWT/x509
-// libraries in go.mod). The production wiring (Phase 2) replaces the
-// fake helpers with real SDK calls; the test matrix carries forward
-// unchanged.
+// / Unseal path against an in-process synthetic backend. The AWS Nitro
+// backend signs genuine CBOR/COSE_Sign1 documents with a synthetic P-384
+// chain, so the production codec runs; the SGX and SEV-SNP backends
+// still swap the sgx_quote3_t / SEV-SNP-1184B formats for Ed25519-signed
+// JSON — see fake_hardware_test.go.
 //
 // Test groups per platform:
 //
@@ -30,6 +29,7 @@ import (
 	"bytes"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	shared_errors "github.com/vault-genome/vaultgenome-core/internal/shared/errors"
@@ -55,7 +55,7 @@ func TestIntegration_AWSNitro(t *testing.T) {
 	mkVerifier := func(t *testing.T, expected Measurement) *AWSNitroVerifier {
 		t.Helper()
 		v, err := NewAWSNitroVerifier(nil, expected, AWSNitroVerifierConfig{
-			PinnedRoots: [][]byte{[]byte("fake-root")},
+			PinnedRoots: [][]byte{fh.nitro.rootDER},
 		})
 		require.NoError(t, err)
 		return v
@@ -76,6 +76,13 @@ func TestIntegration_AWSNitro(t *testing.T) {
 		got, err := v.Verify(ev, nonce)
 		require.NoError(t, err)
 		require.Equal(t, fh.measure, got)
+		require.Len(t, got, 48, "a Nitro PCR is SHA-384")
+
+		report, err := AuditAWSNitroDocument(ev, [][]byte{fh.nitro.rootDER}, time.Time{})
+		require.NoError(t, err)
+		require.Equal(t, nonce, report.Nonce)
+		require.Equal(t, []byte("integration-userdata"), report.UserData)
+		require.Len(t, report.Chain, 5)
 	})
 
 	t.Run("ReplayRejected", func(t *testing.T) {

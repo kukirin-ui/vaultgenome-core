@@ -25,14 +25,16 @@
 //     - Threading (each Quote takes the producer mutex)
 //     - Capability + Close idempotency
 //
-//   It does NOT exercise the on-the-wire CBOR/COSE/sgx_quote3_t/
-//   SEV-SNP-1184B binary formats — those are intentionally swapped for
-//   Ed25519-signed JSON because go.mod has no CBOR/COSE/JWT/x509-DER deps
-//   (adding them requires the docs/dependencies/<name>.md change-management
-//   process documented in go.mod). When real-format codecs land, the
-//   `installXxxFake` test helpers stay the same — only the stub
-//   implementations of `parseCOSESign1`, `decodeNitroAttestationDoc` etc.
-//   are replaced with real ones.
+//   The AWS Nitro fake is different since the verifier's codec became
+//   real (aws_nitro_cose.go): its fake NSM writes a genuine CBOR
+//   attestation document in a genuine COSE_Sign1 envelope, signed by a
+//   synthetic five-certificate P-384 chain (aws_nitro_fixture_test.go),
+//   and the verifier under test pins that chain's root. Every byte of
+//   the production parsing, chain and signature code runs; only the NSM
+//   device and KMS are faked. The SGX and SEV-SNP fakes still swap the
+//   on-the-wire sgx_quote3_t / SEV-SNP-1184B formats for Ed25519-signed
+//   JSON — go.mod has no codec for those, and the docs/dependencies/
+//   process governs adding one.
 
 package tee
 
@@ -87,10 +89,12 @@ type fakeAttestation struct {
 // fakeHardware is the test-only "hardware" — owns an Ed25519 attestation
 // key plus a deterministic per-label set of PCR / MRENCLAVE / etc. values.
 type fakeHardware struct {
+	label       string
 	pub         shared_crypto.PublicKey
 	priv        shared_crypto.PrivateKey
 	measure     Measurement
 	pcrs        map[int][]byte
+	nitro       *nitroTestChain // set by installAWSNitroFake
 	mrSigner    [32]byte
 	chipID      [64]byte
 	hostData    [32]byte
@@ -109,6 +113,7 @@ func newFakeHardware(t testing.TB, label string) *fakeHardware {
 	measure := MeasurementOf([]byte("vg-fake-workload-" + label))
 
 	fh := &fakeHardware{
+		label:       label,
 		pub:         pub,
 		priv:        priv,
 		measure:     measure,
@@ -217,13 +222,22 @@ func canonicalEC(ec map[string]string) []byte {
 // AWS Nitro fake harness
 // =============================================================================
 
-// installAWSNitroFake wires fake NSM + fake KMS for a single test. Must be
-// called BEFORE constructing AWSNitroProducer/Verifier/Sealer. Restores
+// installAWSNitroFake wires a fake NSM + fake KMS for a single test. Must
+// be called BEFORE constructing AWSNitroProducer/Verifier/Sealer. Restores
 // originals via t.Cleanup. Acquires teeFakeMu so concurrent platform tests
 // don't race on the package-level vars.
+//
+// The fake NSM signs real attestation documents with a synthetic chain
+// (fh.nitro); the hardware's PCRs become 48-byte SHA-384 values, as on a
+// Nitro Enclave, and fh.measure becomes PCR0. A verifier for this fake
+// pins fh.nitro.rootDER.
 func installAWSNitroFake(t testing.TB, fh *fakeHardware) {
 	t.Helper()
 	teeFakeMu.Lock()
+
+	fh.nitro = newNitroTestChain(t, time.Now())
+	fh.pcrs = map[int][]byte{0: nitroPCR(fh.label, 0), 1: nitroPCR(fh.label, 1), 2: nitroPCR(fh.label, 2)}
+	fh.measure = Measurement(fh.pcrs[0])
 
 	// Save originals.
 	origOpenNSM := openNSMDevice
@@ -232,10 +246,6 @@ func installAWSNitroFake(t testing.TB, fh *fakeHardware) {
 	origAwsKMSEncrypt := awsKMSEncrypt
 	origAwsKMSDecrypt := awsKMSDecrypt
 	origIsKMSAccessDenied := isKMSAccessDenied
-	origParseCOSESign1 := parseCOSESign1
-	origDecodeNitroAttestationDoc := decodeNitroAttestationDoc
-	origVerifyNitroCertChain := verifyNitroCertChain
-	origVerifyCOSESignature := verifyCOSESignature
 
 	// Fake /dev/nsm — adapter just needs a non-nil *os.File handle.
 	openNSMDevice = func(_ string) (*os.File, error) {
@@ -253,7 +263,13 @@ func installAWSNitroFake(t testing.TB, fh *fakeHardware) {
 		return nil, fmt.Errorf("fake-nsm: PCR%d not set", idx)
 	}
 	nsmGetAttestationDoc = func(_ *os.File, req nsmAttestationRequest) ([]byte, error) {
-		return fh.signAttestation("aws-nitro", req.Nonce, req.UserData), nil
+		return fh.nitro.sign(t, nitroTestDoc{
+			ModuleID:  "i-fake-" + fh.label,
+			Timestamp: time.Now(),
+			PCRs:      fh.pcrs,
+			Nonce:     req.Nonce,
+			UserData:  req.UserData,
+		}), nil
 	}
 
 	// Fake KMS: AES-GCM with a key derived from the workload measurement;
@@ -290,40 +306,6 @@ func installAWSNitroFake(t testing.TB, fh *fakeHardware) {
 		return err != nil && strings.Contains(err.Error(), "AccessDeniedException")
 	}
 
-	// Adapter parsing chain — every helper now consumes the fake envelope.
-	parseCOSESign1 = func(ev []byte) (*coseSign1, error) {
-		att, err := fh.parseAttestation(ev)
-		if err != nil {
-			return nil, err
-		}
-		body, _ := json.Marshal(att)
-		return &coseSign1{Payload: body, Signature: []byte("fake-cose-sig")}, nil
-	}
-	decodeNitroAttestationDoc = func(payload []byte) (*nitroAttestationDoc, error) {
-		var att fakeAttestation
-		if err := json.Unmarshal(payload, &att); err != nil {
-			return nil, err
-		}
-		return &nitroAttestationDoc{
-			ModuleID:    "fake-module-aws-nitro",
-			Timestamp:   time.Unix(0, att.Timestamp),
-			Digest:      "SHA256",
-			PCRs:        att.PCRs,
-			Certificate: []byte("fake-leaf-cert"),
-			CABundle:    [][]byte{[]byte("fake-bundle")},
-			Nonce:       att.Nonce,
-			UserData:    att.UserData,
-		}, nil
-	}
-	verifyNitroCertChain = func(_ []byte, _ [][]byte, _ [][]byte) ([]byte, error) {
-		return []byte("fake-leaf-pubkey"), nil
-	}
-	verifyCOSESignature = func(_ *coseSign1, _ []byte) error {
-		// Real path: ECDSA-P384 over Sig_structure. Fake: signature
-		// already validated inside parseCOSESign1 → fh.parseAttestation.
-		return nil
-	}
-
 	t.Cleanup(func() {
 		openNSMDevice = origOpenNSM
 		nsmDescribePCR = origNsmDescribePCR
@@ -331,10 +313,6 @@ func installAWSNitroFake(t testing.TB, fh *fakeHardware) {
 		awsKMSEncrypt = origAwsKMSEncrypt
 		awsKMSDecrypt = origAwsKMSDecrypt
 		isKMSAccessDenied = origIsKMSAccessDenied
-		parseCOSESign1 = origParseCOSESign1
-		decodeNitroAttestationDoc = origDecodeNitroAttestationDoc
-		verifyNitroCertChain = origVerifyNitroCertChain
-		verifyCOSESignature = origVerifyCOSESignature
 		teeFakeMu.Unlock()
 	})
 }

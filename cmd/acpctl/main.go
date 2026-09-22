@@ -41,6 +41,8 @@ func main() {
 			os.Exit(sentinelCmd(os.Args[2:], os.Stdout, os.Stderr))
 		case "failover":
 			os.Exit(failoverCmd(os.Args[2:], os.Stdout, os.Stderr))
+		case "attest":
+			os.Exit(attestCmd(os.Args[2:], os.Stdout, os.Stderr))
 		}
 	}
 
@@ -79,6 +81,7 @@ func printUsage() {
 	fmt.Println("  sentinel watch   Keep a running model's state sealed; report when a tripwire fires")
 	fmt.Println("  failover issue   Sign the operator's failover policy: which standby, on which signs of failure")
 	fmt.Println("  failover verify  Check a failover policy against the operator public key")
+	fmt.Println("  attest nitro     Audit a captured AWS Nitro attestation document offline with the daemons' verifier")
 	fmt.Println()
 	fmt.Println("Run `acpctl <command> --help` for per-subcommand flags.")
 }

@@ -125,7 +125,16 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    the `TRUST_EVALUATED` event that admitted the worker; the cross-cloud
    drill's `CROSS_CLOUD_ATTESTATION_VERIFIED` record likewise,
    `scripts/hardware-test/failover-cgpu/evidence/20260916T233717Z/`).
-   Still scaffolding: the AWS Nitro, Azure SGX and Intel SGX DCAP adapters —
+   **Amended 2026-09-22 (ADR 0024):** the AWS Nitro *verifier* is now real
+   — a CBOR/COSE_Sign1 codec written from RFC 8949/9052 and AWS's document
+   specification, the chain anchored at the pinned AWS Nitro Enclaves Root
+   G1, ES384 checked over the Sig_structure — and proven offline on the
+   four production-mode documents of the May 2026 cohort at their capture
+   time (`scripts/hardware-test/aws-nitro/evidence/0N-*/07-go-verifier-audit.json`,
+   `acpctl attest nitro`). Its NSM producer and KMS sealer are still
+   stubs, no Nitro enclave has attested to this code live, and the
+   registry and `acp-bootstrap` keep refusing the family until one has.
+   Still scaffolding: the Azure SGX and Intel SGX DCAP adapters —
    `sagvd`'s verifier registry and `acp-bootstrap` refuse those families
    rather than trust them. `sagvd` and `acp-compute` attest with SEV-SNP,
    TDX or the Azure confidential GPU VM the same way since ADR 0014, 0018

@@ -11,7 +11,34 @@ given release can still open.
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- **The AWS Nitro verifier is real (ADR 0024).** `internal/shared/tee`
+  parses the COSE_Sign1 envelope and the attestation document with a
+  CBOR codec written from RFC 8949 (definite and indefinite lengths, the
+  document's subset and nothing else), verifies the certificate chain to
+  the pinned AWS Nitro Enclaves Root G1 (fingerprint `64:1A:03:21…BB:5B`,
+  held by a test) at the verifier's clock without revocation, and checks
+  the ES384 signature over the Sig_structure of RFC 9052. A document
+  without a nonce, with a `crit` header, a detached payload, a field
+  outside AWS's specification, a debug-mode PCR0 or a chain that does not
+  reach the pinned root is refused. Proven offline on the four
+  production-mode documents of the May 2026 cohort at their capture time
+  (`scripts/hardware-test/aws-nitro/evidence/0N-*/07-go-verifier-audit.json`).
+  `AWSNitroVerifierConfig.Now` sets the clock; `AuditAWSNitroDocument`
+  audits a capture without a challenge.
+- `acpctl attest nitro --doc FILE [--at capture|now|RFC3339] [--expected-pcr0 HEX] [--root PEM] [--json]`:
+  the offline audit of a captured Nitro attestation document with the
+  daemons' own verifier; exit 0 when it verifies, 5 when it does not.
+- Fuzz targets for the CBOR decoder and the whole Nitro verifier.
+
+### Changed
+
+- The AWS Nitro integration tests sign genuine CBOR/COSE_Sign1 documents
+  with a synthetic five-certificate P-384 chain instead of a JSON fake, so
+  the production codec runs in CI. The NSM producer, the KMS sealer and
+  the registry's refusal of the `aws-nitro` family are unchanged: no
+  enclave has attested to this code live (KNOWN_ISSUES #1).
 
 ## [0.3.2] — 2026-09-17
 

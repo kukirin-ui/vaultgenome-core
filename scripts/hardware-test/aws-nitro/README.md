@@ -230,6 +230,22 @@ founders' Desktop pack (`~/Desktop/AWS-Nitro-Real-Hardware-Test/`).
 See `evidence/CROSS-VM-MATRIX.md` for the full validation matrix and
 `evidence/README.md` for context.
 
+## Re-validating captured evidence with the shipping verifier
+
+The daemons' own Nitro verifier (`internal/shared/tee`, ADR 0024) audits a
+captured document offline, at the document's own timestamp by default —
+the hypervisor's signing certificate expires three hours after it signed:
+
+```bash
+acpctl attest nitro --doc 04-attestation-document.bin \
+  --expected-pcr0 "$(jq -r .expected_pcr0 02d-expected-pcrs.json)" [--json]
+```
+
+Exit 0 and `VERIFIED at <capture time>` mean the envelope decoded, the
+chain reached the pinned AWS Nitro Enclaves Root G1, the ES384 signature
+held and PCR0 is the image's. `evidence/0N-*/07-go-verifier-audit.json`
+holds that output for the four production documents of May 2026.
+
 ## Re-validating captured evidence offline
 
 If you have a captured `04-attestation-document.bin` and the AWS Nitro

@@ -209,7 +209,9 @@ gcp-sev-snp`).
 confidential GPU destination — an SEV-SNP guest whose Evidence also carries
 the vTPM's quote and NVIDIA's tokens ([C18](#c18)) — and once to an Intel
 TDX destination, its quote verified to Intel's root with Intel's TCB word
-([C21](#c21)); AWS Nitro and SGX verifiers are **not** shipped — see
+([C21](#c21)); the AWS Nitro verifier is shipped and proven on AWS's own
+documents offline (ADR 0024) but no Nitro enclave has taken a release,
+and the SGX verifiers are **not** shipped — see
 [What we do not claim](#what-we-do-not-claim).
 
 ---
@@ -1349,9 +1351,15 @@ sentence we cannot defend.
    its tokens carry. The GPU leg ran once, at 0.5B, with an EQUIVALENT
    gate, and so did the TDX leg ([C21](#c21)): each other-family standby
    has taken one key release, once, at 0.5B.
-4. **We do not claim Nitro or SGX verification.** SEV-SNP and Intel TDX only
-   ([C15](#c15)). Adapter dispatch for others exists (ADR 0002); the offline
-   verifiers do not. A TDX host and an Azure confidential GPU host seal
+4. **We do not claim a Nitro or SGX key release.** SEV-SNP and Intel TDX
+   only ([C15](#c15)). Adapter dispatch for others exists (ADR 0002). The
+   AWS Nitro verifier is written from AWS's specification and verifies
+   the four production-mode documents captured in May 2026 at their
+   capture time (ADR 0024; `scripts/hardware-test/aws-nitro/evidence/0N-*/07-go-verifier-audit.json`,
+   reproducible with `acpctl attest nitro` on the NDA-scoped raw
+   documents), but its producer and sealer are unproven, no enclave has
+   attested to this code live, and the registry refuses the family. The
+   SGX verifiers do not exist. A TDX host and an Azure confidential GPU host seal
    the escrow key to their vTPM (ADR 0022) — a root the cloud provider
    virtualises inside the confidential VM, not the TEE's own; an operator
    who does not accept that root has no sealed escrow key on those hosts.

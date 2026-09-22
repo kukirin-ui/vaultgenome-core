@@ -17,7 +17,9 @@ evidence/
     ├── 02d-expected-pcrs.json            ← EXPECTED PCR0/1/2 from describe-eif
     ├── 05-attestation-parsed.json        ← module_id, pcr0/1/2 (NON-ZERO), user_data
     ├── 06-chain-validation.json          ← all 4 cryptographic checks + cert chain + production_grade
-    └── 06-pcr-binding-check.json         ← per-PCR captured-vs-expected delta
+    ├── 06-pcr-binding-check.json         ← per-PCR captured-vs-expected delta
+    └── 07-go-verifier-audit.json         ← the same document audited by the shipping verifier
+                                             (`acpctl attest nitro --json`, ADR 0024, 2026-09-22)
 ```
 
 ## Cohort

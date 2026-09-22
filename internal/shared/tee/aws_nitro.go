@@ -18,13 +18,17 @@
 //   - Certificate chain — leaf cert (root of trust for this attestation)
 //     + intermediate(s) + AWS PCA root
 //
-// Verification:
-//   1. Parse CBOR → COSE_Sign1 envelope
-//   2. Validate certificate chain against AWS PCA root (pinned at build)
-//   3. Verify ECDSA-P384 signature
-//   4. Check timestamp freshness
-//   5. Compare PCR0 with expected measurement
-//   6. Compare nonce with challenger nonce
+// Verification (aws_nitro_cose.go holds the codec, written from AWS's
+// specification of the document and RFC 9052 for the envelope):
+//   1. Parse CBOR → COSE_Sign1 envelope; the protected header must say ES384
+//   2. Decode the attestation document against its specification
+//   3. Validate the certificate chain to the pinned AWS root at the time
+//      of verification (cabundle[0] must be that root), no revocation
+//   4. Verify the ECDSA P-384 signature over the Sig_structure
+//   5. Check timestamp freshness
+//   6. Compare the nonce with the challenger's; a document without one is refused
+//   7. Refuse a debug-mode enclave (PCR0 all zeroes)
+//   8. Compare PCR0 (or the configured PCR) with the acceptable set
 //
 // Sealing on Nitro is NOT a built-in NSM operation. The recommended
 // pattern is:
@@ -38,20 +42,20 @@
 //     reports it
 //   - PCR0 changes whenever the enclave image is rebuilt — measurement
 //     stability requires reproducible builds
-//   - AWS PCA root certificate rotation — pinned root must be refreshable
-//     (see awsNitroPinnedRoots)
+//   - AWS root certificate rotation — the pinned root (aws_nitro_roots.go)
+//     can be overridden through AWSNitroVerifierConfig.PinnedRoots
 
 package tee
 
 import (
 	"crypto"
+	"crypto/subtle"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"os"
 	"sync"
 	"time"
-
-	"crypto/subtle"
 
 	shared_errors "github.com/vault-genome/vaultgenome-core/internal/shared/errors"
 )
@@ -91,9 +95,15 @@ type AWSNitroVerifierConfig struct {
 	// Default 5 minutes. Tighter values reject delayed quotes.
 	MaxClockSkew time.Duration
 
-	// PinnedRoots overrides the built-in AWS PCA root certificate set.
+	// PinnedRoots overrides the built-in AWS root certificate set (DER).
 	// Use only for region-specific or government-cloud deployments.
 	PinnedRoots [][]byte
+
+	// Now is the clock the verifier reads for the certificate chain's
+	// validity and the timestamp's freshness. Default time.Now. An
+	// offline audit of a captured document sets it to the capture time,
+	// since the hypervisor's signing certificate expires hours later.
+	Now func() time.Time
 }
 
 // AWSNitroProducer implements Producer using the NSM device.
@@ -112,6 +122,7 @@ type AWSNitroVerifier struct {
 	maxClockSkew time.Duration
 	pinnedRoots  [][]byte
 	pcrIndex     int
+	now          func() time.Time
 }
 
 // AWSNitroSealer implements Sealer using AWS KMS with PCR-conditional
@@ -189,8 +200,34 @@ func NewAWSNitroVerifier(_ crypto.PublicKey, expected Measurement, cfg AWSNitroV
 	if cfg.MaxClockSkew == 0 {
 		cfg.MaxClockSkew = 5 * time.Minute
 	}
-	if cfg.PinnedRoots == nil {
+	if len(cfg.PinnedRoots) == 0 {
 		cfg.PinnedRoots = awsNitroPinnedRoots()
+	}
+	if len(cfg.PinnedRoots) == 0 {
+		return nil, shared_errors.Structural(
+			shared_errors.CodeFieldValueInvalid,
+			"aws-nitro: no pinned root certificate",
+			nil,
+		)
+	}
+	for i, der := range cfg.PinnedRoots {
+		if _, err := x509.ParseCertificate(der); err != nil {
+			return nil, shared_errors.Structural(
+				shared_errors.CodeFieldValueInvalid,
+				fmt.Sprintf("aws-nitro: pinned root %d is not a DER certificate: %v", i, err),
+				err,
+			)
+		}
+	}
+	if cfg.PCRIndex < 0 || cfg.PCRIndex > nitroPCRMax {
+		return nil, shared_errors.Structural(
+			shared_errors.CodeFieldValueInvalid,
+			fmt.Sprintf("aws-nitro: PCR index %d is outside 0..%d", cfg.PCRIndex, nitroPCRMax),
+			nil,
+		)
+	}
+	if cfg.Now == nil {
+		cfg.Now = time.Now
 	}
 	acc := cfg.AcceptablePCRSet
 	if len(acc) == 0 {
@@ -202,6 +239,7 @@ func NewAWSNitroVerifier(_ crypto.PublicKey, expected Measurement, cfg AWSNitroV
 		maxClockSkew: cfg.MaxClockSkew,
 		pinnedRoots:  cfg.PinnedRoots,
 		pcrIndex:     cfg.PCRIndex,
+		now:          cfg.Now,
 	}, nil
 }
 
@@ -275,10 +313,10 @@ func (p *AWSNitroProducer) Close() error {
 	return err
 }
 
-// Verify implements Verifier. It parses the CBOR COSE_Sign1 attestation
-// document, validates the certificate chain to a pinned AWS root,
-// verifies the COSE signature, checks freshness, and compares PCR + nonce
-// against the expected values.
+// Verify implements Verifier. It parses the COSE_Sign1 attestation
+// document, validates the certificate chain to a pinned AWS root at the
+// verifier's clock, verifies the COSE signature, checks freshness, and
+// compares the nonce and the PCR against the expected values.
 func (v *AWSNitroVerifier) Verify(ev Evidence, nonce Nonce) (Measurement, error) {
 	var zero Measurement
 	if len(nonce) < NonceMinBytes {
@@ -295,49 +333,16 @@ func (v *AWSNitroVerifier) Verify(ev Evidence, nonce Nonce) (Measurement, error)
 			nil,
 		)
 	}
+	now := v.now()
 
-	// 1. Parse CBOR → COSE_Sign1 (protected header, unprotected header,
-	//    payload, signature).
-	cose, err := parseCOSESign1(ev)
+	// 1–4. Envelope, document, chain at now, signature.
+	_, doc, _, err := verifyNitroEnvelope(ev, v.pinnedRoots, now)
 	if err != nil {
-		return zero, shared_errors.Integrity(
-			shared_errors.CodeSignatureInvalid,
-			fmt.Sprintf("aws-nitro: parse COSE_Sign1: %v", err),
-			err,
-		)
-	}
-
-	// 2. Decode payload as Nitro AttestationDocument.
-	doc, err := decodeNitroAttestationDoc(cose.Payload)
-	if err != nil {
-		return zero, shared_errors.Integrity(
-			shared_errors.CodeSignatureInvalid,
-			fmt.Sprintf("aws-nitro: decode attestation doc: %v", err),
-			err,
-		)
-	}
-
-	// 3. Verify certificate chain to pinned root.
-	leaf, err := verifyNitroCertChain(doc.Certificate, doc.CABundle, v.pinnedRoots)
-	if err != nil {
-		return zero, shared_errors.Integrity(
-			shared_errors.CodeSignatureInvalid,
-			fmt.Sprintf("aws-nitro: cert chain: %v", err),
-			err,
-		)
-	}
-
-	// 4. Verify ECDSA-P384 signature on the COSE_Sign1 envelope.
-	if err := verifyCOSESignature(cose, leaf); err != nil {
-		return zero, shared_errors.Integrity(
-			shared_errors.CodeSignatureInvalid,
-			fmt.Sprintf("aws-nitro: COSE signature: %v", err),
-			err,
-		)
+		return zero, shared_errors.Integrity(shared_errors.CodeSignatureInvalid, err.Error(), err)
 	}
 
 	// 5. Check freshness.
-	skew := time.Since(doc.Timestamp).Abs()
+	skew := now.Sub(doc.Timestamp).Abs()
 	if skew > v.maxClockSkew {
 		return zero, shared_errors.Integrity(
 			shared_errors.CodeSignatureInvalid,
@@ -533,58 +538,6 @@ var isKMSAccessDenied = func(err error) bool {
 	// Phase 2: detect via errors.As on smithy.GenericAPIError with code
 	// "AccessDeniedException".
 	return false
-}
-
-// awsNitroPinnedRoots returns the AWS Nitro Enclaves PCA root certificate(s)
-// pinned at build time. AWS publishes one root cert; rotation is rare but
-// must be supported by allowing operators to override via
-// AWSNitroVerifierConfig.PinnedRoots.
-//
-// The actual root PEM is published at:
-// https://docs.aws.amazon.com/enclaves/latest/user/verify-root.html
-func awsNitroPinnedRoots() [][]byte {
-	// Phase 2: embed via go:embed of the published root certificate.
-	// For now return empty — verifier construction will fail until wired.
-	return nil
-}
-
-// ----------------------------------------------------------------------------
-// COSE / CBOR / certificate helpers (stubs)
-// ----------------------------------------------------------------------------
-
-type coseSign1 struct {
-	ProtectedRaw   []byte
-	UnprotectedRaw []byte
-	Payload        []byte
-	Signature      []byte
-}
-
-var parseCOSESign1 = func(_ []byte) (*coseSign1, error) {
-	return nil, errors.New("parseCOSESign1: not yet wired to CBOR library (Phase 2 — import github.com/fxamacker/cbor/v2)")
-}
-
-type nitroAttestationDoc struct {
-	ModuleID    string
-	Timestamp   time.Time
-	Digest      string // "SHA384"
-	PCRs        map[int][]byte
-	Certificate []byte // leaf cert
-	CABundle    [][]byte
-	Nonce       []byte
-	UserData    []byte
-	PublicKey   []byte
-}
-
-var decodeNitroAttestationDoc = func(_ []byte) (*nitroAttestationDoc, error) {
-	return nil, errors.New("decodeNitroAttestationDoc: not yet wired (Phase 2)")
-}
-
-var verifyNitroCertChain = func(_ []byte, _ [][]byte, _ [][]byte) ([]byte, error) {
-	return nil, errors.New("verifyNitroCertChain: not yet wired (Phase 2 — use crypto/x509)")
-}
-
-var verifyCOSESignature = func(_ *coseSign1, _ []byte) error {
-	return errors.New("verifyCOSESignature: not yet wired (Phase 2 — verify ECDSA-P384 over Sig_structure)")
 }
 
 func nonceMatches(docNonce, challengerNonce []byte) bool {

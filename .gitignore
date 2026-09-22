@@ -31,6 +31,8 @@ coverage.txt
 !.env.example
 *.key
 *.pem
+# The synthetic root of the acpctl attest-nitro fixture is a test certificate, not a key.
+!cmd/acpctl/testdata/nitro/synthetic-root.pem
 !docs/**/*.pem.example
 # public AMD KDS certificate chains captured as hardware attestation evidence
 # (X.509 certs, not keys) — needed by the SEV-SNP verification tests.

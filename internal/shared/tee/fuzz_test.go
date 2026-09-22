@@ -19,19 +19,17 @@ package tee
 //     parser used by integration tests MUST also not panic on
 //     adversarial bytes.
 //
-// Why fuzz parsers without real CBOR/COSE libraries? In Phase 2 the
-// stub helpers (`parseCOSESign1`, `decodeNitroAttestationDoc`, …) get
-// replaced by real CBOR + COSE + x509 parsing. Those will be the
-// highest-risk parsers in the binary. We can't fuzz them today (no
-// such code exists), but we CAN fuzz the parsers that *are* shipping
-// today — the simulated verifier and the test envelope — to establish
-// a CI rhythm for the project. When the real parsers land, adding
-// additional fuzz targets is a one-line copy-paste of the pattern
-// established here.
+// The Nitro verifier's CBOR and COSE_Sign1 parsers (aws_nitro_cbor.go,
+// aws_nitro_cose.go) are the first in-house parsers on the path an
+// unauthenticated peer's bytes take before any signature is checked;
+// FuzzCBORDecode_NoPanic and FuzzAWSNitroVerifier_Verify_NoPanic hold
+// them to the same rule as the simulated verifier: any error, never a
+// panic.
 
 import (
 	"bytes"
 	"testing"
+	"time"
 
 	"github.com/vault-genome/vaultgenome-core/internal/shared/crypto"
 )
@@ -143,5 +141,61 @@ func FuzzFakeAttestation_Parse_NoPanic(f *testing.F) {
 			}
 		}()
 		_, _ = fh.parseAttestation(blob)
+	})
+}
+
+// FuzzCBORDecode_NoPanic: the CBOR decoder returns an error or an item,
+// never panics, and never reads past its input.
+func FuzzCBORDecode_NoPanic(f *testing.F) {
+	chain := newNitroTestChain(f, time.Now())
+	good := chain.sign(f, nitroTestDoc{Nonce: bytes.Repeat([]byte{0xA1}, NonceMinBytes)})
+	f.Add(good)
+	f.Add(good[:len(good)/2])
+	f.Add([]byte{})
+	f.Add([]byte{0xd2, 0x84})             // tag 18, array of four, nothing after
+	f.Add([]byte{0x9f, 0x01, 0xff})       // indefinite array
+	f.Add([]byte{0xbf, 0x61, 0x61, 0x01}) // indefinite map
+	f.Add([]byte{0x1b, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff})
+	f.Add([]byte{0x5b, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) // 2^64-1 byte string
+	f.Add(bytes.Repeat([]byte{0x81}, 64))                               // deep nesting
+
+	f.Fuzz(func(t *testing.T, in []byte) {
+		defer func() {
+			if r := recover(); r != nil {
+				t.Fatalf("cborDecode panicked: %v\nin=%x", r, in)
+			}
+		}()
+		_, _ = cborDecode(in)
+	})
+}
+
+// FuzzAWSNitroVerifier_Verify_NoPanic: the whole verifier — envelope,
+// document, chain, signature, policy — on arbitrary bytes.
+func FuzzAWSNitroVerifier_Verify_NoPanic(f *testing.F) {
+	now := time.Now()
+	chain := newNitroTestChain(f, now)
+	nonce := bytes.Repeat([]byte{0xA1}, NonceMinBytes)
+	pcr0 := nitroPCR("fuzz", 0)
+	good := chain.sign(f, nitroTestDoc{Timestamp: now, Nonce: nonce, PCRs: map[int][]byte{0: pcr0}})
+	v, err := NewAWSNitroVerifier(nil, pcr0, AWSNitroVerifierConfig{PinnedRoots: [][]byte{chain.rootDER}, Now: func() time.Time { return now }})
+	if err != nil {
+		f.Fatalf("verifier: %v", err)
+	}
+	if _, err := v.Verify(good, nonce); err != nil {
+		f.Fatalf("seed must verify: %v", err)
+	}
+	f.Add(good, nonce)
+	f.Add(good[:len(good)-1], nonce)
+	f.Add(good, []byte{})
+	f.Add(chain.sign(f, nitroTestDoc{Timestamp: now, DetachPayload: true}), nonce)
+	f.Add(chain.sign(f, nitroTestDoc{Timestamp: now, ExtraField: true}), nonce)
+
+	f.Fuzz(func(t *testing.T, evidence, nonce []byte) {
+		defer func() {
+			if r := recover(); r != nil {
+				t.Fatalf("Verify panicked: %v\nevidence=%x\nnonce=%x", r, evidence, nonce)
+			}
+		}()
+		_, _ = v.Verify(Evidence(evidence), Nonce(nonce))
 	})
 }
