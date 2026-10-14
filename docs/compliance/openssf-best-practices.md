@@ -79,6 +79,6 @@ has its reason recorded, and every SUGGESTED is answered.
 | - | - | - |
 | static_analysis, static_analysis_common_vulnerabilities (SUGGESTED), static_analysis_often (SUGGESTED) | Met | CodeQL (`security-and-quality`) and Semgrep on every pull request (`.github/workflows/codeql.yml`, `semgrep.yml`) |
 | static_analysis_fixed | Met | CodeQL alerts land in the repository's Security tab and are fixed before the next release (the nine `go/log-injection` findings of October 2026 are fixed in this tree); Semgrep runs report-only and its findings are triaged there |
-| dynamic_analysis, dynamic_analysis_enable_assertions (SUGGESTED) | Met | Ten `Fuzz*` targets on the in-house parsers and encodings run with their seed corpora under `go test` in the gate; the race detector (`make test-race`) in the gate; tests with assertions enabled |
+| dynamic_analysis, dynamic_analysis_enable_assertions (SUGGESTED) | Met | Eight `Fuzz*` targets on the in-house parsers and encodings (two with committed seed corpora) run under `go test` in the gate; the race detector (`make test-race`) in the gate; tests with assertions enabled |
 | dynamic_analysis_unsafe (SUGGESTED) | N/A | Go and Python only; no memory-unsafe language in the product |
 | dynamic_analysis_fixed | Met | A fuzz or race finding fails the gate and is fixed before merge |
