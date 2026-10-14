@@ -34,7 +34,7 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"math/rand"
+	"math/rand" // nosemgrep: go.lang.security.audit.crypto.math_random.math-random-used -- seeded, reproducible demo data; nothing here is a key, nonce or secret
 	"os"
 
 	"github.com/vault-genome/vaultgenome-core/internal/canonical"
