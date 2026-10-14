@@ -135,10 +135,14 @@ What is required. Each package reaches its class target:
 
 | Class | Target |
 |---|---|
-| `internal/contracts/...` (wire contracts) | 80% |
+| `internal/contracts/...` (wire contracts) | 90% |
 | `internal/validation/operational/...` | 90% |
-| `internal/vault/orchestration/...` | 85% |
-| every other product package | 70% |
+| `internal/vault/orchestration/...` | 90% |
+| every other product package | 80% |
+
+The targets were 80 / 90 / 85 / 70 until 2026-10-14, when the refusal tables
+written that day took the product from 83% to 95.5% and every package above
+the new values; the product total's floor rose from 83% to 90% the same day.
 
 Packages still below target are listed in `scripts/coverage_floors.txt` with the
 floor they may not drop below. The file is a ratchet: floors are only ever

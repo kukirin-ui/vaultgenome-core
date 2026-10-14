@@ -12,7 +12,9 @@
 # and on 2026-09-15 (total 83); cmd/sagvd met its target on 2026-09-16, and
 # cmd/acp-compute (82.1%), the Return Path client and server and the five
 # contracts packages on 2026-09-16: every package meets its class target,
-# and this file keeps only the total.
+# and this file keeps only the total. Raised to 90 on 2026-10-14, when the
+# refusal tables for the TEE backends, the daemons, the contracts and the
+# vault took the product from 83% to above 90%.
 
-total 83
+total 90
 

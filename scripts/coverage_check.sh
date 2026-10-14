@@ -65,10 +65,10 @@ FNR == 1 { next }
   if ($3 + 0 > 0) hit[key] = 1
 }
 function target(p) {
-  if (p ~ /^internal\/contracts\//) return 80
+  if (p ~ /^internal\/contracts\//) return 90
   if (p ~ /^internal\/validation\/operational(\/|$)/) return 90
-  if (p ~ /^internal\/vault\/orchestration(\/|$)/) return 85
-  return 70
+  if (p ~ /^internal\/vault\/orchestration(\/|$)/) return 90
+  return 80
 }
 END {
   if (bad) exit 1
