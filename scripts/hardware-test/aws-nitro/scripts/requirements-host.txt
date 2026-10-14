@@ -1,0 +1,8 @@
+# The parent host's Python packages for the AWS Nitro kit (Amazon Linux 2023,
+# python3 = 3.9, x86_64). Installed by 01-bootstrap-vm.sh with
+# pip --require-hashes: the wheel for this interpreter and the sdist, so
+# nothing else can satisfy the name. cbor2 parses the COSE_Sign1 attestation
+# document in 02e-capture-attestation-prod.sh.
+cbor2==5.9.0 \
+    --hash=sha256:f797532d13469f2193e5c16e827d8df7a8c33674b19be755790b54ab231e6a73 \
+    --hash=sha256:85c7a46279ac8f226e1059275221e6b3d0e370d2bb6bd0500f9780781615bcea

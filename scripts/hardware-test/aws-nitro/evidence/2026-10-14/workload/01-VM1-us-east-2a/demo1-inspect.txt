@@ -1,0 +1,21 @@
+bundle:           demo1-bundle.genome
+format:           vault-genome-v3
+key id:           genome-c42f7c25e88d-g0-60190a57d141  (the key is not in the bundle)
+sealed at (UTC):  2026-10-14T17:03:22Z
+generation:       0
+parent bundle:    (none — genesis)
+content kind:     ollama
+content ref:      llama3.2:3b
+bundle bytes:     2019436684 (1.88 GiB)
+bundle sha256:    926d080831c4803af18078d45c48d9a4a80ed84ec20e358d27a24551a2779b40
+payload sha256:   sha256:c42f7c25e88d55660cf9754884333ff6a13dc1b4d9def8fd406066d410e1f074
+payload bytes:    2019402752 (1.88 GiB) in segments of 1.00 MiB
+components (8):
+  [config] sha256:34bb5ab01051a11372a91f95f3fbbc51173eed8e7f13ec395b9ae9b8bd0e242b          561  application/vnd.docker.container.image.v1+json
+  [layer] sha256:56bb8bd477a519ffa694fc449c2413c6f0e1d3b1c88fa7e3c9d88d3ae49d4dcb           96  application/vnd.ollama.image.params
+  [layer] sha256:966de95ca8a62200913e3f8bfbf84c8494536f1b94b49166851e76644e966396         1429  application/vnd.ollama.image.template
+  [manifest] sha256:a52a4a87c5affc63e344f4974f75bcc5b478b40e641df57d0f40941dfc406c94         1169  application/vnd.ollama.manifest
+  [layer] sha256:a70ff7e570d97baaf4e62ac6e6ad9975e04caa6d900d3742d37698494479e0cd         6016  application/vnd.ollama.image.license
+  [layer] sha256:a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72         1005  application/vnd.docker.distribution.manifest.v2+json
+  [layer] sha256:dde5aa3fc5ffc17176b5e8bdc82f587b24b2678c6c66101bf7da77af9f7ccdff   2019377376  application/vnd.ollama.image.model
+  [layer] sha256:fcc5a6bec9daf9b561a68827b67ab6088e1dba9d1fa2a50d7bbcc8384e0a265d         7711  application/vnd.ollama.image.license

@@ -1,0 +1,32 @@
+{
+  "ami_id_used": {
+    "sensitive": false,
+    "type": "string",
+    "value": "ami-0938c21410d9519c6"
+  },
+  "availability_zone": {
+    "sensitive": false,
+    "type": "string",
+    "value": "us-east-2a"
+  },
+  "instance_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "i-042c3ccdf677df5c4"
+  },
+  "instance_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "vault-genome-nitro-20261014t165832z"
+  },
+  "public_ip": {
+    "sensitive": false,
+    "type": "string",
+    "value": "3.12.153.139"
+  },
+  "ssh_command": {
+    "sensitive": false,
+    "type": "string",
+    "value": "ssh -i ~/.ssh/ep-eval.pem ec2-user@3.12.153.139"
+  }
+}

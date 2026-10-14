@@ -1,0 +1,5 @@
+[ E11 ] Socket error. This is used as an error for catching any other socket operation errors not covered by previous custom errors.
+
+For more details, please visit https://docs.aws.amazon.com/enclaves/latest/user/cli-errors.html#E11
+
+If you open a support ticket, please provide the error log found at "/var/log/nitro_enclaves/err2026-10-14T17:02:05.090325879+00:00.log"

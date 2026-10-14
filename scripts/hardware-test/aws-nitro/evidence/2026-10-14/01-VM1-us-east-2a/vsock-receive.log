@@ -1,0 +1,4 @@
+[vsock-receive] listening on CID=ANY port=5005 (timeout 180.0s)
+[vsock-receive] connection from CID=16 port=542113360
+[vsock-receive] expecting 4526 bytes of attestation
+[vsock-receive] saved 4526 bytes to 04-attestation-document.bin

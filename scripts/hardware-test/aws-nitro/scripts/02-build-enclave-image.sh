@@ -102,7 +102,7 @@ cat 01-vaultgenome-enclave-build-manifest.json
 # the attestation document's user_data field, so the chip's signature
 # covers a hash of THIS specific build.
 sha512sum 01-vaultgenome-enclave-build-manifest.json | awk '{print $1}' > 02-report-data.hex
-xxd -r -p 02-report-data.hex 02-report-data.bin
+python3 -c 'import sys; open("02-report-data.bin", "wb").write(bytes.fromhex(open("02-report-data.hex").read().strip()))'
 
 echo
 echo "=== REPORT_DATA (SHA-512 of manifest) ==="

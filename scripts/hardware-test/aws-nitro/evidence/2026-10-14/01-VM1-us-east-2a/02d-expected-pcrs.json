@@ -1,0 +1,7 @@
+{
+  "expected_pcr0": "9808cb1248a62dddb6bb984ac78d0d60138a2eda12af1050f225a8107814f44ae56a128565aa2f1b7a2843c32223b484",
+  "expected_pcr1": "4b4d5b3661b3efc12920900c80e126e4ce783c522de6c02a2a5bf7af3a2b9327b86776f188e4be1c1c404a129dbda493",
+  "expected_pcr2": "8cc1abd3c9483300f41eec90a00cf30b3c83f6e515848d464a9f03267d754062c8de457eb2d34c5afe95845b5dc37d56",
+  "eif_path": "/home/ec2-user/vg/enclave-build-prod/vault-genome-attest-prod.eif",
+  "build_timestamp_utc": "2026-10-14T17:01:57Z"
+}

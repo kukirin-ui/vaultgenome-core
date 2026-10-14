@@ -95,17 +95,27 @@ The Vault Genome workflow:
 
 ```bash
 # Set required env (edit to match your AWS setup)
-export TF_VAR_ssh_key_name="my-aws-keypair"
+export TF_VAR_ssh_key_name="my-aws-keypair"          # an existing EC2 key pair
+export SSH_KEY="$HOME/.ssh/my-aws-keypair"            # its private key (default: ~/.ssh/<name>.pem)
 export TF_VAR_region="us-east-2"
 export TF_VAR_availability_zone="us-east-2a"
+export TF_VAR_allowed_ssh_cidr="$(curl -s https://checkip.amazonaws.com)/32"
+export TF_VAR_create_iam_role=false   # EC2-only rights: the attestation path needs no instance role
+export EVIDENCE_OUT="$HOME/nitro-runs/$(date -u +%Y%m%dT%H%M%SZ)"
 
-# Run the full pipeline (provisions, tests, packs, downloads, destroys)
+# Run the full pipeline (provisions, uploads the tree, bootstraps, builds
+# the debug and production images, captures the attestation over vsock,
+# fetches the root CA, runs the demos, packs, downloads, destroys)
 cd vaultgenome-core/scripts/hardware-test/aws-nitro/
 ./examples/full-test-run.sh
 ```
 
-The runner takes ~30-45 minutes and emits an evidence tar archive
-in your current directory at the end.
+The runner takes ~30-45 minutes and leaves the evidence tar archive, the
+run log and the Terraform outputs in `EVIDENCE_OUT`; it tears the instance
+down even when a phase fails, after a best-effort download of whatever the
+instance holds, and prints the two laptop-side commands that validate the
+document (`08-normalize-attestation-output.py`) and collate the cohort
+(`07-cross-vm-matrix.sh`).
 
 ## Step-by-step (if you want to inspect each phase)
 
@@ -116,39 +126,56 @@ export TF_VAR_ssh_key_name="my-aws-keypair"
 terraform init
 terraform apply
 
-# 2. SSH into the instance (terraform output prints the command)
+# 2. Upload the tree and SSH in (the scripts run from inside the tree)
 INSTANCE_IP=$(terraform output -raw public_ip)
-ssh -i ~/.ssh/${TF_VAR_ssh_key_name}.pem ec2-user@$INSTANCE_IP
+rsync -az -e "ssh -i $SSH_KEY" --exclude=.git --exclude=dist --exclude=.terraform \
+  ../../../../ ec2-user@$INSTANCE_IP:~/core/
+ssh -i $SSH_KEY ec2-user@$INSTANCE_IP
 
-# 3. On the EC2 instance — bootstrap (install nitro-cli, Docker, Go)
-~/scripts/01-bootstrap-vm.sh
-# Log out + log back in (so 'ne' and 'docker' groups take effect)
+# 3. On the EC2 instance — bootstrap (nitro-cli, Docker, Go 1.27.2, allocator, cbor2)
+K=~/core/scripts/hardware-test/aws-nitro/scripts
+$K/01-bootstrap-vm.sh
+# Log out + log back in (so the 'ne' and 'docker' groups take effect)
 
-# 4. Build enclave image .eif (PCR0 captured)
-~/scripts/02-build-enclave-image.sh
+# 4. Build the enclave image (.eif): build manifest, REPORT_DATA = SHA-512 of it
+$K/02-build-enclave-image.sh
 
-# 5. Run enclave + capture attestation document
-~/scripts/02-capture-attestation.sh
+# 5. Build the production image (vsock-attest inside): EXPECTED PCR0/1/2 from describe-eif
+$K/02d-build-enclave-image-prod.sh
 
-# 6. Verify cert chain against AWS Nitro Root CA
-~/scripts/02b-cryptographic-attestation.sh
+# 6. Launch WITHOUT --debug-mode, receive the document over vsock, check the PCRs
+$K/02e-capture-attestation-prod.sh
 
-# 7. Pull a model + run Demo 1
-~/scripts/03-demo1-single-bundle.sh
+# 7. Put the AWS Nitro Root CA G1 on record (archive sha256 + certificate fingerprint)
+$K/02c-fetch-nitro-root-ca.sh
 
-# 8. Run Demo 2 (chain of 6 generations)
-~/scripts/04-demo2-chain.sh
+# 8. Pull a model + run Demo 1
+$K/03-demo1-single-bundle.sh
 
-# 9. (Optional) inference comparison
-~/scripts/05-inference-test.sh
+# 9. Run Demo 2 (chain of 6 generations)
+$K/04-demo2-chain.sh
 
-# 10. Pack evidence
-~/scripts/06-pack-evidence.sh
+# 10. (Optional) inference comparison
+$K/05-inference-test.sh
 
-# 11. Cleanup (back on laptop)
+# 11. Pack evidence; download and validate on the laptop
+$K/06-pack-evidence.sh
 exit
+scp -i $SSH_KEY ec2-user@$INSTANCE_IP:~/'*-aws-nitro-evidence.tar.gz' .
+pip install cryptography cbor2
+scripts/08-normalize-attestation-output.py <vm-evidence-dir>   # chain, anchor, COSE signature, user_data, PCR0
+scripts/07-cross-vm-matrix.sh <evidence-root>
+
+# 12. Cleanup (back on laptop)
 cd terraform/ && terraform destroy
 ```
+
+The debug-mode scripts `02-capture-attestation.sh` and
+`02b-cryptographic-attestation.sh` need an in-enclave acpctl attestation
+command this tree does not ship (`VERIFIABLE-CLAIMS.md` claims no Nitro
+verifier); they are kept for reference and are not in the runner's path.
+The production path above needs nothing from acpctl: `vsock-attest` asks
+the Nitro Security Module for the document and ships it to the parent.
 
 ## Multi-instance cross-attestation matrix
 
@@ -230,19 +257,70 @@ founders' Desktop pack (`~/Desktop/AWS-Nitro-Real-Hardware-Test/`).
 See `evidence/CROSS-VM-MATRIX.md` for the full validation matrix and
 `evidence/README.md` for context.
 
-The cohort above was captured from the September tree. On 2026-10-14 the
-kit's toolchain was brought to the release's: the parent host installs Go
-1.27.2 (`01-bootstrap-vm.sh`, the tarball checked against its go.dev
-sha256), the enclave image builder and runtime images are pinned by digest
-(`02-build-enclave-image.sh`), and `vsock-attest` builds on current
-dependencies from a committed `go.sum` with `-mod=readonly`. Its indirect
-`golang.org/x/net` 0.10.0 and `x/sys` 0.8.0 had carried the 23 advisories
-OSV lists against those versions, none of them in code the helper calls or
-links (govulncheck, symbol and binary mode, 2026-10-14); the raised module
-carries none. An enclave image built from this tree therefore measures
-differently (PCR0–PCR2) from the cohort's. The recorded documents stand for
-the tree they name; a production-mode capture on this tree is the kit's
-next run.
+The cohort above was captured in May 2026 (2026-05-08), from the tree of
+that time. The run below is this tree's.
+
+## The run of 2026-10-14 — the kit on this tree
+
+One instance, driven end to end by `examples/full-test-run.sh` with EC2-only
+rights (no instance role): m5.xlarge `i-042c3ccdf677df5c4` in us-east-2a,
+AMI `ami-0938c21410d9519c6` (Amazon Linux 2023, kernel 6.1.188), Nitro CLI
+1.5.0, Go 1.27.2 on the host, the enclave image builder
+`golang:1.27.2-alpine` and runtime `alpine:3.24.2` pinned by digest,
+`vsock-attest` on current dependencies from its committed `go.sum`.
+
+What came back, all of it in [`evidence/2026-10-14/`](evidence/2026-10-14/):
+
+- **Production-mode attestation.** The enclave launched without
+  `--debug-mode` and delivered a 4,526-byte COSE_Sign1 document over vsock
+  at 17:02:02Z (module `i-042c3ccdf677df5c4-enc01a13b5d16ee5b1c`). PCR0,
+  PCR1 and PCR2 are non-zero and equal to what `nitro-cli describe-eif`
+  reported for the image that was built (PCR0 `9808cb12…b484`); the running
+  enclave's state was captured with the same values
+  (`03-enclaves-state.json`). The enclave then exited on its own, as
+  `vsock-attest` does after sending; `terminate-enclave` found nothing to
+  terminate, and that is on record too.
+- **Chain to the AWS root.** Re-validated on the laptop by
+  `08-normalize-attestation-output.py`: a five-certificate chain from the
+  per-enclave leaf through the instance, zonal and regional intermediates
+  to AWS Nitro Root CA G1, each signed by the previous; the root's SHA-256
+  fingerprint `641a0321…bb5b`, the archive it came in `8cf60e2b…ff7c`
+  (`06-root-ca-check.json`); the ECDSA P-384 COSE signature valid;
+  `user_data` equal to the SHA-512 of the build manifest. `production_grade:
+  true` in `06-chain-validation.json`, and `CROSS-VM-MATRIX.md` for the
+  cohort of one.
+- **The workload.** Demo 1 sealed Llama 3.2 3B (1.88 GiB in 1,926 segments),
+  opened it, re-hashed every blob against the record, and refused the
+  one-byte tamper with an AES-256-GCM authentication failure; Demo 2 sealed a
+  chain of six generations, walked the lineage to genesis and rewound to the
+  middle; the same prompt and seed produced byte-identical output before and
+  after the restore (`workload/`).
+
+The instance worked for about eight minutes: bootstrap done 17:01Z, the
+images built at 17:01:32Z and 17:01:57Z, the document at 17:02:02Z, the
+root CA at 17:02:05Z, Demo 1 sealed at 17:03:22Z, the archive packed at
+17:06:15Z, the instance destroyed by the runner's trap before 17:08Z.
+
+The PCR values differ from the May cohort's, as they must: the image is
+another image (toolchain, `vsock-attest`, and a manifest that carries its
+build time). The May records stand for the tree they name. The validation
+is the kit's own Python, as in May; the product ships no Nitro verifier
+(`VERIFIABLE-CLAIMS.md`), and this run does not claim one.
+
+Three attempts before this one ended on the kit's own defects, each
+instance torn down by the runner: the bootstrap read its requirements file
+by a relative path after changing directory; a version-check line called
+an attribute `cbor2` does not have; and the capture script treated the
+enclave's own exit as a failure. All three are fixed in the tree this run
+used, together with the runner's path bug, the root-CA check that compared
+an archive hash with a certificate fingerprint, and the production path's
+missing `00-vm-identity.txt` (for this run it was derived on the laptop
+from the instance's own records, and says so in its last line).
+
+Raw material (the document itself, the build manifest and REPORT_DATA,
+the root certificate, the runner's log and the Terraform outputs) is in
+the founders' Desktop pack under `run-20261014T165832Z/`, as the May
+material is.
 
 ## Re-validating captured evidence offline
 

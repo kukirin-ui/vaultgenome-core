@@ -91,6 +91,10 @@ cat 04-enclave-launch.json
 ENCLAVE_ID=$(sudo nitro-cli describe-enclaves | jq -r '.[0].EnclaveID')
 echo "Enclave ID: $ENCLAVE_ID"
 
+sleep 2
+sudo nitro-cli describe-enclaves > 03-enclaves-state.json   # the running enclave, PCRs included
+echo "enclave state captured: $(jq -r '.[0].State // "none"' 03-enclaves-state.json)"
+
 echo
 echo "=== waiting for listener to receive attestation (≤180s) ==="
 if ! wait "$LISTENER_PID"; then
@@ -102,8 +106,16 @@ cat vsock-receive.log
 
 echo
 echo "=== terminating enclave ==="
-sudo nitro-cli describe-enclaves > 03-enclaves-state.json
-sudo nitro-cli terminate-enclave --enclave-id "$ENCLAVE_ID"
+# vsock-attest exits once the document is delivered, so by now the enclave
+# has usually ended on its own and terminate-enclave reports E39 (no
+# enclave process to connect to). That is the expected end of a
+# production-mode capture, not a failure: the running state captured
+# above (03-enclaves-state.json, PCRs included) and the received document
+# are the record. The state after is recorded too.
+sudo nitro-cli terminate-enclave --enclave-id "$ENCLAVE_ID" > 03-enclave-terminate.json 2>&1 \
+  || echo "terminate-enclave: the enclave had already exited (vsock-attest exits after sending); see 03-enclave-terminate.json"
+sudo nitro-cli describe-enclaves > 03-enclaves-state-post.json
+echo "enclaves after: $(jq 'length' 03-enclaves-state-post.json)"
 
 ls -la 04-attestation-document.bin
 ATT_SIZE=$(stat -c '%s' 04-attestation-document.bin 2>/dev/null || stat -f '%z' 04-attestation-document.bin)
@@ -193,5 +205,23 @@ print(f"All PCR checks pass:  {result['all_pcr_checks_pass']}")
 PYEOF
 
 echo
+echo "=== VM identity (IMDSv2) ==="
+# 07-cross-vm-matrix.sh reads these lines; the debug path wrote them in
+# 02-capture-attestation.sh, the production path writes its own.
+TOKEN=$(curl -fsS -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
+md() { curl -fsS -H "X-aws-ec2-metadata-token: $TOKEN" "http://169.254.169.254/latest/meta-data/$1"; }
+cat > 00-vm-identity.txt <<EOF
+Instance ID: $(md instance-id)
+Region:      $(md placement/region)
+Availability Zone: $(md placement/availability-zone)
+Machine type: $(md instance-type)
+Kernel:      $(uname -r)
+Enclave mode: production (no --debug-mode, vsock-attest)
+Module ID:   $(jq -r '.module_id' 05-attestation-parsed.json)
+Captured: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+EOF
+cat 00-vm-identity.txt
+
+echo
 echo "=== ✓ production-mode attestation captured ==="
-echo "Next: ./scripts/02b-cryptographic-attestation.sh (or 08-normalize-attestation-output.py)"
+echo "Next: ./scripts/02c-fetch-nitro-root-ca.sh, then 08-normalize-attestation-output.py on the laptop"

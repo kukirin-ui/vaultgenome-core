@@ -20,6 +20,10 @@
 
 set -euo pipefail
 
+# Resolved before any cd: the Go install below works in /tmp, and the
+# requirements file is read after it.
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 echo "=== verifying instance has Nitro Enclaves support ==="
 # This file is created by AWS only on Nitro Enclaves capable instances
 # that have enclave_options.enabled = true. Absence = not Nitro-capable.
@@ -38,7 +42,8 @@ sudo dnf install -y -q \
   git \
   jq \
   openssl \
-  pkgconfig
+  pkgconfig \
+  python3-pip
 
 echo
 echo "=== configuring nitro_enclaves allocator (4 GB RAM, 2 vCPUs) ==="
@@ -80,6 +85,13 @@ if ! command -v go >/dev/null 2>&1 || ! go version | grep -q "go${GO_VERSION} ";
   export PATH=$PATH:/usr/local/go/bin
 fi
 /usr/local/go/bin/go version
+
+echo
+echo "=== installing the host's Python packages (hash-pinned) ==="
+# cbor2 parses the attestation document in 02e; every wheel is checked
+# against its sha256 (scripts/requirements-host.txt).
+pip3 install --user --quiet --require-hashes -r "$SCRIPT_DIR/requirements-host.txt"
+python3 -c 'import cbor2, importlib.metadata as m; print("cbor2", m.version("cbor2"))'
 
 echo
 echo "=== nitro-cli version ==="

@@ -70,6 +70,12 @@ variable "allowed_ssh_cidr" {
   default     = "0.0.0.0/0"
 }
 
+variable "create_iam_role" {
+  description = "Create the S3/KMS instance role and profile. The attestation path needs no AWS API from the instance; an operator with EC2-only rights sets this to false and the instance runs without a profile."
+  type        = bool
+  default     = true
+}
+
 # -----------------------------------------------------------------------------
 # AMI: Amazon Linux 2023 with Nitro Enclaves CLI ready to install
 # -----------------------------------------------------------------------------
@@ -78,9 +84,13 @@ data "aws_ami" "al2023" {
   most_recent = true
   owners      = ["amazon"]
 
+  # The standard image, not the minimal one: both match "al2023-ami-*",
+  # the minimal one sorts newest by minutes and lacks the tooling the
+  # bootstrap expects. The id actually used is in the ami_id_used output
+  # and in the run's evidence.
   filter {
     name   = "name"
-    values = ["al2023-ami-*-kernel-*-x86_64"]
+    values = ["al2023-ami-2023*-kernel-*-x86_64"]
   }
 
   filter {
@@ -143,7 +153,8 @@ resource "aws_security_group" "vault_genome_test" {
 # -----------------------------------------------------------------------------
 
 resource "aws_iam_role" "vault_genome_ec2" {
-  name = "${var.instance_name}-role"
+  count = var.create_iam_role ? 1 : 0
+  name  = "${var.instance_name}-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -162,8 +173,9 @@ resource "aws_iam_role" "vault_genome_ec2" {
 }
 
 resource "aws_iam_role_policy" "vault_genome_ec2_inline" {
-  name = "${var.instance_name}-inline"
-  role = aws_iam_role.vault_genome_ec2.id
+  count = var.create_iam_role ? 1 : 0
+  name  = "${var.instance_name}-inline"
+  role  = aws_iam_role.vault_genome_ec2[0].id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -199,8 +211,9 @@ resource "aws_iam_role_policy" "vault_genome_ec2_inline" {
 }
 
 resource "aws_iam_instance_profile" "vault_genome" {
-  name = "${var.instance_name}-profile"
-  role = aws_iam_role.vault_genome_ec2.name
+  count = var.create_iam_role ? 1 : 0
+  name  = "${var.instance_name}-profile"
+  role  = aws_iam_role.vault_genome_ec2[0].name
 }
 
 # -----------------------------------------------------------------------------
@@ -213,7 +226,7 @@ resource "aws_instance" "vault_genome" {
   subnet_id              = data.aws_subnet.default_az.id
   vpc_security_group_ids = [aws_security_group.vault_genome_test.id]
   key_name               = var.ssh_key_name
-  iam_instance_profile   = aws_iam_instance_profile.vault_genome.name
+  iam_instance_profile   = var.create_iam_role ? aws_iam_instance_profile.vault_genome[0].name : null
 
   # CRITICAL: Nitro Enclaves enablement. Without this block the instance
   # cannot run enclaves regardless of instance type capability.

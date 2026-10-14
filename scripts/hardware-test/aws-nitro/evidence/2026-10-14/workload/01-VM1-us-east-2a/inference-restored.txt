@@ -1,0 +1,7 @@
+Here are three companies that have run confidential computing programs:
+
+1. Google - Google has run confidential computing programs, including Google Cloud Confidential Computing, which allows users to run sensitive workloads on Google Cloud Platform without having to manage the underlying infrastructure.
+
+2. Microsoft - Microsoft has run confidential computing programs, including Confidential Computing with Azure, which allows users to run sensitive workloads on Microsoft Azure without having to manage the underlying infrastructure.
+
+3. IBM - IBM has run confidential computing programs, including Confidential Computing with IBM Cloud, which allows users to run sensitive workloads on IBM Cloud without having to manage the underlying infrastructure.

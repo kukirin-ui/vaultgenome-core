@@ -1,0 +1,8 @@
+✓ sealed ollama "llama3.2:3b"  (gen 0)
+  output:        demo1-bundle.genome
+  key file:      demo1-bundle.key  (0600 — it opens the bundle)
+  key id:        genome-c42f7c25e88d-g0-60190a57d141
+  components:    8
+  bundle bytes:  2019436684 (1.88 GiB), payload 1.88 GiB in segments of 1.00 MiB
+  payload sha256:sha256:c42f7c25e88d55660cf9754884333ff6a13dc1b4d9def8fd406066d410e1f074
+  sealed at UTC: 2026-10-14T17:03:22Z
