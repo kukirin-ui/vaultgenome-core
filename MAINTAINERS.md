@@ -1,5 +1,8 @@
 # Maintainers
 
+How decisions are made, who holds which role and how the project continues
+without either founder is in [GOVERNANCE.md](GOVERNANCE.md).
+
 This project is built by two founders. Both hold copyright in the codebase
 (see [NOTICE](NOTICE)); both are required reviewers on every doctrine-frozen
 surface (see [`.github/CODEOWNERS`](.github/CODEOWNERS)).
