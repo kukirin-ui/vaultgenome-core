@@ -1,0 +1,13 @@
+{
+  "signing_kid": "acp-compute-worker-demo",
+  "signing_public_key_hex": "ba9b342d2d2e578ae5942ae8fc276c7c3963500b4016ca04e1ab54e88db66481",
+  "signing_public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAups0LS0uV4rllCro/CdsfDljUAtAFsoE4atU6I22ZIE=\n-----END PUBLIC KEY-----\n",
+  "tee_provider": "azure-cgpu",
+  "tee_measurement_hex": "aa7c9da55c1386e5b1653b125978beda7b3f95a85aeb0f9ddbbdb783ce056a28c9d021da239c34a58c3a657654270eef",
+  "vtpm": {
+    "pcrs": [
+      "sha256:0,1,2,3,4,5,6,7,8,9,10,11,12,13,14"
+    ],
+    "pcr_digest_hex": "68a9a34e66a4799dd771f73e45b0815101aaad7dea2f98d75f859a13604d4bc4"
+  }
+}

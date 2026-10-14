@@ -720,7 +720,17 @@ envelope`), event 3: allow, `trust.peer_attested`; `job.json`: `POST
 /v1/jobs` → `release_authorized` in **18.5 s**, gate **EXACT** (16/16, max
 abs err 0), top-1 16/16; `audit-verify.json`: `ok: true`, **17 events**;
 `sagvd-metrics.txt`: `vg_tee_attestation_total{provider="azure-cgpu"}`
-produce 2, verify success 1, verify error 1.
+produce 2, verify success 1, verify error 1. The same kit on the raised
+runtime (torch 2.14.1+cu126, transformers 5.19.0) and the day's driver,
+[`…/20261014T113334Z/`](scripts/hardware-test/azure-cgpu/evidence/20261014T113334Z/) and
+[`…/20261014T113334Z-returnpath/`](scripts/hardware-test/azure-cgpu/evidence/20261014T113334Z-returnpath/) — `conf-compute.txt`: `CC
+State: ON`, `CC GPUs Ready State: Ready`; `gpu.csv`: driver `595.91.07`,
+VBIOS `96.00.9F.00.04`; `steps.txt`: the local verifier, NRAS and MAA each
+exit 0; the Return Path's `job.json`: the 32B genome (that run's base)
+restored on the H100 and gated **EXACT** (16/16, max abs err 0) in
+238 s; `escrow-provision.json`: `tee: azure-cgpu`, key `b04c3a9925c25b14`;
+`seal-keys-sagvd.json`, `seal-keys-worker.json`; `audit-verify.json`: `ok:
+true`, 17 events, tip `e2be1cfe…5f9e`; `sagvd-metrics.txt`: verify success 1, error 1.
 In process:
 [`internal/shared/tee/azure_cgpu_evidence_test.go`](internal/shared/tee/azure_cgpu_evidence_test.go)
 (the captured evidence verifies offline with the nonce that produced it,
@@ -989,7 +999,7 @@ served by the responder (it answers `unauthorized` for it); its issuers'
 status stands for it. What this verifier does not check: under `own` the
 secure-boot and debug-mode claims only NVIDIA's tokens carry — `both`
 asserts them, `own` says so. A live handshake under
-`both` on hardware is on the record: run `scripts/hardware-test/azure-cgpu/evidence/20260916T204311Z-returnpath/` — the pinned worker's session opened on the H100 host with the evaluation complete (`vg_tee_attestation_total{provider="azure-cgpu",result="success",role="verify"} 1` in `sagvd-metrics.txt`; a complete evaluation includes both manifests' signatures), the manifests fetched from NVIDIA's service during the handshake (`cache-rim-NV_GPU_DRIVER_GH100_595.71.05.json`, `cache-rim-NV_GPU_VBIOS_1010_0210_886_96009F0004.json`), the 7B genome then restored on the H100 and gated EXACT (`job.json`), 17 audit events verified.
+`both` on hardware is on the record: run `scripts/hardware-test/azure-cgpu/evidence/20260916T204311Z-returnpath/` — the pinned worker's session opened on the H100 host with the evaluation complete (`vg_tee_attestation_total{provider="azure-cgpu",result="success",role="verify"} 1` in `sagvd-metrics.txt`; a complete evaluation includes both manifests' signatures), the manifests fetched from NVIDIA's service during the handshake (`cache-rim-NV_GPU_DRIVER_GH100_595.71.05.json`, `cache-rim-NV_GPU_VBIOS_1010_0210_886_96009F0004.json`), the 7B genome then restored on the H100 and gated EXACT (`job.json`), 17 audit events verified. On the raised runtime and the day's driver, `scripts/hardware-test/azure-cgpu/evidence/20261014T113334Z-returnpath/`: the pinned worker's session opened under `both` with the manifests for driver `595.91.07` fetched during the handshake (`cache-rim-NV_GPU_DRIVER_GH100_595.91.07.json`, `cache-rim-NV_GPU_VBIOS_1010_0210_886_96009F0004.json`), `vg_tee_attestation_total{provider="azure-cgpu",result="success",role="verify"} 1`, the 32B genome restored on the H100 and gated EXACT, 17 audit events verified.
 Since later that day the evaluation is *on* the record, not only behind
 it: a verifier that can say more than a measurement (`tee.DetailedVerifier`;
 the `azure-cgpu` verifier does) puts its detail — the chip's product and
@@ -1355,7 +1365,13 @@ authority and every stage on the audit record.
 [`evidence/20260917T020218Z-returnpath/`](scripts/hardware-test/azure-cgpu/evidence/20260917T020218Z-returnpath/)
 — `job.json` (gate `EXACT`, `pinned replay`, 16/16 exact, max abs
 err 0, the signed verdict), `audit-verify.json` (`ok`, 17
-events), `steps.txt`.
+events), `steps.txt`. The same run on the raised runtime (torch
+2.14.1+cu126, transformers 5.19.0),
+[`…/20261014T113334Z/`](scripts/hardware-test/azure-cgpu/evidence/20261014T113334Z/) — `finetune.json`: loss 5.799 → 4.6e-05 in
+42.4 s, `verify.json`: ok, the 33,632,414-byte bundle, `gate-gpu.json`:
+EXACT, `replay-gpu.json`: bit for bit;
+[`…/20261014T113334Z-returnpath/`](scripts/hardware-test/azure-cgpu/evidence/20261014T113334Z-returnpath/) — `job.json`: EXACT, 16/16, max
+abs err 0, 238 s; `audit-verify.json`: `ok`, 17 events, tip `e2be1cfe…5f9e`.
 
 **Reproduce:**
 

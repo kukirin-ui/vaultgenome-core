@@ -163,6 +163,44 @@ in 3 s — the negative back on the record, with keys of its own
 (`rogue-worker.log`). With the frame cap at 128 MiB the 33.6 MB genome
 travelled as one JobRequest.
 
+## The raised runtime — run `20261014T113334Z` (evidence/20261014T113334Z, evidence/20261014T113334Z-returnpath)
+
+The 32B kit again on the raised Python runtime (torch 2.14.1+cu126,
+transformers 5.19.0, numpy 2.5.4; `pip-freeze.txt`), on the image and
+onboarding package of the day: kernel `7.0.0-1016-azure-fde`, NVIDIA driver
+**595.91.07** (September: 595.71.05), VBIOS 96.00.9F.00.04, `CC State: ON`, `CC GPUs
+Ready State: Ready`; measurement `aa7c9da5…0eef` as in September.
+The capture (1171 s end to end): the HCL report, the VCEK chain from THIM,
+two vTPM quotes under our nonces, NVIDIA's local verifier and NRAS under
+the same nonce, Microsoft's own tools — every one exit 0 (`steps.txt`);
+then `VG_BASE_REPO=Qwen/Qwen2.5-32B-Instruct` @ `5ede1c97bbab…`
+fine-tuned on the H100 NVL in bfloat16 (`finetune.json`: 8,388,608 adapter
+parameters, loss 5.799 → 4.6e-05 in 42.4 s; the integer door's
+references recorded beside the float ones, top-1 16/16, max abs err 0.94),
+sealed and verified (`verify.json`: ok, 33,632,414-byte bundle — the
+September size), gated **EXACT** on the GPU (`gate-gpu.json`, rung 0,
+55.7 s), measured 16/16 exact (`measure-gpu.json`) and replayed bit
+for bit (`replay-gpu.json`, 42.3 s) — torch 2.14.1 warning in
+`finetune.log` and `replay-gpu.log` that flash attention's backward may
+not be deterministic under `warn_only`, and the replay measuring that it
+was.
+
+The Return Path on the same guest: `sagvd escrow-provision` sealed the
+escrow key `b04c3a9925c25b14` to the vTPM (`tee: azure-cgpu`), the recovery
+ceremony re-sealed it (`source: stdin`), `sagvd seal-keys` and
+`acp-compute seal-keys` sealed the daemons' five and two key files; sagvd
+ready in 1 s; the worker that is not the pinned identity refused at the
+handshake in 3 s (`rogue-worker.log`); the pinned worker's session opened in
+1 s under `gpu_policy.evaluation: both` — the verifier fetched the manifests
+for *this* driver during the handshake (`cache-rim-NV_GPU_DRIVER_GH100_595.91.07.json`,
+`cache-rim-NV_GPU_VBIOS_1010_0210_886_96009F0004.json`) and the evaluation
+was complete (`sagvd-metrics.txt`: verify success 1, error 1 — the rogue);
+the gate job over the Return Path restored the 32B genome on the H100 and
+came back **EXACT** (pinned replay, 16/16, max abs err 0, top-1 16/16) in
+238 s from submission to verdict (September 222 s); 17 audit events verified,
+tip `e2be1cfe…5f9e`. The VM and its disk, NIC, IP and NSG were
+deleted after the evidence was read back and checked.
+
 ## What the first attempt taught the kit
 
 - After Microsoft's kernel step, wait for the guest's *new* boot

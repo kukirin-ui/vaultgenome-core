@@ -1,0 +1,6 @@
+Linux vg-cgpu-20261014t113334z 7.0.0-1016-azure-fde #16~24.04.1-Ubuntu SMP PREEMPT Thu Sep 24 18:43:30 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+Ubuntu 24.04.5 LTS
+secure boot: SecureBoot enabled
+40
+               total        used        free      shared  buff/cache   available
+Mem:             313           4         307           0           4         309

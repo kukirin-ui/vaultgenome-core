@@ -1,0 +1,18 @@
+{
+  "schema": "vault-genome/lora-genome/v1",
+  "created_at": "2026-10-14T11:58:28Z",
+  "base_digest": "sha256:ccc8c07156f159a0c6fa9f0acaffde9fef10a0c1dfb1e8885f8d2f6bf668189d",
+  "adapter_parameters": 8388608,
+  "device": "cuda",
+  "dtype": "bfloat16",
+  "loss_first": 5.799227237701416,
+  "loss_last": 4.629721661331132e-05,
+  "train_seconds": 42.354,
+  "fixtures": 16,
+  "integer_door": {
+    "fixtures": 16,
+    "top1_same": 16,
+    "max_abs_err": 0.9399585723876953,
+    "max_rel_err": 0.055859309370799734
+  }
+}

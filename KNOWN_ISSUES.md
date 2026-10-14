@@ -389,10 +389,14 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    EQUIVALENT on the Trust Domain, RTO 20.42 s. C23 (the authority itself a
    Trust Domain, its escrow key in the vTPM) too:
    `scripts/hardware-test/failover-tdx-authority/evidence/20261014T042457Z`,
-   EQUIVALENT, RTO 20.42 s. Only the confidential H100's records
-   (C17–C18, C26) still name the previous runtime; each is re-measured
-   in turn, and until its record is on the tree no release note claims it
-   for the new runtime. CI installs the runtime from
+   EQUIVALENT, RTO 20.42 s. C17, C20 and C26 (the confidential H100: the
+   capture, the Return Path under `both`, the 32B genome) too:
+   `scripts/hardware-test/azure-cgpu/evidence/20261014T113334Z` and its
+   `-returnpath` — the day's driver 595.91.07, its manifests fetched during the
+   handshake, the 32B genome EXACT on the H100 in 238 s. Only C18 (the
+   cross-cloud failover to the H100) still names the previous runtime;
+   until its record is on the tree no release note claims it for the new
+   runtime. CI installs the runtime from
    `requirements-ci.lock`, every wheel checked against its sha256
    (`pip --require-hashes`).
 

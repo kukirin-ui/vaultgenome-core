@@ -50,7 +50,10 @@ given release can still open.
   released on Intel's word to a Trust Domain on the current image,
   EQUIVALENT in 20.42 s; and C23, `failover-tdx-authority` run
   `20261014T042457Z`, the authority itself a Trust Domain with its escrow
-  key in the vTPM, EQUIVALENT in 20.42 s). CI now
+  key in the vTPM, EQUIVALENT in 20.42 s; and C17, C20 and C26,
+  `azure-cgpu` run `20261014T113334Z`, the confidential H100 on the day's
+  driver 595.91.07, the 32B genome restored and gated EXACT over the Return
+  Path in 238 s). CI now
   installs the runtime from `workers/genome/requirements-ci.lock` with
   `pip --require-hashes`: every wheel is checked against its sha256.
 - Workflows: every tool installed in CI is pinned — `govulncheck` v1.9.0,

@@ -1,0 +1,20 @@
+0x1400001:
+  name: 000b952bb43b30b40dd3bef4843a33ee524f425f04341e8124929f0a0a71b4ed8a56
+  hash algorithm:
+    friendly: sha256
+    value: 0xB
+  attributes:
+    friendly: authwrite|ownerread|authread|no_da|written|platformcreate
+    value: 0x62060004
+  size: 2600
+
+0x1c101d0:
+  name: 000b89ebb79a2c13dc25234a259f4fff8fddb410c8776adfb8ff4975b81c07944b26
+  hash algorithm:
+    friendly: sha256
+    value: 0xB
+  attributes:
+    friendly: authwrite|ownerread|authread|no_da|written|platformcreate
+    value: 0x62060004
+  size: 4096
+
