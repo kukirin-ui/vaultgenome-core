@@ -22,7 +22,17 @@ COMMIT   ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo none)
 #   -s -w                           strip symbol table + DWARF
 # `-trimpath` (a `go build` flag, not an ldflag) removes absolute paths
 # from the binary so the build is location-independent.
+#
+# DEBUG=1 keeps the symbol table and DWARF (no -s -w) for a debugger or a
+# profiler; everything else, -trimpath included, stays the same, so the
+# debug build is as reproducible as the stripped one, only larger.
+# Release binaries are always the stripped build.
+DEBUG ?= 0
+ifeq ($(DEBUG),1)
+LDFLAGS       := -X main.version=$(VERSION) -X main.commit=$(COMMIT) -buildid=
+else
 LDFLAGS       := -X main.version=$(VERSION) -X main.commit=$(COMMIT) -buildid= -s -w
+endif
 GOFLAGS_REPRO := -trimpath -ldflags '$(LDFLAGS)'
 
 .PHONY: all

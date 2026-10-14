@@ -50,6 +50,7 @@ make vuln               # govulncheck
 make secrets            # gitleaks
 make coverage-thresholds
 make vault-gate         # everything the CI runs
+make build DEBUG=1      # binaries with symbols and DWARF, for a debugger or profiler
 ```
 
 A green `make vault-gate` does not guarantee the PR will be approved, but a
