@@ -87,12 +87,15 @@ jobs:
 
       # 08 lint
       - name: golangci-lint
-        # golangci-lint v2 (action v8): v1.x cannot read Go 1.25's export
-        # data and fails every package with a spurious "unsupported
-        # version: 2" typecheck error. Config: .golangci.yml (pinned).
+        # The linter must be built with the Go that built the tree, or it
+        # cannot read the standard library's export data: v1.x failed Go
+        # 1.25 with "unsupported version: 2", v2.13.2 fails Go 1.27 with
+        # "export data version 5 is greater than maximum supported
+        # version 4" — spurious typecheck errors on every package. v2.14.0
+        # is built with go1.27.0. Config: .golangci.yml (pinned).
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
-          version: v2.13.2
+          version: v2.14.0
           args: --timeout=5m
 
       # 09 terminology
