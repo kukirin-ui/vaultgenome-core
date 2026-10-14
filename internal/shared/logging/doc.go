@@ -1,3 +1,4 @@
+// Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 // SPDX-License-Identifier: AGPL-3.0-or-later
 //
 // Package logging provides the structured logger used by non-authority

@@ -1,3 +1,4 @@
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """The integer door: the same bytes on every run, thread count and device
 the tests can reach; a tampered adapter changes them; the fixtures carry

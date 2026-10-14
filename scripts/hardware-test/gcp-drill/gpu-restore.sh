@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 # Startup script of the drill's destination: a GCP VM with an NVIDIA GPU

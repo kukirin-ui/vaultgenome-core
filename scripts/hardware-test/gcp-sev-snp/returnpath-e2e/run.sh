@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 # Runs the Return Path on real AMD SEV-SNP: sagvd and acp-compute, both

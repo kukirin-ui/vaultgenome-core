@@ -76,6 +76,8 @@ red one will block merge unconditionally.
 - [ ] No new dependencies, OR a new dependency has a justification file at
       `docs/dependencies/<name>.md` AND appears on the allowlist in
       `docs/doctrine/ci-security-policy.md` §5.
+- [ ] Every new Go, Python or shell file starts (after a shebang, if any) with
+      the copyright line of `NOTICE` and the SPDX identifier (`make license-headers`).
 - [ ] No deprecated terminology introduced.
 - [ ] Eleven doctrinal invariants not weakened.
 

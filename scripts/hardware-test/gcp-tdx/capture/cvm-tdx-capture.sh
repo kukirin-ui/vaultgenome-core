@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 # Startup script for a GCP Intel TDX Confidential VM (Ubuntu 24.04): ask

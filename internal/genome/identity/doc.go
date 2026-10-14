@@ -1,3 +1,4 @@
+// Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 // SPDX-License-Identifier: AGPL-3.0-or-later
 //
 // Package identity is the public face of the AI Genome content-addressing

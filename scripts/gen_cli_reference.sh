@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
+# SPDX-License-Identifier: AGPL-3.0-or-later
 # Regenerates docs/reference/cli.md from each binary's own usage text, so the
 # reference cannot drift from the code: edit the usage in cmd/<name>/main.go,
 # run `make cli-reference`, commit both.

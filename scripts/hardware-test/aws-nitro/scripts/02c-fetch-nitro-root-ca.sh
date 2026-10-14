@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 # 02c-fetch-nitro-root-ca.sh — fetch the AWS Nitro Enclaves Root CA G1 into

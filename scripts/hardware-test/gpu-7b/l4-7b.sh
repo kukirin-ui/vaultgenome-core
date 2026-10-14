@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 # Startup script for the L4 VM: fine-tune Qwen2.5-7B-Instruct in bfloat16

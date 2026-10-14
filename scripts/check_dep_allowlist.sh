@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 # check_dep_allowlist.sh — fails if this module declares a direct Go-module

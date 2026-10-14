@@ -53,6 +53,10 @@ given release can still open.
 
 ### Changed
 
+- Every Go, Python and shell file carries the copyright statement of
+  `NOTICE` beside its SPDX identifier, and `scripts/license_header_check.sh`
+  requires both in all three languages (four scripts had carried no SPDX
+  line).
 - `make build DEBUG=1` keeps the symbol table and DWARF (no `-s -w`) for a
   debugger or profiler; `-trimpath` and the stamped version stay, so the
   debug build is reproducible like the stripped one, which remains the

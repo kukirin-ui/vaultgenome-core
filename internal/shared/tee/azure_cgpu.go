@@ -1,3 +1,4 @@
+// Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Package tee — Azure Confidential VMs with NVIDIA H100 (NCC H100 v5) adapter.
