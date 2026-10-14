@@ -23,7 +23,7 @@ import (
 type offlineChip struct{}
 
 func (offlineChip) Quote(tee.Nonce) (tee.Evidence, error) { return nil, errors.New("chip offline") }
-func (offlineChip) Measurement() tee.Measurement           { return tee.Measurement{} }
+func (offlineChip) Measurement() tee.Measurement          { return tee.Measurement{} }
 
 func skipAsRoot(t *testing.T) {
 	t.Helper()
@@ -96,12 +96,12 @@ func TestHeartbeatAndCompromiseRefuseEachDefect(t *testing.T) {
 	badKind := &Attestation{Kind: "abacus", Evidence: []byte{1}}
 
 	heartbeats := map[string]Heartbeat{
-		"sentinel id":   {Sentinel: "sentinel-xyz", Seq: 1, At: now, StartedAt: now, Status: StatusWatching},
-		"at":            {Sentinel: id, Seq: 1, StartedAt: now, Status: StatusWatching},
-		"started_at":    {Sentinel: id, Seq: 1, At: now, Status: StatusWatching},
-		"attestation":   {Sentinel: id, Seq: 1, At: now, StartedAt: now, Status: StatusWatching, Attestation: badKind},
-		"last link":     {Sentinel: id, Seq: 1, At: now, StartedAt: now, Status: StatusWatching, Last: badLink},
-		"other schema":  {Schema: "x", Sentinel: id, Seq: 1, At: now, StartedAt: now, Status: StatusWatching},
+		"sentinel id":  {Sentinel: "sentinel-xyz", Seq: 1, At: now, StartedAt: now, Status: StatusWatching},
+		"at":           {Sentinel: id, Seq: 1, StartedAt: now, Status: StatusWatching},
+		"started_at":   {Sentinel: id, Seq: 1, At: now, Status: StatusWatching},
+		"attestation":  {Sentinel: id, Seq: 1, At: now, StartedAt: now, Status: StatusWatching, Attestation: badKind},
+		"last link":    {Sentinel: id, Seq: 1, At: now, StartedAt: now, Status: StatusWatching, Last: badLink},
+		"other schema": {Schema: "x", Sentinel: id, Seq: 1, At: now, StartedAt: now, Status: StatusWatching},
 	}
 	for name, h := range heartbeats {
 		if name != "other schema" {
