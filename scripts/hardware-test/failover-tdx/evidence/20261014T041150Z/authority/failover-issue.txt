@@ -1,0 +1,1 @@
+failover policy serial 1 written to /root/failover.json: sentinel sentinel-3b6776e67f6f3de7 -> gcp-tdx https://10.128.15.203:8443, until 2026-11-13T04:15:13Z

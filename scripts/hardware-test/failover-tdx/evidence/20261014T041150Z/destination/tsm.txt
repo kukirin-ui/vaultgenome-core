@@ -1,0 +1,12 @@
+total 0
+drwxr-xr-x 2 root root 0 Oct 14 04:13 .
+drwxr-xr-x 3 root root 0 Oct 14 04:13 ..
+crw------- 1 root root 10, 263 Oct 14 04:13 /dev/tdx_guest
+model name	: Intel TDX
+[    0.000000] tdx: Guest detected
+[    0.000000] tdx: Attributes: SEPT_VE_DISABLE
+[    0.000000] tdx: TD_CTLS: PENDING_VE_DISABLE ENUM_TOPOLOGY VIRT_CPUID2 REDUCE_VE
+[    1.529921] process: using TDX aware idle routine
+[    1.529921] Memory Encryption Features active: Intel TDX
+[    1.529921] smpboot: CPU0: Intel TDX (family: 0x6, model: 0x8f, stepping: 0x8)
+[    3.714836] systemd[1]: Detected confidential virtualization tdx.
