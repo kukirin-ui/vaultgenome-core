@@ -24,7 +24,7 @@ given release can still open.
   helper's code (govulncheck, symbol and binary mode); on `x/net` 0.61.0,
   `x/sys` 0.49.0, `mdlayher/vsock` 1.3.0 and `hf/nsm` 2022-09-30 the module
   carries none. An enclave image built from this tree measures differently
-  (PCR0–PCR2) from the September cohort; the recorded documents stand for
+  (PCR0–PCR2) from the May 2026 cohort; the recorded documents stand for
   the tree they name (`scripts/hardware-test/aws-nitro/README.md`).
 
 ## [0.4.0] — 2026-10-14

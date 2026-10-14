@@ -404,7 +404,7 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    own `--index-url` under `pip --require-hashes`, every wheel checked
    against its sha256 and no index standing in for another. The AWS Nitro
    kit is the one kit the runtime raise does not reach: its records
-   (`scripts/hardware-test/aws-nitro/evidence`, 2026-09) are attestation
+   (`scripts/hardware-test/aws-nitro/evidence`, May 2026) are attestation
    documents and certificate chains, not the worker's arithmetic. Its own
    toolchain was brought to the release's on 2026-10-14 — Go 1.27.2 on the
    parent host and in the enclave builder, images pinned by digest,
@@ -412,7 +412,7 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    indirect `golang.org/x/net` 0.10.0 and `x/sys` 0.8.0 had carried 23 OSV
    advisories, none reachable from the helper's code by govulncheck) — and
    an enclave image built from this tree measures differently (PCR0–PCR2)
-   from the September cohort's; a production-mode capture on this tree is
+   from the May 2026 cohort's; a production-mode capture on this tree is
    the kit's next run.
 
 15. **Release signatures are the `.sig` + `.cert` pair, on cosign 2.x pinned
