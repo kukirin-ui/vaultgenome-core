@@ -46,25 +46,24 @@ done
 echo
 echo "=== Step 1 — fetch AWS Nitro Root CA ==="
 mkdir -p 06-certificates
+# Two published values, checked separately (02c-fetch-nitro-root-ca.sh is
+# the same check as a script of its own): the archive's SHA-256 from
+# https://docs.aws.amazon.com/enclaves/latest/user/verify-root.html and the
+# root certificate's SHA-256 fingerprint. An earlier revision compared the
+# archive's hash with the certificate's fingerprint and only warned.
 ROOT_CA_URL="https://aws-nitro-enclaves.amazonaws.com/AWS_NitroEnclaves_Root-G1.zip"
-ROOT_CA_SHA256_EXPECTED="641a0321a3e244efe456463195d606317ed7cdcc3c1756e09893f3c68f79bb5b"
+ROOT_CA_ZIP_SHA256="8cf60e2b2efca96c6a9e71e851d00c1b6991cc09eadbe64a6a1d1b1eb9faff7c"
+ROOT_CA_CERT_FINGERPRINT="641a0321a3e244efe456463195d606317ed7cdcc3c1756e09893f3c68f79bb5b"
 
 if [ ! -f 06-certificates/aws-nitro-root.pem ]; then
   curl -fsSL "$ROOT_CA_URL" -o 06-certificates/aws-nitro-root.zip
-  cd 06-certificates
-  ACTUAL_SHA=$(sha256sum aws-nitro-root.zip | awk '{print $1}')
-  if [ "$ACTUAL_SHA" != "$ROOT_CA_SHA256_EXPECTED" ]; then
-    echo "WARNING: Root CA zip SHA256 mismatch."
-    echo "  expected: $ROOT_CA_SHA256_EXPECTED"
-    echo "  actual:   $ACTUAL_SHA"
-    echo "AWS may have rotated the root cert. See https://docs.aws.amazon.com/enclaves/latest/user/verify-root.html"
+  echo "${ROOT_CA_ZIP_SHA256}  06-certificates/aws-nitro-root.zip" | sha256sum -c -
+  python3 -c 'import zipfile,sys; z=zipfile.ZipFile("06-certificates/aws-nitro-root.zip"); n=[i for i in z.namelist() if i.endswith("root.pem")]; assert len(n)==1, z.namelist(); open("06-certificates/aws-nitro-root.pem","wb").write(z.read(n[0]))'
+  ACTUAL_FP=$(openssl x509 -in 06-certificates/aws-nitro-root.pem -noout -fingerprint -sha256 | sed 's/^.*=//; s/://g' | tr 'A-F' 'a-f')
+  if [ "$ACTUAL_FP" != "$ROOT_CA_CERT_FINGERPRINT" ]; then
+    echo "ERROR: root certificate fingerprint $ACTUAL_FP, expected $ROOT_CA_CERT_FINGERPRINT"
+    exit 1
   fi
-  unzip -o aws-nitro-root.zip
-  # The zip contains root.pem
-  if [ -f root.pem ]; then
-    mv root.pem aws-nitro-root.pem
-  fi
-  cd "$EVIDENCE_DIR"
 fi
 ls -la 06-certificates/
 
