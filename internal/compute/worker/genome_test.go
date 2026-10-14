@@ -228,13 +228,24 @@ func (j *gateJob) rebuild(t *testing.T) {
 	}
 }
 
+// doorEnv names the door's mode and gives the door its own coverage
+// directory: under `go test -cover` the door is this test binary, which
+// writes its coverage meta file under a name that carries only a
+// timestamp, so two doors started in the same instant into the parent's
+// GOCOVERDIR collide on the rename and one of them exits with the
+// coverage error in place of its own message.
+func doorEnv(t *testing.T, mode string, extraEnv ...string) []string {
+	t.Helper()
+	return append([]string{"VG_TEST_DOOR=" + mode, "GOCOVERDIR=" + t.TempDir()}, extraEnv...)
+}
+
 func doorReconstructor(t *testing.T, mode string, extraEnv ...string) *worker.GenomeReconstructor {
 	t.Helper()
 	exe, err := os.Executable()
 	require.NoError(t, err)
 	r, err := worker.NewGenomeReconstructor(worker.GenomeConfig{
 		Command: []string{exe},
-		Env:     append([]string{"VG_TEST_DOOR=" + mode}, extraEnv...),
+		Env:     doorEnv(t, mode, extraEnv...),
 		Timeout: 20 * time.Second,
 	}, fixtureClock(t))
 	require.NoError(t, err)
@@ -367,7 +378,7 @@ func TestGenome_DoorIsBoundedInTime(t *testing.T) {
 
 	t.Run("configured timeout", func(t *testing.T) {
 		r, err := worker.NewGenomeReconstructor(worker.GenomeConfig{
-			Command: []string{exe}, Env: []string{"VG_TEST_DOOR=hang"}, Timeout: 300 * time.Millisecond,
+			Command: []string{exe}, Env: doorEnv(t, "hang"), Timeout: 300 * time.Millisecond,
 		}, fixtureClock(t))
 		require.NoError(t, err)
 		start := time.Now()

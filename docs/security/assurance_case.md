@@ -94,7 +94,7 @@ the review of 2026-08-06 had not been held, and the record says so.
 | Vulnerable dependencies | govulncheck (reachability) and osv-scanner (presence) on the product module and the Nitro kit's helper module, Dependabot for Go, actions and pip; the one ignored advisory has its reason and an expiry (`osv-scanner.toml`) | the gate, every pull request |
 | Supply chain of the build | toolchain and every action pinned by commit, container images by digest, Python wheels by hash; SBOM, keyless signatures and SLSA provenance on every release; signed tags with the signers pinned in git | `release.yml`; `docs/security/supply_chain.md` |
 | Concurrency errors | the race detector on every package in the gate | `make test-race` |
-| Insufficient testing | statement coverage held at thresholds per package and 83 % overall by the gate; mutation testing workflow; doctrine invariants as tests | `scripts/coverage_check.sh`; `mutation.yml` |
+| Insufficient testing | statement coverage held at thresholds per package and 90 % overall by the gate; mutation testing workflow; doctrine invariants as tests | `scripts/coverage_check.sh`; `mutation.yml` |
 | Silent drift between documentation and code | the CLI reference is generated from the binaries; every claim cites its record; documentation defects are fixed as bugs | `make cli-reference`; `VERIFIABLE-CLAIMS.md` |
 
 ## 5. What this argument does not cover

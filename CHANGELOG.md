@@ -42,6 +42,15 @@ given release can still open.
 
 ### Added
 
+- Refusal tables for every product package: each validator, decoder, signer,
+  state machine, backend seam and command now has a test that walks what it
+  must refuse, with the error category and code the doctrine assigns, on the
+  captured evidence in the repository (Azure confidential-GPU, TDX and SEV-SNP
+  reports) and on generated keys and certificate chains, with the network
+  replaced by local test servers. Statement coverage of the product rose from
+  83.2% to 95.5% (`make coverage`, 18 109 statements in 78 packages); the
+  Phase-2 hardware seams are shown to fail closed until they are wired.
+
 - Every commit certifies the Developer Certificate of Origin 1.1
   (`CONTRIBUTING.md`): a `Signed-off-by` trailer with the author's email,
   checked on every pull request by `scripts/dco_check.sh` in the gate
@@ -90,6 +99,11 @@ given release can still open.
   writes the VM identity, and the laptop step derives that identity from
   the instance's records when a capture predates it. The cohort recorded in
   `evidence/` is May 2026; 0.4.0's notes had dated it September.
+
+- The coverage gate's floors rose: the product total from 83% to 90%, and the
+  class targets to 90% for wire contracts, operational validation and
+  orchestration and 80% for every other product package
+  (`scripts/coverage_check.sh`, `scripts/coverage_floors.txt`, policy §8).
 
 ## [0.4.0] — 2026-10-14
 
