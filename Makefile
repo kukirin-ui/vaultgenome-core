@@ -227,6 +227,13 @@ cli-reference:
 license-headers:
 	bash scripts/license_header_check.sh
 
+# dco checks the commits under review (origin/main..HEAD by default) for the
+# Developer Certificate of Origin sign-off (CONTRIBUTING.md); CI passes the
+# pull request's or push's own range.
+.PHONY: dco
+dco:
+	bash scripts/dco_check.sh $(DCO_RANGE)
+
 .PHONY: coverage-thresholds
 coverage-thresholds: coverage
 	bash scripts/coverage_check.sh
@@ -345,7 +352,7 @@ demo-logs:
 # --- aggregate gates ----------------------------------------------------------
 
 .PHONY: vault-gate
-vault-gate: fmt-check vet build test test-race test-doctrine lint terminology license-headers vuln secrets coverage-thresholds dep-allowlist dep-depth
+vault-gate: fmt-check vet build test test-race test-doctrine lint terminology license-headers dco vuln secrets coverage-thresholds dep-allowlist dep-depth
 	@echo "vault-gate: PASS"
 
 # --- housekeeping -------------------------------------------------------------

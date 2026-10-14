@@ -34,6 +34,10 @@ guidance below is mandatory, not optional — CI enforces most of it.
   authoritative rule and CI enforcement.
 - All commits on protected branches MUST be cryptographically signed (SSH or
   GPG). Unsigned commits are blocked at push time.
+- Every commit carries a Developer Certificate of Origin sign-off,
+  `Signed-off-by: Name <email>`, with the author's email (`git commit -s`);
+  see "Developer Certificate of Origin" below. CI checks every commit under
+  review (`make dco`).
 
 ## Running Checks Locally
 
@@ -46,6 +50,7 @@ make test-doctrine      # invariant tests
 make lint               # golangci-lint
 make terminology        # deprecated-terms check
 make license-headers    # SPDX headers on all Go files
+make dco                # Signed-off-by on every commit in origin/main..HEAD
 make vuln               # govulncheck
 make secrets            # gitleaks
 make coverage-thresholds
@@ -60,6 +65,7 @@ red one will block merge unconditionally.
 
 - [ ] Branch name follows the pattern above.
 - [ ] All commits signed.
+- [ ] Every commit carries a `Signed-off-by` trailer with the author's email (DCO).
 - [ ] Conventional Commits format for every commit.
 - [ ] `make vault-gate` passes locally.
 - [ ] Tests added for new behavior (doctrine tests for new invariants,
@@ -91,3 +97,23 @@ welcome and expected; personal attacks are not.
 
 By contributing, you agree your contribution is licensed under AGPL-3.0-or-later
 with the same terms as the rest of the repository.
+
+## Developer Certificate of Origin
+
+Since 2026-10-14 every commit certifies the
+[Developer Certificate of Origin 1.1](https://developercertificate.org): that
+you wrote the change or have the right to submit it under the project's
+license, and that you understand the contribution is public and kept with
+its sign-off. The certification is the trailer
+
+```
+Signed-off-by: Your Name <your@email>
+```
+
+which `git commit -s` adds from your git identity; the email must be the
+author's (a GitHub noreply address is fine). For commits already made,
+`git rebase --signoff origin/main` adds it to each. CI refuses a pull
+request with an unsigned-off commit (`scripts/dco_check.sh`); merge commits
+are exempt. Commits before 2026-10-14 are covered by the founders'
+copyright and assignment agreements (`NOTICE`, `MAINTAINERS.md`). No CLA:
+the sign-off is the whole of it.
