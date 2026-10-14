@@ -27,6 +27,24 @@ given release can still open.
   (PCR0–PCR2) from the May 2026 cohort; the recorded documents stand for
   the tree they name (`scripts/hardware-test/aws-nitro/README.md`).
 
+### Changed
+
+- The AWS Nitro kit ran on this tree (2026-10-14, one m5.xlarge in
+  us-east-2a, EC2-only rights): a production-mode attestation document over
+  vsock with PCR0–PCR2 equal to the built image's, the five-certificate chain
+  to AWS Nitro Root CA G1, the seal/open/verify round trip, the tamper
+  refusal, the chain of six and byte-identical inference; the records are in
+  `scripts/hardware-test/aws-nitro/evidence/2026-10-14`. The kit was made to
+  run on this tree: the runner uploads the tree once and calls the scripts
+  from it (their paths had resolved to the filesystem root), the instance
+  role is optional, the standard Amazon Linux 2023 image is named, the root
+  CA is checked by the archive's SHA-256 and the certificate's fingerprint
+  (the earlier check compared one with the other and only warned), cbor2 is
+  installed by hash, the production capture ends when the enclave does and
+  writes the VM identity, and the laptop step derives that identity from
+  the instance's records when a capture predates it. The cohort recorded in
+  `evidence/` is May 2026; 0.4.0's notes had dated it September.
+
 ## [0.4.0] — 2026-10-14
 
 The runtime underneath the measurements was raised and every measurement

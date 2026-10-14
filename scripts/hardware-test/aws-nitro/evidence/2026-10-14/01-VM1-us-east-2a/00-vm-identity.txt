@@ -1,0 +1,8 @@
+Instance ID: i-042c3ccdf677df5c4
+Region:      us-east-2
+Availability Zone: us-east-2a
+Kernel:      6.1.188-233.393.amzn2023.x86_64
+Enclave mode: production (no --debug-mode, vsock-attest)
+Module ID:   i-042c3ccdf677df5c4-enc01a13b5d16ee5b1c
+Captured: 2026-10-14T17:06:15Z
+Derived: on the laptop by 08-normalize-attestation-output.py from vm-identity-pack.txt and 05-attestation-parsed.json

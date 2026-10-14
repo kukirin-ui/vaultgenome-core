@@ -1,0 +1,7 @@
+✓ unsealed ollama "llama3.2:3b"  (gen 0, vault-genome-v3)
+  bundle:        demo1-bundle.genome
+  key id:        genome-c42f7c25e88d-g0-60190a57d141
+  target:        /tmp/demo1-restored
+  files:         8, 2019395363 bytes (1.88 GiB), each checked against its recorded digest
+  payload sha256:sha256:c42f7c25e88d55660cf9754884333ff6a13dc1b4d9def8fd406066d410e1f074
+  tree sha256:   17284c0e39d8ab98c3dff71c3fbc1d018f2343088703d4f202aa0bc6dd302f4a

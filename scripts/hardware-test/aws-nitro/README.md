@@ -257,19 +257,70 @@ founders' Desktop pack (`~/Desktop/AWS-Nitro-Real-Hardware-Test/`).
 See `evidence/CROSS-VM-MATRIX.md` for the full validation matrix and
 `evidence/README.md` for context.
 
-The cohort above was captured in May 2026 (2026-05-08). On 2026-10-14 the
-kit's toolchain was brought to the release's: the parent host installs Go
-1.27.2 (`01-bootstrap-vm.sh`, the tarball checked against its go.dev
-sha256), the enclave image builder and runtime images are pinned by digest
-(`02-build-enclave-image.sh`), and `vsock-attest` builds on current
-dependencies from a committed `go.sum` with `-mod=readonly`. Its indirect
-`golang.org/x/net` 0.10.0 and `x/sys` 0.8.0 had carried the 23 advisories
-OSV lists against those versions, none of them in code the helper calls or
-links (govulncheck, symbol and binary mode, 2026-10-14); the raised module
-carries none. An enclave image built from this tree therefore measures
-differently (PCR0–PCR2) from the cohort's. The recorded documents stand for
-the tree they name; a production-mode capture on this tree is the kit's
-next run.
+The cohort above was captured in May 2026 (2026-05-08), from the tree of
+that time. The run below is this tree's.
+
+## The run of 2026-10-14 — the kit on this tree
+
+One instance, driven end to end by `examples/full-test-run.sh` with EC2-only
+rights (no instance role): m5.xlarge `i-042c3ccdf677df5c4` in us-east-2a,
+AMI `ami-0938c21410d9519c6` (Amazon Linux 2023, kernel 6.1.188), Nitro CLI
+1.5.0, Go 1.27.2 on the host, the enclave image builder
+`golang:1.27.2-alpine` and runtime `alpine:3.24.2` pinned by digest,
+`vsock-attest` on current dependencies from its committed `go.sum`.
+
+What came back, all of it in [`evidence/2026-10-14/`](evidence/2026-10-14/):
+
+- **Production-mode attestation.** The enclave launched without
+  `--debug-mode` and delivered a 4,526-byte COSE_Sign1 document over vsock
+  at 17:02:02Z (module `i-042c3ccdf677df5c4-enc01a13b5d16ee5b1c`). PCR0,
+  PCR1 and PCR2 are non-zero and equal to what `nitro-cli describe-eif`
+  reported for the image that was built (PCR0 `9808cb12…b484`); the running
+  enclave's state was captured with the same values
+  (`03-enclaves-state.json`). The enclave then exited on its own, as
+  `vsock-attest` does after sending; `terminate-enclave` found nothing to
+  terminate, and that is on record too.
+- **Chain to the AWS root.** Re-validated on the laptop by
+  `08-normalize-attestation-output.py`: a five-certificate chain from the
+  per-enclave leaf through the instance, zonal and regional intermediates
+  to AWS Nitro Root CA G1, each signed by the previous; the root's SHA-256
+  fingerprint `641a0321…bb5b`, the archive it came in `8cf60e2b…ff7c`
+  (`06-root-ca-check.json`); the ECDSA P-384 COSE signature valid;
+  `user_data` equal to the SHA-512 of the build manifest. `production_grade:
+  true` in `06-chain-validation.json`, and `CROSS-VM-MATRIX.md` for the
+  cohort of one.
+- **The workload.** Demo 1 sealed Llama 3.2 3B (1.88 GiB in 1,926 segments),
+  opened it, re-hashed every blob against the record, and refused the
+  one-byte tamper with an AES-256-GCM authentication failure; Demo 2 sealed a
+  chain of six generations, walked the lineage to genesis and rewound to the
+  middle; the same prompt and seed produced byte-identical output before and
+  after the restore (`workload/`).
+
+The instance worked for about eight minutes: bootstrap done 17:01Z, the
+images built at 17:01:32Z and 17:01:57Z, the document at 17:02:02Z, the
+root CA at 17:02:05Z, Demo 1 sealed at 17:03:22Z, the archive packed at
+17:06:15Z, the instance destroyed by the runner's trap before 17:08Z.
+
+The PCR values differ from the May cohort's, as they must: the image is
+another image (toolchain, `vsock-attest`, and a manifest that carries its
+build time). The May records stand for the tree they name. The validation
+is the kit's own Python, as in May; the product ships no Nitro verifier
+(`VERIFIABLE-CLAIMS.md`), and this run does not claim one.
+
+Three attempts before this one ended on the kit's own defects, each
+instance torn down by the runner: the bootstrap read its requirements file
+by a relative path after changing directory; a version-check line called
+an attribute `cbor2` does not have; and the capture script treated the
+enclave's own exit as a failure. All three are fixed in the tree this run
+used, together with the runner's path bug, the root-CA check that compared
+an archive hash with a certificate fingerprint, and the production path's
+missing `00-vm-identity.txt` (for this run it was derived on the laptop
+from the instance's own records, and says so in its last line).
+
+Raw material (the document itself, the build manifest and REPORT_DATA,
+the root certificate, the runner's log and the Terraform outputs) is in
+the founders' Desktop pack under `run-20261014T165832Z/`, as the May
+material is.
 
 ## Re-validating captured evidence offline
 

@@ -1,0 +1,10 @@
+✓ envelope vault-genome-v3 · ollama "llama3.2:3b"  (gen 0)
+  bundle:        demo1-bundle.genome
+  key id:        genome-c42f7c25e88d-g0-60190a57d141
+  authenticated: yes — opened with its key; header and payload are as sealed
+  components:    8
+  bundle:        2019436684 bytes (1.88 GiB), sha256 926d080831c4803a…
+  payload sha256:sha256:c42f7c25e88d55660cf9754884333ff6a13dc1b4d9def8fd406066d410e1f074
+  sealed at UTC: 2026-10-14T17:03:22Z
+  restored:      ok: every file matches its recorded digest
+  tree sha256:   17284c0e39d8ab98c3dff71c3fbc1d018f2343088703d4f202aa0bc6dd302f4a

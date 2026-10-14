@@ -1,0 +1,6 @@
+instance_id: i-042c3ccdf677df5c4
+az:          us-east-2a
+region:      us-east-2
+uname:       Linux ip-172-31-14-226.us-east-2.compute.internal 6.1.188-233.393.amzn2023.x86_64 #1 SMP PREEMPT_DYNAMIC Tue Oct  6 20:31:38 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+captured_at: 2026-10-14T17:06:15Z
+nitro-cli:   Nitro CLI 1.5.0

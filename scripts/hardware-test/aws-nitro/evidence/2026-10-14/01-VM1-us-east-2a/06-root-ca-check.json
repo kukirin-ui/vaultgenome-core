@@ -1,0 +1,10 @@
+{
+  "url": "https://aws-nitro-enclaves.amazonaws.com/AWS_NitroEnclaves_Root-G1.zip",
+  "zip_sha256": "8cf60e2b2efca96c6a9e71e851d00c1b6991cc09eadbe64a6a1d1b1eb9faff7c",
+  "zip_sha256_checked": true,
+  "cert_sha256_fingerprint": "641a0321a3e244efe456463195d606317ed7cdcc3c1756e09893f3c68f79bb5b",
+  "cert_fingerprint_checked": true,
+  "subject": "C=US, O=Amazon, OU=AWS, CN=aws.nitro-enclaves",
+  "not_after": "Oct 28 14:28:05 2049 GMT",
+  "fetched_at_utc": "2026-10-14T17:02:05Z"
+}
