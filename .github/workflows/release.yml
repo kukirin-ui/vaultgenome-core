@@ -17,16 +17,20 @@ on:
     tags:
       - 'v*.*.*'
 
+# The workflow's own token is read-only; each job names the write
+# permissions it needs (Scorecard Token-Permissions reads the top level).
 permissions:
-  contents: write       # publish release assets
-  id-token: write       # keyless cosign + SLSA OIDC
-  packages: read
-  actions: read
+  contents: read
 
 jobs:
   build-and-sign:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: write       # publish release assets (gh release create / upload)
+      id-token: write       # keyless cosign
+      packages: read
+      actions: read
     env:
       RELEASE_BINARIES: sagvd acp-compute acpctl acp-bootstrap
     defaults:
