@@ -80,6 +80,6 @@ By pull request, reviewed by the other maintainer, like everything else.
 | Arrangement | State |
 | - | - |
 | Serhii Nikolaichuk: organisation owner, signing keys pinned | in place |
-| Rodion Sorokin: organisation owner | decided 2026-10-14; the invitation is issued by Serhii from the organisation's settings, then accepted |
+| Rodion Sorokin: organisation owner and repository admin | in place since 2026-10-14 |
 | Rodion Sorokin: signing key pinned in `allowed_signers` | pending the key (a pull request follows) |
 | Both maintainers required reviewers on governed paths (CODEOWNERS) | in place |
