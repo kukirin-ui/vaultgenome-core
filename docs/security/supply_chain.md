@@ -134,7 +134,7 @@ Every `vault-gate` CI run executes:
 | Check          | Tool                  | What it catches |
 |----------------|-----------------------|------------------|
 | `govulncheck`  | golang.org/x/vuln     | Known CVEs against actually-reachable code paths |
-| `osv-scanner`  | google/osv-scanner    | Known CVEs against go.mod (broader, less false-positive-suppressed) |
+| `osv-scanner`  | google/osv-scanner    | Known CVEs against go.mod — the root module's and the Nitro kit helper's (broader, less false-positive-suppressed) |
 | `gitleaks`     | gitleaks/gitleaks-action | Hard-coded secrets in commits |
 | `golangci-lint`| golangci.com/lint/v6 | gosec, errcheck, ineffassign, … |
 | `dep-allowlist`| `scripts/check_dep_allowlist.sh` | Direct deps off the approved list |
