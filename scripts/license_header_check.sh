@@ -1,36 +1,40 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# license_header_check.sh — fails if any .go file under the module lacks
-# the SPDX-License-Identifier header required by docs/doctrine/ci-security-policy.md §7.
-#
-# The header must appear within the first 3 non-blank lines of the file:
-#   // SPDX-License-Identifier: AGPL-3.0-or-later
-
+# license_header_check.sh — every source file (Go, Python, shell) carries,
+# within its first ten lines, the copyright statement of NOTICE and the
+# SPDX license identifier. Policy: docs/doctrine/ci-security-policy.md §7.
 set -euo pipefail
 
-REQUIRED="SPDX-License-Identifier: AGPL-3.0-or-later"
+REQUIRED_LICENSE="SPDX-License-Identifier: AGPL-3.0-or-later"
+REQUIRED_COPYRIGHT="Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin"
 FAILED=0
-
-# Gather all .go files in the module, excluding vendor/ and generated code.
+CHECKED=0
 while IFS= read -r -d '' f; do
-  # Read up to the first 10 lines — a small, stable bound.
+  CHECKED=$((CHECKED + 1))
   HEAD=$(head -n 10 "$f")
-  if ! echo "$HEAD" | grep -q "$REQUIRED"; then
+  if [[ "$HEAD" != *"$REQUIRED_LICENSE"* ]]; then
     echo "license_header_check: missing SPDX header: $f"
     FAILED=1
   fi
-done < <(find . -type f -name '*.go' \
+  if [[ "$HEAD" != *"$REQUIRED_COPYRIGHT"* ]]; then
+    echo "license_header_check: missing copyright statement: $f"
+    FAILED=1
+  fi
+done < <(find . -type f \( -name '*.go' -o -name '*.py' -o -name '*.sh' \) \
            -not -path './vendor/*' \
            -not -path './bin/*' \
            -not -path './dist/*' \
+           -not -path '*/node_modules/*' \
+           -not -path '*/.venv/*' \
+           -not -path '*/.terraform/*' \
            -print0)
-
 if [ "$FAILED" -ne 0 ]; then
   echo "license_header_check: FAIL"
-  echo "Every .go file MUST start with:"
+  echo "Every Go, Python and shell file MUST start (after a shebang, if any) with:"
+  echo "  // Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin      (# in Python and shell)"
   echo "  // SPDX-License-Identifier: AGPL-3.0-or-later"
   exit 1
 fi
-
-echo "license_header_check: PASS"
+echo "license_header_check: PASS ($CHECKED files)"

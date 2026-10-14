@@ -1,3 +1,4 @@
+// Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package doctrine
@@ -99,7 +100,8 @@ func Test_Regression_TerminologyScriptPassesCleanTree(t *testing.T) {
 
 	cleanTree := t.TempDir()
 	cleanPath := filepath.Join(cleanTree, "clean.go")
-	cleanContent := `// SPDX-License-Identifier: AGPL-3.0-or-later
+	cleanContent := `// Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
+// SPDX-License-Identifier: AGPL-3.0-or-later
 package clean
 
 // The Vault mints a SessionObject and drives Staged Disclosure through
@@ -166,7 +168,8 @@ func Test_Regression_LicenseHeaderScriptPassesCleanTree(t *testing.T) {
 
 	cleanTree := t.TempDir()
 	cleanPath := filepath.Join(cleanTree, "clean.go")
-	cleanContent := `// SPDX-License-Identifier: AGPL-3.0-or-later
+	cleanContent := `// Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
+// SPDX-License-Identifier: AGPL-3.0-or-later
 
 package clean
 

@@ -108,10 +108,12 @@ three pillars, so dropping one trips CI.
 
 ## 7. License headers
 
-Every source file carries an `SPDX-License-Identifier: AGPL-3.0-or-later`
-header, enforced by `scripts/license_header_check.sh`. A file without it fails
-the gate. This keeps the licence unambiguous at the granularity of a single
-file, however the code is later copied or vendored.
+Every source file (Go, Python, shell) carries, within its first ten lines,
+the copyright statement of `NOTICE` (`Copyright (C) 2026 Serhii Nikolaichuk,
+Rodion Sorokin`) and the `SPDX-License-Identifier: AGPL-3.0-or-later`
+header, enforced by `scripts/license_header_check.sh`. A file without either
+fails the gate. This keeps the holder and the licence unambiguous at the
+granularity of a single file, however the code is later copied or vendored.
 
 ## 8. Coverage thresholds
 

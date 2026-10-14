@@ -1,3 +1,4 @@
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Fetch the public Intel PCS artifacts a TDX quote's verification needs,
 into the evidence directory: the PCK certificate chain the quote carries

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
+# SPDX-License-Identifier: AGPL-3.0-or-later
 import hashlib, struct, urllib.request, sys
 from cryptography import x509
 from cryptography.hazmat.primitives.asymmetric import ec, padding, rsa, utils as asn1

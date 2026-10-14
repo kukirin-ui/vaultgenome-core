@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
+# SPDX-License-Identifier: AGPL-3.0-or-later
 # Vault Genome honest-reference — REAL SEV-SNP attestation with a TEE-bound key.
 # Inside a genuine AMD SEV-SNP guest: generate an X25519 keypair, bind its public key
 # into the attestation freshness field:

@@ -1,3 +1,4 @@
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """A tiny random Llama and a word-level tokenizer, built locally: the tests
 download nothing and run in seconds."""

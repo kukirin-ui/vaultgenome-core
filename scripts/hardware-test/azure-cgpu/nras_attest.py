@@ -1,3 +1,4 @@
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Collect the H100's attestation evidence for a nonce through NVIDIA's
 local verifier package (NVML), send it to NVIDIA's Remote Attestation

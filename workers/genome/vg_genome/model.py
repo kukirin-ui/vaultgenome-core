@@ -1,3 +1,4 @@
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Loading a base model with an adapter, and the two measurements a fixture
 takes: last-position logits and a greedy continuation."""

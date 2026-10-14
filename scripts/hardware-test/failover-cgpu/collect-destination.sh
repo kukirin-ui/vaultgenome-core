@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (C) 2026 Serhii Nikolaichuk, Rodion Sorokin
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # On the Azure VM after the failover: stop acp-bootstrap, gather its log,
 # the restore receipts and reports (no keys), and pack out/destination.
