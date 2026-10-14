@@ -1,0 +1,6 @@
+{
+  "tee": "gcp-sev-snp",
+  "measurement_hex": "69da361d9e3b09fb5fac2972e2a5e3dc45f73295bb11d625a3222cd5fb9c5b6bcd48546876504a99fd261171dffac790",
+  "sentinel": "sentinel-3b6776e67f6f3de7",
+  "sentinel_public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAo5XpDAiSBEe7JK9EZ8K0YjI/Rk0xNU2pcnqsdfsBPRQ=\n-----END PUBLIC KEY-----\n"
+}

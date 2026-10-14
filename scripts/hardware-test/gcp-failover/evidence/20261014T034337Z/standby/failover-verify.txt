@@ -1,0 +1,7 @@
+valid failover policy, serial 1, issued 2026-10-14T03:47:43Z, until 2026-11-13T03:47:43Z: stands
+  primary sentinel: sentinel-2e56a465985b8295
+  primary TEE:      gcp-sev-snp, measurements 10f5ac22cef1db0a099ce3be6713d93dfa522cc079fcddd14a8823fa98d02de5a671e2d900f35fecc577ef2c13b74519 (every record must carry its report)
+  standby:          gcp-sev-snp https://127.0.0.1:8443, measurements 7dc7c12e55999ef40d78e4d3c83071588d639b914d619bd0ceb422aa5e899ec37d48afec327950d6d0619c2974125acc
+  triggers:         compromise report, no heartbeat for 120s, stopped and not back within 60s
+  required gate:    EQUIVALENT; quarantine 0s; max RPO 0s (0: no bound)
+  reason:           hardware failover drill

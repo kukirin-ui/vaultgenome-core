@@ -47,7 +47,12 @@ the deterministic recipe.
 `payload_sha256: sha256:fe5271f1…f9d5`.
 [`…/source/finetune.json`](scripts/hardware-test/gcp-drill/evidence/20260914T234359Z/source/finetune.json)
 — `adapter_parameters: 540672`, `loss_first: 5.325` → `loss_last: 0.00090`,
-`train_seconds: 75.766`.
+`train_seconds: 75.766`. The same drill on the raised runtime (torch
+2.14.1, transformers 5.19.0),
+[`…/20261014T032714Z/source/seal.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/source/seal.json)
+— `bundle_bytes: 2216638` (1 : 446),
+[`…/source/finetune.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/source/finetune.json)
+— `loss_last: 0.00090`, `train_seconds: 72.219`.
 The base-weights figure is `model.safetensors` of `Qwen/Qwen2.5-0.5B-Instruct`
 @ `7ae5576`, recorded in
 [the drill README](scripts/hardware-test/gcp-drill/README.md); every base file
@@ -73,7 +78,9 @@ training loss identical (`max_loss_diff = 0.0`).
 
 **Evidence.**
 [`…/source/replay-source-cpu.json`](scripts/hardware-test/gcp-drill/evidence/20260914T234359Z/source/replay-source-cpu.json)
-— `exact: true`, `losses_equal: true`.
+— `exact: true`, `losses_equal: true`; and on the raised runtime,
+[`…/20261014T032714Z/source/replay-source-cpu.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/source/replay-source-cpu.json)
+— `exact: true`, `max_abs_diff: 0`, `max_rel_l2: 0`, `losses_equal: true`.
 
 **Reproduce.** Same drill as C1; the replay step is `replay-source-cpu`.
 
@@ -92,7 +99,11 @@ wrong-key bundle leaves the target untouched.
 and
 [`…/gpu/verify-gpu.json`](scripts/hardware-test/gcp-drill/evidence/20260914T234359Z/gpu/verify-gpu.json)
 — `authenticated: true`, `restored_verify: "ok: every file matches its recorded
-digest"`. Tamper behaviour is asserted in
+digest"`; and on the raised runtime,
+[`…/20261014T032714Z/gpu/open-gpu.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/gpu/open-gpu.json) and
+[`verify-gpu.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/gpu/verify-gpu.json) — 5 files,
+2,210,904 bytes, `tree_sha256: efdb6aa5…1ab6`, the same verdict.
+Tamper behaviour is asserted in
 `internal/genome/bundle/*_test.go`.
 
 **Reproduce, with no cloud and no hardware:**
@@ -119,7 +130,9 @@ cryptography, not of *model inference across devices* — see [C5](#c5).
 **Evidence.**
 [`…/source/gate-source-cpu.json`](scripts/hardware-test/gcp-drill/evidence/20260914T234359Z/source/gate-source-cpu.json)
 — `level: "EXACT"`, `n_exact: 16`, `n_mismatch: 0`,
-`fixtures_hash: 98d31611…486b`.
+`fixtures_hash: 98d31611…486b`; and on the raised runtime,
+[`…/20261014T032714Z/source/gate-source-cpu.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/source/gate-source-cpu.json)
+— `level: "EXACT"`, `n_exact: 16`, `fixtures_hash: 717daed9…c608`.
 
 ---
 
@@ -137,7 +150,13 @@ door 0 first, **fails it**, and falls through to door 1 (`native-float`):
 | Intel CPU | **FAIL** | **EQUIVALENT** | 1.450e-4 | 16/16 equivalent | 16.78 s |
 
 Tolerance was declared in advance (`atol 1e-2`, `rtol 1e-3`), and the measured
-error is ~50× inside it. `n_critical_mismatch: 0` on every device.
+error is ~50× inside it. `n_critical_mismatch: 0` on every device. On the
+raised runtime (run `20261014T032714Z`, the L4 in us-central1-c) the same
+shape: door 0 **FAIL** and door 1 **EQUIVALENT** on both destinations,
+1.612e-04 on the L4 (11.36 s) and 1.459e-04 on the Intel CPU
+(16.41 s), `n_critical_mismatch: 0`
+([`…/20261014T032714Z/gpu/gate-gpu.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/gpu/gate-gpu.json),
+[`gate-intel-cpu.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/gpu/gate-intel-cpu.json)).
 
 **Evidence.**
 [`…/gpu/gate-gpu.json`](scripts/hardware-test/gcp-drill/evidence/20260914T234359Z/gpu/gate-gpu.json)
@@ -174,7 +193,12 @@ construction.
 
 **Evidence.**
 [`scripts/hardware-test/gpu-exact/evidence/20260915T025643Z/probe.json`](scripts/hardware-test/gpu-exact/evidence/20260915T025643Z/probe.json),
-narrated in [the probe README](scripts/hardware-test/gpu-exact/README.md).
+narrated in [the probe README](scripts/hardware-test/gpu-exact/README.md);
+and, on the raised runtime (torch 2.14.1+cu126, transformers 5.19.0),
+[`scripts/hardware-test/gpu-exact/evidence/20261014T032040Z/probe.json`](scripts/hardware-test/gpu-exact/evidence/20261014T032040Z/probe.json)
+— the same table to the rounding (1.48e-4 and 9.99e-6, layer 1 on all
+16, top-1 and top-64 order 16/16, the integer projection `a03737b1f418`
+again).
 
 **Reproduce.** `bash scripts/hardware-test/gpu-exact/run.sh <gcp-project>`
 (one L4, ~20 min, deletes the VM). The integer door this probe pointed at
@@ -245,6 +269,10 @@ a required level of only `EQUIVALENT`; audit chain 5 events, verified;
 (the full signed report),
 [`…/standby/audit-verify.json`](scripts/hardware-test/gcp-failover/evidence/20260915T021334Z/standby/audit-verify.json),
 [`…/primary/sentinel.json`](scripts/hardware-test/gcp-failover/evidence/20260915T021334Z/primary/sentinel.json).
+The same drill on the raised runtime (torch 2.14.1, transformers 5.19.0),
+[`…/20261014T034337Z/standby/report.json`](scripts/hardware-test/gcp-failover/evidence/20261014T034337Z/standby/report.json)
+— generation 1, gate EXACT, RTO 18.69 s, RPO 9.00 s, 5 events verified
+([`audit-verify.json`](scripts/hardware-test/gcp-failover/evidence/20261014T034337Z/standby/audit-verify.json)).
 Design: [ADR 0012](docs/adr/0012-sentinel-and-policy-driven-failover.md).
 
 **Reproduce.** `bash scripts/hardware-test/gcp-failover/run.sh <gcp-project>`.
@@ -443,7 +471,11 @@ two SEV-SNP guests, with a rogue sentinel holding the stolen seed refused.
 — primary `n2d-standard-8` (measurement `10f5ac22…4519`), standby
 `n2d-standard-4` (measurement `7dc7c12e…5acc`), us-central1-c, both
 `Memory Encryption Features active: AMD SEV SEV-ES SEV-SNP` with
-`/dev/sev-guest` (`tsm.txt`).
+`/dev/sev-guest` (`tsm.txt`). On the raised runtime,
+[`…/20261014T034337Z/`](scripts/hardware-test/gcp-failover/evidence/20261014T034337Z/) — the same machines and measurements, the
+escrow key sealed (`escrow-provision.json`: `tee: gcp-sev-snp`, `source:
+generated`), the primary's report on the trigger, generation 1 restored
+and gated EXACT, the rogue sentinel declined (`rogue-report.json`).
 `standby/escrow-provision.json`: the escrow key's tag `d2aac7b965c6ab76`,
 `tee: gcp-sev-snp`, `source: generated`, wrapped to the operator's
 recovery key (tag `93b4bd0871bfacf6`);
@@ -610,7 +642,16 @@ replay`, 16/16, `max_abs_err: 0`; `measure-gpu.json`: `exact: 16`,
 `max_abs_err: 0.5`; `measure-cpu.json`: `exact: 0`, `top1_same: 16`,
 `greedy_same: 16`, `max_abs_err: 0.5`, `max_rel_err: 0.027`, every fixture
 between 0.125 and 0.5. Base-weights bytes: the four `model-*.safetensors`
-of `Qwen/Qwen2.5-7B-Instruct` @ `a09a354`.
+of `Qwen/Qwen2.5-7B-Instruct` @ `a09a354`. The same kit on the raised
+runtime, torch 2.14.1+cu126 and transformers 5.19.0:
+[`scripts/hardware-test/gpu-7b/evidence/20261014T022551Z/`](scripts/hardware-test/gpu-7b/evidence/20261014T022551Z/)
+— `replay-gpu.json`: `exact: true`, `max_abs_diff: 0`, `losses_equal:
+true`; `gate-gpu.json`: `level: EXACT`, rung 0, 16/16; `gate-cpu.json`:
+`level: EXACT` at rung 2 through the integer door, after both float
+doors failed at `max_abs_err: 0.375`; `measure-cpu.json`: `exact: 0`,
+`top1_same: 16`, `greedy_same: 16`, `max_abs_err: 0.375`. torch 2.14.1
+warns there that flash attention's backward may not be deterministic
+under `warn_only`; the replay measured that it was, at these shapes.
 In process:
 [`workers/genome/tests/test_genome.py`](workers/genome/tests/test_genome.py)
 (a bfloat16 genome records its runtime and the door honours it; an unknown
@@ -632,7 +673,8 @@ not a property of the model: the float door's default tolerance is the
 float32 one; a bfloat16 tolerance is the operator's to set
 (`genome.gate.bfloat16`, pinned into every session's policy); the
 byte-portable route for such a genome is the integer door, shipped since
-[C19](#c19). Frontier scale has not been run.
+[C19](#c19) — on the raised runtime the gate on the host CPU opens
+through it, rung 2 EXACT. Frontier scale has not been run.
 
 ---
 
@@ -678,7 +720,17 @@ envelope`), event 3: allow, `trust.peer_attested`; `job.json`: `POST
 /v1/jobs` → `release_authorized` in **18.5 s**, gate **EXACT** (16/16, max
 abs err 0), top-1 16/16; `audit-verify.json`: `ok: true`, **17 events**;
 `sagvd-metrics.txt`: `vg_tee_attestation_total{provider="azure-cgpu"}`
-produce 2, verify success 1, verify error 1.
+produce 2, verify success 1, verify error 1. The same kit on the raised
+runtime (torch 2.14.1+cu126, transformers 5.19.0) and the day's driver,
+[`…/20261014T113334Z/`](scripts/hardware-test/azure-cgpu/evidence/20261014T113334Z/) and
+[`…/20261014T113334Z-returnpath/`](scripts/hardware-test/azure-cgpu/evidence/20261014T113334Z-returnpath/) — `conf-compute.txt`: `CC
+State: ON`, `CC GPUs Ready State: Ready`; `gpu.csv`: driver `595.91.07`,
+VBIOS `96.00.9F.00.04`; `steps.txt`: the local verifier, NRAS and MAA each
+exit 0; the Return Path's `job.json`: the 32B genome (that run's base)
+restored on the H100 and gated **EXACT** (16/16, max abs err 0) in
+238 s; `escrow-provision.json`: `tee: azure-cgpu`, key `b04c3a9925c25b14`;
+`seal-keys-sagvd.json`, `seal-keys-worker.json`; `audit-verify.json`: `ok:
+true`, 17 events, tip `e2be1cfe…5f9e`; `sagvd-metrics.txt`: verify success 1, error 1.
 In process:
 [`internal/shared/tee/azure_cgpu_evidence_test.go`](internal/shared/tee/azure_cgpu_evidence_test.go)
 (the captured evidence verifies offline with the nonce that produced it,
@@ -760,6 +812,17 @@ Ready State: Ready`; `destination/gpu.csv`: H100 NVL, driver 595.71.05,
 VBIOS 96.00.9F.00.04. `destination/acp-bootstrap.log`: handshake
 answered, key released, restore, gate, key erased. `primary/sentinel.json`:
 `outcome: compromised`, `attestation.kind: gcp-sev-snp`, last generation 1.
+The same drill on the raised runtime (torch 2.14.1, transformers 5.19.0)
+and the day's driver, [`…/20261014T121030Z/`](scripts/hardware-test/failover-cgpu/evidence/20261014T121030Z/) — the standby on
+kernel `7.0.0-1016-azure-fde` with driver `595.91.07` (`destination/gpu.csv`,
+`conf-compute.txt`: `CC State: ON`), the vTPM digest of that boot pinned
+(`c1e0b0f8…ad85`); `authority/report.json`: `status: restored`, generation 1,
+`restore.gate`: EQUIVALENT, `max_abs_err: 2.48e-04`, `timing`: RTO
+19.86 s, RPO 9.00 s; `authority/audit-verify.json`: `ok: true`, 5 events, tip
+`f86923a4…4be9`; the `CROSS_CLOUD_ATTESTATION_VERIFIED` event's `destination_detail`
+naming GPU-0 `GH100` driver `595.91.07` with the authority's own evaluation
+of the report, every check true; the destination's two key files sealed to
+its vTPM (`destination/dest-seal-keys.json`).
 
 **Reproduce:**
 
@@ -813,7 +876,14 @@ genome, bfloat16, references recorded on the L4): `exact: 16` of 16,
 `b-measure-integer-cpu.json`: the first three fixtures on the Xeon,
 `exact: 3` of 3, the same `sha256` as on the L4. `divides-exactly.txt`:
 both devices divide int64 exactly. `a-genome.json`, `b-genome.json`:
-`fixtures.integer` (scheme `vg-integer-door/v1`, fidelity). In process:
+`fixtures.integer` (scheme `vg-integer-door/v1`, fidelity). The same kit
+on the raised runtime, torch 2.14.1+cu126 and transformers 5.19.0:
+[`scripts/hardware-test/integer-door/evidence/20261014T020420Z/`](scripts/hardware-test/integer-door/evidence/20261014T020420Z/)
+— `exact: 16` of 16 on both devices at 0.5B with the same `sha256` for
+every fixture, `max_abs_err: 2.70`, `top1_same: 16`; `exact: 16` of 16
+on the L4 and `3` of 3 on the Xeon at 7B, `max_abs_err: 0.79`; the gate
+at zero tolerance EXACT at rung 2 after `FAIL 1.18e-4` on both float
+doors. In process:
 [`workers/genome/tests/test_integer.py`](workers/genome/tests/test_integer.py)
 (the constants against libm, the primitives against Python integers, the
 same bytes at another thread count and on every device the test can
@@ -832,15 +902,26 @@ cd workers/genome && python -m pytest -q tests/test_integer.py
 ```
 
 **Scope.** Two devices (an Intel Xeon and an NVIDIA L4; an Apple GPU in
-the worker's tests), two models, one run. Byte identity is of the
-integer model with itself across devices, not of the integer model with
-the float model: the float doors stay the fidelity path and the integer
-door the availability path. The fidelity measured here — top-1 the same
-on every fixture, logits within a few units on fine-tunes that drove
-them to magnitudes of tens — is a property of these genomes; a genome
-records its own. The 7B check on the CPU covered three fixtures. The
-integer door is not a serving path: a 7B forward takes seconds per
-fixture.
+the worker's tests), two models, two runs on two runtimes (torch 2.7.1
+and 2.14.1). Byte identity is of the integer model with itself across
+devices, not of the integer model with the float model: the float doors
+stay the fidelity path and the integer door the availability path. The
+fidelity measured here — top-1 the same on every fixture, logits within
+a few units on fine-tunes that drove them to magnitudes of tens — is a
+property of these genomes; a genome records its own. The 7B check on the
+CPU covered three fixtures. The integer door is not a serving path: a 7B
+forward takes seconds per fixture. A third run
+([`20261014T012445Z`](scripts/hardware-test/integer-door/evidence/20261014T012445Z/))
+held byte identity while the door computed the wrong model: transformers
+5 had moved a config's rotary base into `rope_parameters`, the door's
+reader fell back to 10 000 where Qwen2.5 has 1 000 000, and every
+exactness check passed — the same wrong tables on both devices. Only the
+fidelity record showed it (top-1 13 of 16, max abs err 7.29). Byte
+identity is a property of the program and says nothing about the program
+being the right one; the door now reads the base from the config with no
+default, refuses a model whose own rotary module disagrees with it, and
+refuses projections whose shapes disagree with the config's head counts
+(the kit's README has the account).
 
 ---
 
@@ -929,7 +1010,7 @@ served by the responder (it answers `unauthorized` for it); its issuers'
 status stands for it. What this verifier does not check: under `own` the
 secure-boot and debug-mode claims only NVIDIA's tokens carry — `both`
 asserts them, `own` says so. A live handshake under
-`both` on hardware is on the record: run `scripts/hardware-test/azure-cgpu/evidence/20260916T204311Z-returnpath/` — the pinned worker's session opened on the H100 host with the evaluation complete (`vg_tee_attestation_total{provider="azure-cgpu",result="success",role="verify"} 1` in `sagvd-metrics.txt`; a complete evaluation includes both manifests' signatures), the manifests fetched from NVIDIA's service during the handshake (`cache-rim-NV_GPU_DRIVER_GH100_595.71.05.json`, `cache-rim-NV_GPU_VBIOS_1010_0210_886_96009F0004.json`), the 7B genome then restored on the H100 and gated EXACT (`job.json`), 17 audit events verified.
+`both` on hardware is on the record: run `scripts/hardware-test/azure-cgpu/evidence/20260916T204311Z-returnpath/` — the pinned worker's session opened on the H100 host with the evaluation complete (`vg_tee_attestation_total{provider="azure-cgpu",result="success",role="verify"} 1` in `sagvd-metrics.txt`; a complete evaluation includes both manifests' signatures), the manifests fetched from NVIDIA's service during the handshake (`cache-rim-NV_GPU_DRIVER_GH100_595.71.05.json`, `cache-rim-NV_GPU_VBIOS_1010_0210_886_96009F0004.json`), the 7B genome then restored on the H100 and gated EXACT (`job.json`), 17 audit events verified. On the raised runtime and the day's driver, `scripts/hardware-test/azure-cgpu/evidence/20261014T113334Z-returnpath/`: the pinned worker's session opened under `both` with the manifests for driver `595.91.07` fetched during the handshake (`cache-rim-NV_GPU_DRIVER_GH100_595.91.07.json`, `cache-rim-NV_GPU_VBIOS_1010_0210_886_96009F0004.json`), `vg_tee_attestation_total{provider="azure-cgpu",result="success",role="verify"} 1`, the 32B genome restored on the H100 and gated EXACT, 17 audit events verified.
 Since later that day the evaluation is *on* the record, not only behind
 it: a verifier that can say more than a measurement (`tee.DetailedVerifier`;
 the `azure-cgpu` verifier does) puts its detail — the chip's product and
@@ -951,7 +1032,7 @@ On a live record: the cross-cloud drill `scripts/hardware-test/failover-cgpu/evi
 carries `destination_detail` on the authority's `CROSS_CLOUD_ATTESTATION_VERIFIED`
 event (`authority/audit-events.jsonl`: provider `azure-cgpu`, product
 `Genoa`, the quote's PCRs `sha256:0,1,2,3,4,5,6,7,8,9,10,11,12,13,14`, GPU-0 `GH100` driver `595.71.05` VBIOS
-`96.00.9F.00.04` vouched for by `https://nras.attestation.nvidia.com`). A live `peer_detail` from a
+`96.00.9F.00.04` vouched for by `https://nras.attestation.nvidia.com`; and again on the raised runtime, `scripts/hardware-test/failover-cgpu/evidence/20261014T121030Z/`, with driver `595.91.07` and the evaluation's every check true on the record). A live `peer_detail` from a
 Return Path handshake on the H100 host: the Return Path run
 `scripts/hardware-test/azure-cgpu/evidence/20260917T012834Z-returnpath/` — the
 `TRUST_EVALUATED` event that admitted the worker carries `peer_detail`
@@ -1009,7 +1090,14 @@ measurement `ed70198a…177b`, `tdx.mrtd_hex: c1ee9c16…70a5`, three RTMRs.
 `destination/system.txt`: `Vendor ID: GenuineIntel`, family 6 model 143
 (Sapphire Rapids), 4 vCPUs. `destination/acp-bootstrap.log`: key
 released, restore, gate, key erased. `primary/sentinel.json`: `outcome:
-compromised`, `attestation.kind: gcp-sev-snp`, last generation 1.
+compromised`, `attestation.kind: gcp-sev-snp`, last generation 1. The
+same drill on the raised runtime (torch 2.14.1, transformers 5.19.0),
+[`…/20261014T041150Z/`](scripts/hardware-test/failover-tdx/evidence/20261014T041150Z/) — the standby on the current image (kernel
+`7.0.0-1014-gcp`; MRTD `c1ee9c16…70a5` unchanged, RTMR0–2 new, measurement
+`dfe77c76…1a9a`, pinned by the policy and named in the release);
+`restore.gate`: EQUIVALENT, `max_abs_err: 1.46e-04`; `timing`: RTO
+20.42 s, RPO 9.00 s; `audit-verify.json`: `ok: true`, 5 events, tip
+`58043177…c776`; `destination/dest-seal-keys.json`: `tee: gcp-tdx`.
 
 **Reproduce:**
 
@@ -1085,7 +1173,15 @@ true`, "incident review"; `stop-3.json`: serial 3.
 primary's chip); `policy-7-verify.txt`: *signature does not verify under the
 operator key*. `standby/tamper.txt`: `gen-000001.genome` `addaaf0c…be7d` →
 `640046c8…5671`, one byte. `primary/sentinel.json`: `outcome: compromised`,
-generation 1 the last word, `attestation.kind: gcp-sev-snp`.
+generation 1 the last word, `attestation.kind: gcp-sev-snp`. The same
+eight runs on the raised runtime (torch 2.14.1, transformers 5.19.0),
+[`…/20261014T035731Z/`](scripts/hardware-test/failover-negatives/evidence/20261014T035731Z/) — the same seven refusals for the same
+reasons (`report-1..3.json`: declined; `report-4.json`, `report-5.json`:
+`status: failed` after `CROSS_CLOUD_ATTESTATION_VERIFIED`; `failover-7.log`,
+`failover-8.log`: refused at the door), `report-6.json`: generation 0
+restored with generation 1 set aside (`8b5f8661…ebe2` →
+`087b3516…72dc`, one byte), gate EXACT, the move 12.08 s (RTO 90.56 s, the sixth policy issued 79 s after the attack this time); 16 events,
+`ok: true`, tip `094b5ec2…90af`.
 
 **Reproduce:**
 
@@ -1131,6 +1227,14 @@ at 20:19:49.37Z, `release.destination_kind: gcp-tdx`, `restore.gate`:
 **EQUIVALENT**, `max_abs_err: 1.45e-4`, `timing`: RPO 12.00 s, RTO
 20.27 s; `authority/audit-verify.json`: `ok: true`, 5 events, tip
 `78551451…bb2f`; `authority/tsm.txt`: `/dev/tdx_guest`, `tdx: Guest detected`.
+The same drill on the raised runtime (torch 2.14.1, transformers 5.19.0),
+[`…/20261014T042457Z/`](scripts/hardware-test/failover-tdx-authority/evidence/20261014T042457Z/) — the authority a Trust Domain on the
+current image (kernel `7.0.0-1014-gcp`, measurement `dfe77c76…1a9a`);
+`escrow-provision.json`: `tee: gcp-tdx`, key `f28d73ab63bfe6fe`, the same
+shape on disk, re-provisioned through the ceremony (`source: stdin`),
+`key_escrow_storage: sealed:gcp-tdx`; `report.json`: `status: restored`,
+EQUIVALENT `1.46e-04`, RTO 20.42 s, RPO 12.00 s; `audit-verify.json`:
+`ok: true`, 5 events, tip `f301ece8…4846`.
 
 **Reproduce:**
 
@@ -1167,7 +1271,11 @@ the stolen-seed negative declined.
 identity exit=0`, `escrow-provision exit=0`, `sagvd failover exit=0`;
 `standby/report.json`: `status: restored`, generation 1, gate
 EXACT, RTO 22.10 s, RPO 9.00 s; `standby/audit-verify.json`: `ok:
-true`, 5 events, tip `bb9fa06c…fa62`; `standby/rogue-report.json`: the
+true`, 5 events, tip `bb9fa06c…fa62` (and on the raised runtime,
+[`…/20261014T034337Z/`](scripts/hardware-test/gcp-failover/evidence/20261014T034337Z/): the same five files sealed, then the
+cross-cloud client key after the failover config is written — `seal-keys
+(failover config) exit=0 sealed=crosscloud.transport_tls.client_key
+already=5` — and `sagvd failover exit=0`); `standby/rogue-report.json`: the
 stolen seed declined.
 
 **Reproduce:**
@@ -1219,7 +1327,10 @@ authority sealed it — `seal-keys (failover config) exit=0 sealed=crosscloud.tr
 after; `primary/steps.txt`: `sentinel seal-key exit=0`, `sentinel exit=3`;
 `standby/report.json`: `status: restored`, generation 1, gate
 EXACT, RTO 18.53 s, RPO 9.00 s; `standby/audit-verify.json`: `ok:
-true`, 5 events, tip `17876233…1c5f`; `standby/steps.txt`:
+true`, 5 events, tip `17876233…1c5f` (and on the raised runtime,
+[`…/20261014T034337Z/`](scripts/hardware-test/gcp-failover/evidence/20261014T034337Z/): `sentinel seal-key exit=0 … sealed=True`,
+RTO 18.69 s, 5 events, tip `d6e0a658…2c4d`, the stolen sealed seed refused
+with `exit=2` as below); `standby/steps.txt`:
 `stolen sealed seed: acpctl sentinel identity exit=2 (want 2: does not open off the primary's chip): acpctl sentinel identity: --key: /root/stolen.sealed: integrity[signature_invalid]: sealed secret "sentinel.seed": this host does not open it (sealed at 10f5ac22cef1db0a… on gcp-sev-snp): integrity[signature_invalid]: `; `standby/stolen-sealed-identity.err`: `acpctl sentinel identity: --key: /root/stolen.sealed: integrity[signature_invalid]: sealed secret "sentinel.seed": this host does not open it (sealed at 10f5ac22cef1db0a… on gcp-sev-snp): integrity[si`;
 `standby/seal-keys.json`: 5 files sealed (`keys.authority_signing.seed_path`, `keys.session_sealing.material_path`, `keys.audit_signing.seed_path`, `vault.tls.server_key`, `http_api.bearer_token_file`);
 `standby/dest-seal-keys.json`: `http.tls.server_key`, `http.bearer_token_file`.
@@ -1265,7 +1376,13 @@ authority and every stage on the audit record.
 [`evidence/20260917T020218Z-returnpath/`](scripts/hardware-test/azure-cgpu/evidence/20260917T020218Z-returnpath/)
 — `job.json` (gate `EXACT`, `pinned replay`, 16/16 exact, max abs
 err 0, the signed verdict), `audit-verify.json` (`ok`, 17
-events), `steps.txt`.
+events), `steps.txt`. The same run on the raised runtime (torch
+2.14.1+cu126, transformers 5.19.0),
+[`…/20261014T113334Z/`](scripts/hardware-test/azure-cgpu/evidence/20261014T113334Z/) — `finetune.json`: loss 5.799 → 4.6e-05 in
+42.4 s, `verify.json`: ok, the 33,632,414-byte bundle, `gate-gpu.json`:
+EXACT, `replay-gpu.json`: bit for bit;
+[`…/20261014T113334Z-returnpath/`](scripts/hardware-test/azure-cgpu/evidence/20261014T113334Z-returnpath/) — `job.json`: EXACT, 16/16, max
+abs err 0, 238 s; `audit-verify.json`: `ok`, 17 events, tip `e2be1cfe…5f9e`.
 
 **Reproduce:**
 

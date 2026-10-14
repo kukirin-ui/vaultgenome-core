@@ -1,0 +1,14 @@
+{
+  "tee": "azure-cgpu",
+  "measurement_hex": "aa7c9da55c1386e5b1653b125978beda7b3f95a85aeb0f9ddbbdb783ce056a28c9d021da239c34a58c3a657654270eef",
+  "sealed": [
+    {
+      "name": "http.tls.server_key",
+      "path": "/home/vg/dest/server.key"
+    },
+    {
+      "name": "http.bearer_token_file",
+      "path": "/home/vg/dest/xcc_token"
+    }
+  ]
+}

@@ -119,8 +119,8 @@ mark runtime_start
 apt-get install -y -qq python3-venv python3-pip >/dev/null 2>&1
 mkdir -p /opt/worker && tar -xzf "$HOME_DIR/worker.tgz" -C /opt/worker && install -m 0755 "$HOME_DIR/acpctl" /usr/local/bin/acpctl
 python3 -m venv /opt/vg && /opt/vg/bin/pip install -q --upgrade pip
-/opt/vg/bin/pip install -q --index-url https://download.pytorch.org/whl/cu126 torch==2.7.1
-/opt/vg/bin/pip install -q -r /opt/worker/requirements.txt huggingface_hub==0.33.4
+/opt/vg/bin/pip install -q --index-url https://download.pytorch.org/whl/cu126 torch==2.14.1
+/opt/vg/bin/pip install -q -r /opt/worker/requirements.txt huggingface_hub==2.2.0
 /opt/vg/bin/pip freeze > "$OUT/pip-freeze.txt"
 /opt/vg/bin/python -c "import torch; print(torch.__version__, torch.version.cuda, torch.cuda.get_device_name(0), torch.cuda.get_device_properties(0).total_memory)" > "$OUT/torch.txt" 2>&1
 cat "$OUT/torch.txt"

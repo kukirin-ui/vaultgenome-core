@@ -12,6 +12,21 @@ responder's answers (`ocsp.ParseResponseForCert`), and, in tests, making
 answers for a synthetic chain (`ocsp.CreateResponse`). The request is
 encoded in-house, because x/crypto's `CreateRequest` writes no nonce.
 
+## Advisories against the module that do not reach this code
+
+- **GO-2026-5932** (`golang.org/x/crypto/openpgp` is unmaintained; no fix
+  planned, so every version of the module carries it). The package is not
+  imported here: `go mod why golang.org/x/crypto/openpgp` answers *(main
+  module does not need package …)*, and `govulncheck ./...` lists the
+  advisory under modules required, not code called (2026-10-13, go1.27.2,
+  x/crypto v0.58.0). It stays in the scanner's count as long as the
+  `ocsp` package is used; it is not a risk to a binary built from this tree.
+  The vault-gate's osv-scanner step ignores it by id (`osv-scanner.toml`,
+  with this reason, until 2027-01-31, when the ignore expires and the
+  question is asked again — the exception the doctrine's §5 allows): the
+  step is presence-based and cannot see that the package is unused;
+  `make vuln` (govulncheck on the tree's own toolchain) can and does.
+
 ## Why this dependency
 
 RFC 6960 answers are DER structures signed either by the certificate's

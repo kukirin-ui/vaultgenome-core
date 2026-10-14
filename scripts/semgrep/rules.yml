@@ -141,12 +141,12 @@ rules:
     severity: ERROR
     message: |
       os.WriteFile / os.OpenFile / os.Create in production code outside
-      the allowed write-sink prefixes (internal/vault/storage,
-      internal/audit/store, internal/shared/tee). This is a doctrine
-      invariant (Freeze #6 — "no raw genome export").
-      The Go-AST test in test/doctrine/invariants_test.go is the
-      authoritative check; this Semgrep rule catches it earlier in
-      developer iteration.
+      the allowed write-sink prefixes. This is a doctrine invariant
+      (Freeze #6 — "no raw genome export"). The Go-AST test in
+      test/doctrine/invariants_test.go (allowedWriteSinkPrefixes) is the
+      authoritative check and the list below mirrors it; this Semgrep rule
+      catches a violation earlier in developer iteration. A new prefix is
+      added to the test first, with its doctrinal rationale, then here.
     pattern-either:
       - pattern: os.WriteFile(...)
       - pattern: os.OpenFile(...)
@@ -160,6 +160,13 @@ rules:
         - "internal/vault/storage/**"
         - "internal/audit/store/**"
         - "internal/shared/tee/**"
+        - "internal/contentdir/**"
+        - "internal/ollama/**"
+        - "internal/shared/safetar/**"
+        - "internal/genome/bundle/**"
+        - "internal/genome/restore/**"
+        - "internal/genome/receipt/**"
+        - "internal/genome/sentinel/**"
 
   # -------------------------------------------------------------------
   # R-08: TODO/FIXME with no ticket reference

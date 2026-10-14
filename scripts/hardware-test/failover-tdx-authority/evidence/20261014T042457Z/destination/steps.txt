@@ -1,0 +1,13 @@
+== 04:26:23 inputs
+== 04:26:24 the Trust Domain: configfs-tsm (tdx_guest)
+== 04:26:24 the vTPM (tpm2-tools): acp-bootstrap seals its TLS key and token to it (ADR 0022, 0023)
+== 04:26:40 python runtime (CPU) and the base model the genome names — the gate runs the model here
+== 04:27:48 the authority's TLS material, token and public key (through the private bucket)
+== 04:31:01 acp-bootstrap as gcp-tdx: the destination of a key release, the door on this VM's CPUs
+acp-bootstrap seal-keys exit=0 sealed=http.tls.server_key,http.bearer_token_file
+acp-bootstrap identity exit=0
+acp-bootstrap ready after 2s
+== 04:31:05 publish this destination's identity: endpoint on the VPC, TDX measurement
+== 04:31:05 pull the primary's outbox replica until the authority is done
+authority: DONE
+== COLLECTED

@@ -82,10 +82,11 @@ Opening authenticates every 1 MiB segment before a byte of it is used and
 leaves the target untouched on any refusal: an edited, truncated or
 wrong-key bundle changes nothing.
 
-**Prerequisites.** Go 1.26 for the binaries. The `acp-compute` worker and
-the hardware kits also need Python 3.11+ with the pinned runtime in
+**Prerequisites.** Go 1.27.2 for the binaries (`go.mod` names the toolchain;
+`GOTOOLCHAIN=auto` fetches it). The `acp-compute` worker and the hardware
+kits also need Python 3.12+ with the pinned runtime in
 [`workers/genome/requirements.txt`](workers/genome/requirements.txt)
-(torch 2.7.1); a vTPM host (Intel TDX, the Azure confidential GPU VM) needs
+(torch 2.14.1); a vTPM host (Intel TDX, the Azure confidential GPU VM) needs
 `tpm2-tools`.
 
 ## Deploy
@@ -180,6 +181,7 @@ summary is [`docs/STATUS.md`](docs/STATUS.md). In short:
 | [`docs/testing/`](docs/testing/cross-hardware-determinism.md) | Cross-hardware determinism and mutation testing |
 | [`docs/compliance/`](docs/compliance/README.md), [`docs/reference-designs/`](docs/reference-designs/README.md) | The compliance crosswalk and four reference designs |
 | [`docs/spec/`](docs/spec/draft-vault-genome-tap-00.md) | The TEE-Agnostic Attestation Protocol draft |
+| [`docs/reference/cli.md`](docs/reference/cli.md) | Every command and flag of the five binaries, generated from their own usage text |
 | [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md), [`ROADMAP.md`](ROADMAP.md), [`CHANGELOG.md`](CHANGELOG.md) | Limits, what is next, what changed |
 
 ## Development

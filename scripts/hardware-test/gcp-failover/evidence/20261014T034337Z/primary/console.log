@@ -1,0 +1,26 @@
+== 03:45:24 inputs
+== 03:45:24 configfs-tsm (the sentinel attests with this chip)
+== 03:45:24 python runtime (CPU) and base model
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+Fetching 10 files:   0%|          | 0/10 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 10 files:  10%|█         | 1/10 [00:00<00:01,  6.29it/s]Fetching 10 files:  50%|█████     | 5/10 [00:00<00:00, 17.65it/s]Fetching 10 files: 100%|██████████| 10/10 [00:10<00:00,  1.27s/it]Fetching 10 files: 100%|██████████| 10/10 [00:10<00:00,  1.07s/it]
+== 03:46:56 wait for the release authority's escrow key
+== 03:47:12 the sentinel's key and this chip's identity; the operator pins both
+== 03:47:13 seal the sentinel's seed to this chip (ADR 0023): the file the sentinel runs from is no seed elsewhere
+== 03:47:13 fine-tune generation 0 (120 steps)
+== 03:51:11 arm a tripwire and start the sentinel
+== 03:51:11 wait for generation 0 to be sealed
+== 03:51:19 wait for the authority to arm its failover watch
+== 03:51:20 keep training: fine-tune generation 1 (160 steps)
+== 03:55:43 wait for generation 1 to be sealed and replicated
+== 03:55:57 ATTACK: touch the canary, then tamper with the model
+== 03:55:57 the sentinel must stop sealing, report, and exit 3

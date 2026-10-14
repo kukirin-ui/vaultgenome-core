@@ -210,6 +210,30 @@ No plaintext seed is on the primary's disk after the seal step; the bare
 copy the standby's negative used lived in the run's private bucket,
 deleted with the run. None is in the evidence.
 
+## The raised runtime — run `20261014T034337Z` (evidence/20261014T034337Z)
+
+The same drill — the escrow key and every key file sealed on the standby,
+the sentinel's seed sealed on the primary, the primary pinned to its chip,
+both negatives — on the raised Python runtime (torch 2.14.1+cpu,
+transformers 5.19.0, numpy 2.5.4 on both machines; `*/pip-freeze.txt`),
+us-central1-c, the same launch measurements (primary `10f5ac22…4519`,
+standby `7dc7c12e…5acc`). Two generations sealed (120 steps in 53.6 s,
+160 in 76.5 s, loss 5.33 → 0.0009), the attack, the compromise report
+with the chip's report on it, exit 3. The authority failed over on that
+word: generation 1 restored (key `genome-86d10d8e1ca5-g1-57d211810465`,
+2,216,819 bytes; 5 files, 2,210,904 bytes, in 12.2 ms) and gated
+**EXACT** (pinned replay, 16 fixtures, 12.3 s); detect 4.42 s, RPO
+9.00 s, release 0.25 s, RTO **18.69 s** (September: 18.53 s); 5 audit
+events verified (tip `d6e0a658…2c4d`). The negatives as before: the bare
+seed stolen to the standby's chip declined (`rogue: sagvd failover exit=3
+(want 3: declined) status=declined`, heartbeat-timeout, the rogue's
+generation 2 set aside), the sealed file taken there refused to open
+(`exit=2`). One thing closed since the run above: the cross-cloud
+transport's client key is sealed in this kit too — `seal-keys (failover
+config) exit=0 sealed=crosscloud.transport_tls.client_key already=5`
+(`standby/steps.txt`) — so every file the authority read in this run was
+sealed.
+
 ## Evidence files
 
 - `primary/` — `finetune-0.json`, `finetune-1.json` (the two fine-tunes),

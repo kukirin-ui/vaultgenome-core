@@ -1,0 +1,25 @@
+{
+  "device": "cpu",
+  "dtype": "float32",
+  "exact": true,
+  "max_abs_diff": 0.0,
+  "max_rel_diff": 0.0,
+  "max_rel_l2": 0.0,
+  "losses_equal": true,
+  "max_loss_diff": 0.0,
+  "final_loss": {
+    "sealed": 0.0008956161909736693,
+    "replayed": 0.0008956161909736693
+  },
+  "train_seconds": 69.997,
+  "runtime": {
+    "python": "3.12.3",
+    "torch": "2.14.1+cpu",
+    "numpy": "2.5.4",
+    "platform": "Linux-7.0.0-1014-gcp-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "processor": "AMD EPYC 7B13",
+    "threads": 8,
+    "transformers": "5.19.0"
+  }
+}

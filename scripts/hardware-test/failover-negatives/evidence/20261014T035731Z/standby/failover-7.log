@@ -1,0 +1,2 @@
+{"time":"2026-10-14T04:10:40.773006339Z","level":"INFO","msg":"failover escrow key","escrow_key":"aa20c12d72c070b7","storage":"sealed:gcp-sev-snp"}
+{"time":"2026-10-14T04:10:51.025400594Z","level":"ERROR","msg":"sagvd failover: terminated with error","err":"failover: policy serial 6 already carried out a failover (audit event xcc-evt-000000000000000c); moving again needs a new policy"}

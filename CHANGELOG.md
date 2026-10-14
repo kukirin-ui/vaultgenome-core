@@ -11,7 +11,92 @@ given release can still open.
 
 ## [Unreleased]
 
-Nothing yet.
+### Security
+
+- Go toolchain raised to 1.27.2 (`go.mod`, every workflow). `govulncheck`
+  reported ten vulnerabilities in the standard library reachable from this
+  code on go 1.27.0 — GO-2026-6603, 6604, 6605, 6607, 6608, 6610, 6611,
+  6612, 6613, 6617 (`net/http`, `net/http/internal/http2`, `net/textproto`,
+  `crypto/tls`, `os`) — and three more in the standard library not reached
+  (GO-2026-6599, 6600, 6609). All are fixed in go1.27.2; the scan on this
+  tree now reports none reachable. `golang.org/x/crypto` v0.57.0 → v0.58.0
+  and `github.com/beevik/etree` v1.8.0 → v1.8.1 (`golang.org/x/sys`
+  indirect, v0.48.0 → v0.49.0). The one advisory left in the module graph,
+  GO-2026-5932 (`golang.org/x/crypto/openpgp`, no fix planned), names a
+  package this module does not import (`go mod why` confirms); see
+  `docs/dependencies/x-crypto.md`. The gate's osv-scanner step is
+  presence-based, as the doctrine's §5 says (`--no-call-analysis=go`: the
+  action's container carries a Go older than `go.mod` names and its call
+  analysis cannot run there), and ignores that one advisory by id
+  (`osv-scanner.toml`, reason on the record, expiring 2027-01-31) under
+  the exception §5 now spells out; `make vuln` on the tree's own toolchain
+  does the call analysis.
+- The worker's Python runtime raised: `torch` 2.7.1 → 2.14.1, `transformers`
+  4.53.2 → 5.19.0, `tokenizers` 0.21.2 → 0.23.3, `safetensors` 0.5.3 →
+  0.8.0, `numpy` 2.3.1 → 2.5.4 (OSV: 28 advisories against the old pins,
+  none against the new; KNOWN_ISSUES #14 records which of them the worker
+  could reach, and which measurements still name the old runtime;
+  re-measured on it so far: C19, `integer-door` run `20261014T020420Z`,
+  and C16, `gpu-7b` run `20261014T022551Z` — the 7B recipe replays bit
+  for bit on the L4, and the gate on the host CPU opens at rung 2 through
+  the integer door; C6, `gpu-exact` run `20261014T032040Z`, the same
+  divergence at the first block and the same integer bytes; and C1–C5,
+  `gcp-drill` run `20261014T032714Z`, bit for bit on the SEV-SNP source
+  and equivalent on the L4 and the Intel CPU; and C8, C14, C24–C25,
+  `gcp-failover` run `20261014T034337Z`, generation 1 restored and gated
+  EXACT in 18.69 s with both negatives refused; and C22,
+  `failover-negatives` run `20261014T035731Z`, the same seven refusals and
+  the one move; and C21, `failover-tdx` run `20261014T041150Z`, the key
+  released on Intel's word to a Trust Domain on the current image,
+  EQUIVALENT in 20.42 s; and C23, `failover-tdx-authority` run
+  `20261014T042457Z`, the authority itself a Trust Domain with its escrow
+  key in the vTPM, EQUIVALENT in 20.42 s; and C17, C20 and C26,
+  `azure-cgpu` run `20261014T113334Z`, the confidential H100 on the day's
+  driver 595.91.07, the 32B genome restored and gated EXACT over the Return
+  Path in 238 s; and C18, `failover-cgpu` run `20261014T121030Z`, the
+  cross-cloud failover to the H100 under that driver, EQUIVALENT in
+  19.86 s — every hardware record now taken on the raised runtime). CI now
+  installs the runtime from the hash-pinned locks with `pip
+  --require-hashes` — `workers/genome/requirements-ci.lock` from PyPI and
+  the torch wheel in `requirements-torch-cpu.lock` from the PyTorch CPU
+  index, each from its own `--index-url` (no `--extra-index-url`: no index
+  can stand in for another) — every wheel checked against its sha256.
+- Workflows: every tool installed in CI is pinned — `govulncheck` v1.9.0,
+  `benchstat` and `go-mutesting` by commit, `syft` v1.54.1 through the
+  `anchore/sbom-action/download-syft` action pinned by commit (the
+  `curl … | sh` of an unversioned install script is gone from the release
+  and gate workflows), the Semgrep container by image digest. The
+  `security-events: write` permission moved from workflow level to the one
+  job that uploads SARIF (CodeQL, Semgrep).
+
+### Fixed
+
+- The integer door read the rotary base as `getattr(cfg, "rope_theta",
+  10000.0)`; under transformers 5 the base lives in `rope_parameters`, and
+  the door computed Qwen2.5 (base 1 000 000) with the tables of base
+  10 000 — the same bytes on every device, so every exactness check
+  passed while its fidelity to the float model fell (the integer-door kit
+  on the raised runtime, run `20261014T012445Z`: top-1 the same on 13 of
+  16 fixtures at 0.5B for 16, max abs err 7.29 for 2.72). The base is now
+  read from where the config keeps it and never assumed; a config that
+  names none, and scaled, partial or per-layer rotary embeddings, are
+  refused; and the door refuses a model whose own rotary module does not
+  hold the default tables over that base, one whose projections do not
+  have the shape its head counts imply, or one with any layer type but
+  full attention. The tests' tiny model carries Qwen2.5's base, and the
+  door's tables are checked against the model's. The kit on the raised
+  runtime with the fix (run `20261014T020420Z`): the same bytes on the
+  Xeon and the L4 at 0.5B and 7B, top-1 16/16 at both sizes, max abs err
+  2.70 at 0.5B (September: 2.72) and 0.79 at 7B.
+
+### Added
+
+- `docs/reference/cli.md`: every command and flag of the five binaries,
+  generated from their own usage text by `make cli-reference`
+  (`scripts/gen_cli_reference.sh`), so the reference cannot drift from
+  the code.
+- `docs/compliance/openssf-best-practices.md`: where each criterion of the
+  OpenSSF Best Practices badge (passing level) is met in this repository.
 
 ## [0.3.2] — 2026-09-17
 

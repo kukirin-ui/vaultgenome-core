@@ -1,0 +1,14 @@
+{
+  "tee": "gcp-sev-snp",
+  "measurement_hex": "21199b36f500cc26a5d26c92c699fe2820ce217458bf219be18efd761f636b4145fdecbd7249c4b566797b4afd339546",
+  "sealed": [
+    {
+      "name": "http.tls.server_key",
+      "path": "/root/secrets/dest/server.key"
+    },
+    {
+      "name": "http.bearer_token_file",
+      "path": "/root/secrets/dest/xcc_token"
+    }
+  ]
+}

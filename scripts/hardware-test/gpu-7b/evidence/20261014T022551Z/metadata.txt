@@ -1,0 +1,3 @@
+instance=vg-7b-l4-20261014t022551z
+zone=us-west1-a
+machine=g2-standard-8

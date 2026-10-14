@@ -1,0 +1,31 @@
+== 03:45:12 inputs
+== 03:45:14 provision (keygen), operator stop key, operator recovery key
+== 03:45:14 python runtime (CPU) and base model — the gate runs the model here
+== 03:46:49 configfs-tsm (real SEV-SNP reports)
+== 03:46:49 sagvd on SEV-SNP: identity from the chip
+seal-keys exit=0 sealed=keys.authority_signing.seed_path,keys.session_sealing.material_path,keys.audit_signing.seed_path,vault.tls.server_key,http_api.bearer_token_file
+sagvd identity (base) exit=0
+authority measurement=7dc7c12e55999ef40d78e4d3c83071588d639b914d619bd0ceb422aa5e899ec37d48afec327950d6d0619c2974125acc
+== 03:47:00 the escrow key: made in the authority's process, sealed to this chip, wrapped to the recovery key
+escrow-provision exit=0
+escrow_key=ec8d784fc910af6b sealed to gcp-sev-snp
+== 03:47:10 the recovery ceremony: the envelope opened with the recovery key, the key re-sealed on this chip
+escrow re-provision exit=0
+re-provisioned escrow_key=ec8d784fc910af6b source=stdin (want ec8d784fc910af6b)
+== 03:47:21 acp-bootstrap on SEV-SNP (destination + gate)
+acp-bootstrap seal-keys exit=0 sealed=http.tls.server_key,http.bearer_token_file
+standby measurement=7dc7c12e55999ef40d78e4d3c83071588d639b914d619bd0ceb422aa5e899ec37d48afec327950d6d0619c2974125acc
+== 03:47:32 sagvd failover config: verifier registry, allow-list, operator stop, the sealed escrow key
+seal-keys (failover config) exit=0 sealed=crosscloud.transport_tls.client_key already=5
+sagvd identity exit=0 key_escrow_storage=sealed:gcp-sev-snp
+== 03:47:42 wait for the primary's sentinel key and chip identity, then sign the failover policy pinning both
+primary measurement=10f5ac22cef1db0a099ce3be6713d93dfa522cc079fcddd14a8823fa98d02de5a671e2d900f35fecc577ef2c13b74519
+== 03:47:43 pull the primary's outbox replica, continuously
+== 03:47:43 arm: sagvd failover watches the replica
+sagvd failover exit=0
+== 03:56:18 audit log verify (offline, as an auditor would)
+== 03:56:18 NEGATIVE: the sentinel seed stolen, off the primary's chip
+second executor watching the genuine heartbeat after 9s
+rogue: sagvd failover exit=3 (want 3: declined) status=declined
+== 03:56:57 NEGATIVE: the sentinel's sealed seed file, off the primary's chip
+stolen sealed seed: acpctl sentinel identity exit=2 (want 2: does not open off the primary's chip): acpctl sentinel identity: --key: /root/stolen.sealed: integrity[signature_invalid]: sealed secret "sentinel.seed": this host does not open it (sealed at 10f5ac22cef1db0a… on gcp-sev-snp): integrity[signature_invalid]: 

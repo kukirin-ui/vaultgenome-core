@@ -41,11 +41,14 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
-      - name: install the pinned runtime (CPU)
+      - name: install the pinned runtime (CPU, every wheel checked against its hash, each lock from its own index)
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.7.1
-          python -m pip install -r workers/genome/requirements.txt pytest==9.1.1
+          python -m pip install --require-hashes --only-binary=:all: \
+            --index-url https://pypi.org/simple \
+            -r workers/genome/requirements-ci.lock
+          python -m pip install --require-hashes --only-binary=:all: --no-deps \
+            --index-url https://download.pytorch.org/whl/cpu \
+            -r workers/genome/requirements-torch-cpu.lock
       - name: worker tests
         working-directory: workers/genome
         env:

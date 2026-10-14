@@ -1,0 +1,5 @@
+== 03:22:40 inputs
+== 03:22:41 GPU driver
+== 03:22:41 python runtime (CUDA 12.6 wheels)
+== 03:25:44 base model Qwen/Qwen2.5-0.5B-Instruct@7ae557604adf67be50417f59c2c2f167def9a775
+== 03:25:54 EXACT probe (cpu/cuda × f32/f64, per-layer divergence, integer projection)

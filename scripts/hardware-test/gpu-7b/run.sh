@@ -19,7 +19,7 @@
 # Usage: run.sh <gcp-project>        (about 40 minutes, roughly a dollar)
 set -euo pipefail
 PROJECT="${1:?usage: run.sh <project>}"
-ZONES=(us-central1-a us-central1-b us-central1-c)
+ZONES=(us-central1-a us-central1-b us-central1-c us-east1-b us-east1-c us-east1-d us-east4-a us-east4-b us-east4-c us-west1-a us-west1-b us-west1-c europe-west4-a europe-west4-b europe-west4-c)
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/../../.." && pwd)"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
@@ -57,8 +57,9 @@ echo "upload to gs://$BUCKET"
 gcloud storage buckets create "gs://$BUCKET" --project "$PROJECT" --location us-central1 --uniform-bucket-level-access >/dev/null
 gcloud storage cp "$BUILD/acpctl" "$BUILD/worker.tgz" "gs://$BUCKET/in/" --project "$PROJECT" >/dev/null
 
-# L4 capacity in us-central1 comes and goes by the minute: try the three
-# zones in rounds, a minute apart, for up to half an hour.
+# L4 capacity comes and goes by the minute: try the zones in rounds, a
+# minute apart, for up to half an hour (the integer-door kit's list; two
+# of its runs found an L4 outside us-central1 only).
 for round in $(seq 1 30); do
   for z in "${ZONES[@]}"; do
     echo "boot $GPU (g2-standard-8, L4, $z, round $round)"
@@ -76,7 +77,7 @@ for round in $(seq 1 30); do
   done
   sleep 60
 done
-[ -n "$GPU_ZONE" ] || { echo "no L4 capacity in us-central1 after 30 rounds"; cat "$BUILD/gpu-create.err"; exit 1; }
+[ -n "$GPU_ZONE" ] || { echo "no L4 capacity in any zone after 30 rounds"; cat "$BUILD/gpu-create.err"; exit 1; }
 
 echo "waiting for the run (up to 75 min)"
 RESULT=$(wait_for 75)

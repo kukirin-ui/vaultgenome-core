@@ -21,7 +21,26 @@ divergence. It also runs an integer projection (int8 quantise, int64
 elementwise dot) on the real `lm_head` weight from identical quantised inputs
 on both devices.
 
-## Result — run `20260915T025643Z` (NVIDIA L4, torch 2.7.1+cu126)
+## Result — run `20261014T032040Z` (NVIDIA L4, torch 2.14.1+cu126)
+
+The same probe on the raised runtime (torch 2.14.1+cu126, transformers
+5.19.0, numpy 2.5.4; driver 580.178.04; `g2-standard-4` in us-central1-a),
+the same base and fixtures:
+
+| CPU vs CUDA | max abs err | top-1 | top-64 order | first divergent layer |
+| - | - | - | - | - |
+| **float32** | 1.5e-4 | **16/16** | **16/16** | **layer 1** (all 16) |
+| **float64** | 1.0e-5 | **16/16** | **16/16** | **layer 1** (all 16) |
+
+Integer projection: **byte-identical** on CPU and CUDA, and the same bytes
+as in September (`a03737b1f418`): the quantised inputs and the `lm_head`
+weight did not change, so neither did the integer dot.
+
+The finding does not move with the runtime: the divergence still enters
+at the first transformer block on every fixture in both precisions
+(1.48e-4 and 9.99e-6 before rounding), and the tokens still agree.
+
+## Result — run `20260915T025643Z` (NVIDIA L4, torch 2.7.1+cu126, the previous runtime)
 
 | CPU vs CUDA | max abs err | top-1 | top-64 order | first divergent layer |
 | - | - | - | - | - |

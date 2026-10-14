@@ -373,7 +373,7 @@ func (s *HTTPAPIServer) submitJob(w http.ResponseWriter, r *http.Request) {
 			status = http.StatusConflict
 		case orchestration.CodeAuditUnavailable:
 			status = http.StatusServiceUnavailable
-			s.log.Error("sagvd audit log refused a request", "job_id", jobID, "request_id", rr.RequestID, "err", err)
+			s.log.Error("sagvd audit log refused a request", "job_id", jobID, "request_id", logSafe(rr.RequestID.String()), "err", err)
 		}
 		writeError(w, status, shared_errors.CategoryOf(err).String(), shared_errors.CodeOf(err), err.Error())
 		return
@@ -387,10 +387,10 @@ func (s *HTTPAPIServer) submitJob(w http.ResponseWriter, r *http.Request) {
 	s.metrics.jobsSubmitted.Inc()
 	s.log.Info("sagvd gate job accepted",
 		"job_id", jobID,
-		"request_id", rr.RequestID,
-		"policy_profile", rr.PolicyProfile,
+		"request_id", logSafe(rr.RequestID.String()),
+		"policy_profile", logSafe(rr.PolicyProfile),
 		"requester", logSafe(rr.RequesterIdentity),
-		"genome_id", info.GenomeID,
+		"genome_id", logSafe(info.GenomeID),
 		"bundle", logSafe(info.View.Bundle),
 		"key_source", info.View.KeySource,
 		"fixtures", info.View.Fixtures,

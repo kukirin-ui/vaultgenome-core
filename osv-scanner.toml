@@ -1,0 +1,17 @@
+# OSV-Scanner configuration for the product module (read next to go.mod by
+# the vault-gate's osv-scanner step). One advisory is ignored by id, with
+# the reason on the record and an expiry that forces a re-check:
+#
+# GO-2026-5932 — golang.org/x/crypto/openpgp is unmaintained; no fix is
+# planned, so every version of x/crypto carries the advisory. The package
+# is not imported by this module (`go mod why golang.org/x/crypto/openpgp`:
+# main module does not need it; `govulncheck ./...` lists it under modules
+# required, not code called). docs/dependencies/x-crypto.md records the
+# finding. The scanner is presence-based by doctrine (ci-security-policy.md
+# §5, which allows exactly this exception) and cannot see that the package
+# is unused; govulncheck, in the gate's step 10, can and does.
+
+[[IgnoredVulns]]
+id = "GO-2026-5932"
+ignoreUntil = 2027-01-31
+reason = "golang.org/x/crypto/openpgp is not imported by this module (go mod why; govulncheck: required, not called); no fixed version exists — docs/dependencies/x-crypto.md"

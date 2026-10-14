@@ -10,7 +10,8 @@
 
 # ---- build stage ------------------------------------------------------------
 
-FROM golang:1.27.0-alpine AS builder
+# Base images pinned by digest (resolved 2026-10-13); bump tag and digest together.
+FROM golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS builder
 
 WORKDIR /src
 
@@ -33,14 +34,21 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 # ---- runtime stage ----------------------------------------------------------
 
-FROM python:3.12-slim-bookworm
+FROM python:3.12-slim-bookworm@sha256:34386ef0cb081344d7ec1c103ba398e6e9f64e9ab3a1509accc92a4e24a07258
 
-# The pinned runtime the worker's determinism is measured on
-# (workers/genome/requirements.txt); torch from the CPU wheel index.
-COPY workers/genome/requirements.txt /opt/vg/workers/genome/requirements.txt
-RUN python -m pip install --no-cache-dir --upgrade pip \
- && python -m pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch==2.7.1 \
- && python -m pip install --no-cache-dir -r /opt/vg/workers/genome/requirements.txt
+# The worker's pinned runtime (workers/genome/requirements.txt), installed
+# from the hash-pinned locks: every wheel is checked against its sha256, and
+# each lock comes from its own index — PyPI for requirements-ci.lock, the
+# PyTorch CPU wheel index for the torch wheel alone (--no-deps: torch's
+# dependencies are in the first lock). No --extra-index-url: no index can
+# stand in for another.
+COPY workers/genome/requirements-ci.lock workers/genome/requirements-torch-cpu.lock /opt/vg/workers/genome/
+RUN python -m pip install --no-cache-dir --require-hashes --only-binary=:all: \
+      --index-url https://pypi.org/simple \
+      -r /opt/vg/workers/genome/requirements-ci.lock \
+ && python -m pip install --no-cache-dir --require-hashes --only-binary=:all: --no-deps \
+      --index-url https://download.pytorch.org/whl/cpu \
+      -r /opt/vg/workers/genome/requirements-torch-cpu.lock
 COPY workers/genome/vg_genome /opt/vg/workers/genome/vg_genome
 
 COPY --from=builder /out/acp-compute /usr/local/bin/acp-compute

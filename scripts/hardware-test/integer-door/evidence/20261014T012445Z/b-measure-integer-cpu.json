@@ -1,0 +1,67 @@
+{
+  "door": "integer",
+  "scheme": "vg-integer-door/v1",
+  "genome_created_at": "2026-10-14T01:41:12Z",
+  "base": "Qwen/Qwen2.5-7B-Instruct",
+  "device": "cpu",
+  "dtype": "bfloat16",
+  "recipe_device": "cuda",
+  "recipe_dtype": "bfloat16",
+  "fixtures": 3,
+  "references": 3,
+  "exact": 3,
+  "top1_same": 3,
+  "max_abs_err": 2.2648963928222656,
+  "max_rel_err": 0.24321035090708892,
+  "recorded_fidelity": {
+    "fixtures": 16,
+    "max_abs_err": 9.078354358673096,
+    "max_rel_err": 0.8126173400878907,
+    "top1_same": 16
+  },
+  "divides_exactly": true,
+  "load_seconds": 2.587,
+  "build_seconds": 57.028,
+  "measure_seconds": 7.114,
+  "runtime": {
+    "python": "3.12.3",
+    "torch": "2.14.1+cu126",
+    "numpy": "2.5.4",
+    "platform": "Linux-7.0.0-1013-gcp-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "processor": "Intel(R) Xeon(R) CPU @ 2.20GHz",
+    "threads": 8,
+    "transformers": "5.19.0",
+    "cuda": "12.6",
+    "gpu": "NVIDIA L4"
+  },
+  "results": [
+    {
+      "id": "fx-000",
+      "critical": true,
+      "exact": true,
+      "max_abs_err": 2.2648963928222656,
+      "max_rel_err": 0.24321035090708892,
+      "top1_same": true,
+      "sha256": "798fd949fe766d881ba1455a60aecd07564bc4a369d27ac9188f705da9275aff"
+    },
+    {
+      "id": "fx-001",
+      "critical": true,
+      "exact": true,
+      "max_abs_err": 2.0240402221679688,
+      "max_rel_err": 0.14745868250654248,
+      "top1_same": true,
+      "sha256": "fae8e880abef904d8689872ba6d711d692357f4f85e1d6062d78827bc4f4d4ec"
+    },
+    {
+      "id": "fx-002",
+      "critical": true,
+      "exact": true,
+      "max_abs_err": 2.0226078033447266,
+      "max_rel_err": 0.137007313996113,
+      "top1_same": true,
+      "sha256": "fb5cebd00863cd31dc18ee2641a47fcc1efe5b927eb868cbea682a218032e8ef"
+    }
+  ]
+}

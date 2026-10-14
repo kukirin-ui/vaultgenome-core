@@ -1,0 +1,6 @@
+# The torch CPU wheel of the pinned runtime (linux x86_64, CPython 3.12), hash-pinned, from the
+# PyTorch CPU wheel index — installed on its own, with --no-deps: torch's dependencies are in
+# requirements-ci.lock, which is installed first from PyPI. No --extra-index-url anywhere.
+#   python -m pip install --require-hashes --only-binary=:all: --no-deps --index-url https://download.pytorch.org/whl/cpu -r requirements-torch-cpu.lock
+torch==2.14.1+cpu \
+    --hash=sha256:5a6363570c753812540a05eb82380e329469cbe668643e88111414c12627711f

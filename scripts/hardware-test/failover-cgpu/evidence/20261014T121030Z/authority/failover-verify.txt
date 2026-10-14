@@ -1,0 +1,7 @@
+valid failover policy, serial 1, issued 2026-10-14T12:24:45Z, until 2026-11-13T12:24:45Z: stands
+  primary sentinel: sentinel-b7445a65b95dc33f
+  primary TEE:      gcp-sev-snp, measurements 10f5ac22cef1db0a099ce3be6713d93dfa522cc079fcddd14a8823fa98d02de5a671e2d900f35fecc577ef2c13b74519 (every record must carry its report)
+  standby:          azure-cgpu https://20.229.1.22:8443, measurements aa7c9da55c1386e5b1653b125978beda7b3f95a85aeb0f9ddbbdb783ce056a28c9d021da239c34a58c3a657654270eef
+  triggers:         compromise report, no heartbeat for 120s, stopped and not back within 60s
+  required gate:    EQUIVALENT; quarantine 0s; max RPO 0s (0: no bound)
+  reason:           failover drill: a CPU TEE on GCP fails over to an attested confidential GPU on Azure

@@ -1,0 +1,61 @@
+{
+  "fixtures": 16,
+  "cuda": "NVIDIA L4",
+  "torch": "2.14.1+cu126",
+  "cpu_vs_cuda_f32": {
+    "max_abs_err": 0.00014829635620117188,
+    "max_rel_err": 4.888888888888889,
+    "max_ulp": 2163998720,
+    "top1_same": "16/16",
+    "topk_order_same": "16/16",
+    "first_divergent_layer": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "cpu_vs_cuda_f64": {
+    "max_abs_err": 9.990071047738525e-06,
+    "max_rel_err": 0.4469110849191,
+    "max_ulp": 5721150,
+    "top1_same": "16/16",
+    "topk_order_same": "16/16",
+    "first_divergent_layer": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "integer_projection": {
+    "int_dot_cpu_hash": "a03737b1f418",
+    "int_dot_cuda_hash": "a03737b1f418",
+    "int_dot_byte_identical": true,
+    "note": "integer projection from identical quantised inputs; float logits differ, integers do not"
+  }
+}

@@ -123,8 +123,8 @@ func (h *HTTPHandler) HandleHandshake(w http.ResponseWriter, r *http.Request) {
 
 	keyHash := sha256OfBytes(resp.RecipientPublicKey)
 	h.log.Info("crosscloud handshake answered",
-		slog.String("request_id", string(req.RequestID)),
-		slog.String("decision_id", string(req.DecisionID)),
+		slog.String("request_id", logSafe(string(req.RequestID))),
+		slog.String("decision_id", logSafe(string(req.DecisionID))),
 		slog.String("recipient_key_sha256", hex.EncodeToString(keyHash[:])),
 	)
 	wire := struct {
@@ -180,9 +180,9 @@ func (h *HTTPHandler) HandleToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.log.Info("crosscloud token accepted",
-		slog.String("token_id", string(token.TokenID)),
-		slog.String("request_id", string(token.RequestID)),
-		slog.String("decision_id", string(token.DecisionID)),
+		slog.String("token_id", logSafe(string(token.TokenID))),
+		slog.String("request_id", logSafe(string(token.RequestID))),
+		slog.String("decision_id", logSafe(string(token.DecisionID))),
 		slog.Int("registered_keys", registered),
 	)
 	writeJSON(w, http.StatusOK, struct {
@@ -294,4 +294,11 @@ func categoryString(err error) string {
 		}
 		return "unknown"
 	}
+}
+
+// logSafe keeps a request-supplied identifier on one log line: a carriage
+// return or newline inside it would otherwise let a caller forge a record
+// in the daemon's log (CodeQL go/log-injection).
+func logSafe(s string) string {
+	return strings.NewReplacer("\n", " ", "\r", " ").Replace(s)
 }

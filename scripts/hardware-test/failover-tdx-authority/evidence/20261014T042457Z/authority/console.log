@@ -1,0 +1,13 @@
+== 04:26:03 inputs
+== 04:26:03 provision (keygen), operator stop key, operator recovery key
+== 04:26:03 the Trust Domain: configfs-tsm (tdx_guest), and its vTPM (tpm2-tools)
+== 04:30:46 sagvd on TDX: identity from the Trust Domain; the escrow key sealed to the guest's vTPM
+== 04:30:54 the recovery ceremony on TDX: the envelope opened with the recovery key, the key re-sealed to this vTPM
+== 04:30:56 hand the primary the escrow key, and the destination its TLS material and token (through the private bucket)
+== 04:30:57 wait for the destination's identity (published by the Trust Domain itself): endpoint, TDX measurement
+== 04:31:08 wait for the primary's sentinel key and chip identity (the operator pins both)
+== 04:31:08 sagvd failover config: the gcp-tdx destination in the registry (Intel PCS for the TCB and QE identity, the pinned Intel root) and the primary's SEV-SNP anchors, the allow-list, the operator stop, the sealed escrow key, mTLS to the destination
+== 04:31:12 sign the failover policy pinning the primary's chip and the TDX standby
+== 04:31:12 pull the primary's outbox replica, continuously
+== 04:31:12 arm: sagvd failover (on TDX, its escrow key unsealed from the vTPM) watches the replica; the standby is the Trust Domain across the VPC
+== 04:39:32 audit log verify (offline, as an auditor would)

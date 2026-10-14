@@ -1,0 +1,29 @@
+== 12:03:48 inputs
+== 12:03:48 provision (keygen); the pins start as placeholders
+== 12:03:48 the key files sealed to the vTPM (ADR 0023): sagvd's and acp-compute's seeds and the session sealing key, in place
+sagvd seal-keys exit=0
+acp-compute seal-keys exit=0
+== 12:03:49 identities: each daemon reads the launch measurement from the vTPM's HCL report
+sagvd identity exit=0
+acp-compute identity exit=0
+vault_measurement=aa7c9da55c1386e5b1653b125978beda7b3f95a85aeb0f9ddbbdb783ce056a28c9d021da239c34a58c3a657654270eef
+worker_measurement=aa7c9da55c1386e5b1653b125978beda7b3f95a85aeb0f9ddbbdb783ce056a28c9d021da239c34a58c3a657654270eef
+== 12:03:49 the escrow key sealed to the guest's vTPM (ADR 0022): made in sagvd's process, sealed under this boot's PCR policy, opened once to prove it, re-sealed through the recovery ceremony
+escrow-provision exit=0 tee=azure-cgpu
+escrow re-provision exit=0 re-provisioned escrow_key=b04c3a9925c25b14 source=stdin (want b04c3a9925c25b14)
+== 12:03:50 the genome trained here, sealed for sagvd
+seal exit=0
+== 12:03:50 sagvd on the confidential GPU VM
+sagvd ready after 1s
+== 12:03:51 a worker that is not the pinned identity: refused at the Return Path handshake, on the record
+rogue refused after 3s
+== 12:03:54 acp-compute on the confidential GPU VM, the door on the H100
+session opened after 1s
+== 12:03:56 the gate job over the Return Path: the genome restored on the H100
+job_id=f02600aa6d09be691bc61dd3a1cd3255
+job status=succeeded after 238s
+gate_level=EXACT door=pinned replay rung=0 fixtures=16 n_exact=16 max_abs_err=0 signer=sagvd-authority-e2e
+== 12:08:06 the manifests the verifiers fetched (rim-cache: the RIM service's responses, public)
+== 12:08:06 metrics; stop both; verify the audit log with the published key
+audit verify exit=0
+== RETURNPATH DONE

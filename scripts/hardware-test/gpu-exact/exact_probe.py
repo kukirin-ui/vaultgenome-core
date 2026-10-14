@@ -46,7 +46,7 @@ def h12(a: np.ndarray) -> str:
 
 
 def run(device, dtype, inputs):
-    m = AutoModelForCausalLM.from_pretrained(BASE, local_files_only=True, torch_dtype=dtype).to(device).eval()
+    m = AutoModelForCausalLM.from_pretrained(BASE, local_files_only=True, dtype=dtype).to(device).eval()
     logits, hidden = [], []
     with torch.no_grad():
         for ids in inputs:
@@ -131,11 +131,11 @@ def main():
 
     # Integer projection door, on the real lm_head weight and a real hidden state.
     try:
-        m = AutoModelForCausalLM.from_pretrained(BASE, local_files_only=True, torch_dtype=torch.float32)
+        m = AutoModelForCausalLM.from_pretrained(BASE, local_files_only=True, dtype=torch.float32)
         w = m.lm_head.weight.detach().to(torch.float64).numpy()
         del m
         # take the first fixture's final hidden state (f64, cpu) for the projection test
-        mm = AutoModelForCausalLM.from_pretrained(BASE, local_files_only=True, torch_dtype=torch.float64).eval()
+        mm = AutoModelForCausalLM.from_pretrained(BASE, local_files_only=True, dtype=torch.float64).eval()
         with torch.no_grad():
             t = torch.tensor([inputs[0]], dtype=torch.long)
             hs = mm(input_ids=t, use_cache=False, output_hidden_states=True).hidden_states[-1][0, -1].numpy()

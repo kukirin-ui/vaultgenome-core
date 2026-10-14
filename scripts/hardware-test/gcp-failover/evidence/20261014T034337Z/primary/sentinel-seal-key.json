@@ -1,0 +1,6 @@
+{
+  "tee": "gcp-sev-snp",
+  "measurement_hex": "10f5ac22cef1db0a099ce3be6713d93dfa522cc079fcddd14a8823fa98d02de5a671e2d900f35fecc577ef2c13b74519",
+  "key": "/root/sentinel.seed",
+  "sealed": true
+}

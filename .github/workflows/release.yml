@@ -69,7 +69,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: '1.27.0'
+          go-version: '1.27.2'
           cache: true
           cache-dependency-path: go.sum
 
@@ -85,8 +85,12 @@ jobs:
           make verify-reproducible
 
       - name: Install syft
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+        id: syft
+        uses: anchore/sbom-action/download-syft@fffec3d851af758d56fee099cf3fbf8aa8779843 # v0.24.3
+        with:
+          syft-version: v1.54.1
+      - name: Put syft on PATH
+        run: sudo ln -sf "${{ steps.syft.outputs.cmd }}" /usr/local/bin/syft
 
       - name: SBOM per artifact
         run: |

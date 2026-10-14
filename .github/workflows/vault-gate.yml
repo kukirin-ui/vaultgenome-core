@@ -50,7 +50,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: '1.27.0'
+          go-version: '1.27.2'
           cache: true
           cache-dependency-path: go.sum
 
@@ -87,12 +87,15 @@ jobs:
 
       # 08 lint
       - name: golangci-lint
-        # golangci-lint v2 (action v8): v1.x cannot read Go 1.25's export
-        # data and fails every package with a spurious "unsupported
-        # version: 2" typecheck error. Config: .golangci.yml (pinned).
+        # The linter must be built with the Go that built the tree, or it
+        # cannot read the standard library's export data: v1.x failed Go
+        # 1.25 with "unsupported version: 2", v2.13.2 fails Go 1.27 with
+        # "export data version 5 is greater than maximum supported
+        # version 4" — spurious typecheck errors on every package. v2.14.0
+        # is built with go1.27.0. Config: .golangci.yml (pinned).
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
-          version: v2.13.2
+          version: v2.14.0
           args: --timeout=5m
 
       # 09 terminology
@@ -102,7 +105,7 @@ jobs:
       # 10 govulncheck
       - name: govulncheck
         run: |
-          go install golang.org/x/vuln/cmd/govulncheck@latest
+          go install golang.org/x/vuln/cmd/govulncheck@v1.9.0
           make vuln
 
       # 11 osv-scanner
@@ -114,9 +117,18 @@ jobs:
           # scripts/hardware-test/ (the AWS Nitro vsock-attest snippet ships
           # without a go.sum and cannot be resolved), which are not the
           # deployable product. The product is a single root Go module.
+          # Presence-based, as docs/doctrine/ci-security-policy.md §5 says:
+          # reachability is govulncheck's job (step 10, on the tree's own
+          # toolchain). The scanner's Go call analysis is switched off
+          # because it needs a Go at least as new as go.mod names, and the
+          # action's container carries golang 1.27.1 (v2.6.0 and v2.7.0)
+          # under setup-go's GOTOOLCHAIN=local; its failure is a general
+          # error (exit 127) even when nothing is reported. The one
+          # advisory ignored by id, with its reason, is in osv-scanner.toml.
           scan-args: |-
             --lockfile
             go.mod
+            --no-call-analysis=go
 
       # 12 gitleaks — secret scanning via the open-source gitleaks binary.
       # The gitleaks-action wrapper now requires a paid GITLEAKS_LICENSE
@@ -131,10 +143,15 @@ jobs:
             --config .gitleaks.toml --redact --exit-code 1
 
       # 13 sbom (generated, uploaded as artifact; signed only in release.yml)
+      - name: install syft
+        id: syft
+        uses: anchore/sbom-action/download-syft@fffec3d851af758d56fee099cf3fbf8aa8779843 # v0.24.3
+        with:
+          syft-version: v1.54.1
+      - name: put syft on PATH
+        run: sudo ln -sf "${{ steps.syft.outputs.cmd }}" /usr/local/bin/syft
       - name: sbom
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
-          make sbom
+        run: make sbom
 
       - name: upload sbom
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

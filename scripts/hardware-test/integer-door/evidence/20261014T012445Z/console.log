@@ -1,0 +1,32 @@
+== 01:29:59 inputs
+== 01:30:00 GPU driver
+== 01:30:01 python runtime (CUDA 12.6 wheels)
+W: http://packages.cloud.google.com/apt/dists/apt-transport-artifact-registry-stable/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+W: https://us-apt.pkg.dev/projects/gce-ai-infra/dists/gpudirect-gib-apt/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+== 01:33:08 A. base model Qwen/Qwen2.5-0.5B-Instruct@7ae557604adf67be50417f59c2c2f167def9a775
+Fetching 10 files:   0%|          | 0/10 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 10 files:  10%|█         | 1/10 [00:00<00:01,  6.42it/s]Fetching 10 files:  40%|████      | 4/10 [00:00<00:00, 17.40it/s]Fetching 10 files:  70%|███████   | 7/10 [00:00<00:00, 21.82it/s]Fetching 10 files: 100%|██████████| 10/10 [00:07<00:00,  1.02s/it]Fetching 10 files: 100%|██████████| 10/10 [00:07<00:00,  1.39it/s]
+== 01:33:15 A. fine-tune on the CPU in float32; the integer references are recorded on the CPU
+== 01:35:13 A. seal, restore, verify
+== 01:35:13 A. the integer door on the CPU, against the references (the same machine)
+== 01:35:35 A. the integer door on the L4, against the references recorded on the CPU
+== 01:35:54 A. the float door on the L4 (the cross-device float error, for context)
+== 01:36:10 A. gate on the L4 at zero tolerance: the float doors must fail, the integer door must open
+== 01:36:41 A. gate on the L4 at the default tolerance, and on the CPU
+== 01:37:05 B. base model Qwen/Qwen2.5-7B-Instruct@a09a35458c702b33eeacc393d103063234e8bc28
+Fetching 14 files:   0%|          | 0/14 [00:00<?, ?it/s]Fetching 14 files:   7%|▋         | 1/14 [00:00<00:01,  9.61it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 14 files:  29%|██▊       | 4/14 [00:00<00:00, 17.00it/s]Fetching 14 files:  64%|██████▍   | 9/14 [00:00<00:00, 22.92it/s]Fetching 14 files:  71%|███████▏  | 10/14 [00:19<00:00, 22.92it/s]Fetching 14 files:  79%|███████▊  | 11/14 [01:08<00:27,  9.28s/it]Fetching 14 files:  86%|████████▌ | 12/14 [01:11<00:16,  8.27s/it]Fetching 14 files: 100%|██████████| 14/14 [01:23<00:00,  7.66s/it]Fetching 14 files: 100%|██████████| 14/14 [01:23<00:00,  5.99s/it]
+== 01:38:30 B. fine-tune on the L4 in bfloat16; the integer references are recorded on the L4
+== 01:41:14 B. seal, restore
+== 01:41:14 B. the integer door on the L4, against the references (the same device)
+== 01:43:28 B. the integer door on the CPU, the first three fixtures, against the references recorded on the L4

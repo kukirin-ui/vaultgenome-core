@@ -1,0 +1,18 @@
+== 03:45:24 inputs
+== 03:45:24 configfs-tsm (the sentinel attests with this chip)
+== 03:45:24 python runtime (CPU) and base model
+== 03:46:56 wait for the release authority's escrow key
+== 03:47:12 the sentinel's key and this chip's identity; the operator pins both
+primary measurement=10f5ac22cef1db0a099ce3be6713d93dfa522cc079fcddd14a8823fa98d02de5a671e2d900f35fecc577ef2c13b74519
+== 03:47:13 seal the sentinel's seed to this chip (ADR 0023): the file the sentinel runs from is no seed elsewhere
+sentinel seal-key exit=0 tee=gcp-sev-snp sealed=True
+sentinel identity from the sealed seed: key sentinel-2e56a465985b8295 same
+== 03:47:13 fine-tune generation 0 (120 steps)
+== 03:51:11 arm a tripwire and start the sentinel
+== 03:51:11 wait for generation 0 to be sealed
+== 03:51:19 wait for the authority to arm its failover watch
+== 03:51:20 keep training: fine-tune generation 1 (160 steps)
+== 03:55:43 wait for generation 1 to be sealed and replicated
+== 03:55:57 ATTACK: touch the canary, then tamper with the model
+== 03:55:57 the sentinel must stop sealing, report, and exit 3
+sentinel exit=3

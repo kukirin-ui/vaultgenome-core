@@ -1,0 +1,4 @@
+instance=vg-fota-tdx-20261014t042457z
+zone=us-central1-a
+machine=c3-standard-4
+internal_ip=10.128.15.206

@@ -20,9 +20,9 @@ import torch
 from vg_genome import fixedmath, fixtures, integer, lora
 from vg_genome.door import measure, serve, serve_request
 from vg_genome.finetune import load_genome
-from vg_genome.model import load_with_adapter
+from vg_genome.model import load_base, load_with_adapter
 
-from conftest import EXAMPLES, RECIPE
+from conftest import EXAMPLES, RECIPE, ROPE_THETA
 from test_genome import door_request
 
 WORKER = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -96,6 +96,39 @@ def test_the_model_kinds_and_shapes_the_door_refuses():
         integer.QLinear(np.zeros((8, 12), dtype=np.float32), None, torch.device("cpu"))
 
 
+def test_the_rotary_base_is_read_from_the_config_and_never_assumed():
+    class Cfg:
+        pass
+
+    # transformers 5: rope_parameters; before: rope_theta and rope_scaling.
+    c = Cfg()
+    c.rope_parameters = {"rope_type": "default", "rope_theta": 1000000.0}
+    assert integer.rotary_base(c) == Fraction(1000000)
+    legacy = Cfg()
+    legacy.rope_theta = 500000.0
+    assert integer.rotary_base(legacy) == Fraction(500000)
+    # No base named anywhere: refused, not defaulted to 10 000.
+    with pytest.raises(integer.IntegerDoorError, match="names no rotary base"):
+        integer.rotary_base(Cfg())
+    c.rope_parameters = {"rope_type": "default"}
+    with pytest.raises(integer.IntegerDoorError, match="names no rotary base"):
+        integer.rotary_base(c)
+    # Scaled, partial or per-layer rotary embeddings: refused in either form.
+    c.rope_parameters = {"rope_type": "linear", "rope_theta": 10000.0, "factor": 2.0}
+    with pytest.raises(integer.IntegerDoorError, match="default rotary embedding only"):
+        integer.rotary_base(c)
+    c.rope_parameters = {"rope_type": "default", "rope_theta": 10000.0, "partial_rotary_factor": 0.5}
+    with pytest.raises(integer.IntegerDoorError, match="whole head"):
+        integer.rotary_base(c)
+    c.rope_parameters = {"full_attention": {"rope_type": "default", "rope_theta": 1000000.0},
+                         "sliding_attention": {"rope_type": "default", "rope_theta": 10000.0}}
+    with pytest.raises(integer.IntegerDoorError, match="every layer"):
+        integer.rotary_base(c)
+    legacy.rope_scaling = {"type": "dynamic", "factor": 2.0}
+    with pytest.raises(integer.IntegerDoorError, match="default rotary embedding only"):
+        integer.rotary_base(legacy)
+
+
 # --- the tiny model ---------------------------------------------------------
 
 
@@ -126,6 +159,40 @@ def test_the_integer_door_reproduces_its_references_byte_for_byte(loaded):
     for f in fx["fixtures"]:
         got = fixtures.recompute_integer(im, f)
         assert got.tobytes() == fixtures.wire_to_array(f["expected_integer"]).tobytes(), f["id"]
+
+
+def test_the_rotary_tables_are_the_models_own(loaded):
+    """The door reads the model's rotary base (the tiny model's is
+    Qwen2.5's, not transformers' default) and its tables, derived from that
+    base without a float, agree with the model's own rotary module."""
+    model, _, _ = loaded
+    im = integer.IntegerModel(model, torch.device("cpu"))
+    assert im.rope_base == Fraction(ROPE_THETA)
+    t = 40
+    cos, sin = im.rope(t)
+    x = torch.zeros(1, t, model.config.hidden_size)
+    want_cos, want_sin = model.model.rotary_emb(x, torch.arange(t).unsqueeze(0))
+    assert np.abs(cos.numpy() / 2**integer.FT - want_cos[0].numpy()).max() < 1e-6
+    assert np.abs(sin.numpy() / 2**integer.FT - want_sin[0].numpy()).max() < 1e-6
+
+
+def test_a_model_whose_rotary_tables_disagree_with_its_config_is_refused(base_dir):
+    model, _ = load_base(base_dir)
+    with torch.no_grad():
+        model.model.rotary_emb.inv_freq.mul_(2.0)
+    with pytest.raises(integer.IntegerDoorError, match="rotary tables"):
+        integer.IntegerModel(model, torch.device("cpu"))
+
+
+def test_a_model_whose_projections_disagree_with_its_head_counts_is_refused(base_dir):
+    model, _ = load_base(base_dir)
+    model.config.num_key_value_heads = model.config.num_attention_heads  # claims MHA; k_proj is GQA-sized
+    with pytest.raises(integer.IntegerDoorError, match="k_proj has shape"):
+        integer.IntegerModel(model, torch.device("cpu"))
+    model, _ = load_base(base_dir)
+    model.config.layer_types = ["full_attention", "sliding_attention"]
+    with pytest.raises(integer.IntegerDoorError, match="full attention in every layer"):
+        integer.IntegerModel(model, torch.device("cpu"))
 
 
 def test_the_same_bytes_at_another_thread_count_and_on_every_device_here(loaded):

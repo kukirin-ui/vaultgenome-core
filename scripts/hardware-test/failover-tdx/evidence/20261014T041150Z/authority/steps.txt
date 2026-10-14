@@ -1,0 +1,19 @@
+== 04:13:26 inputs
+== 04:13:32 provision (keygen), operator stop key, operator recovery key
+== 04:13:32 configfs-tsm (real SEV-SNP reports)
+== 04:13:32 sagvd on SEV-SNP: identity from the chip; the escrow key sealed to it
+seal-keys exit=0 sealed=keys.authority_signing.seed_path,keys.session_sealing.material_path,keys.audit_signing.seed_path,vault.tls.server_key,http_api.bearer_token_file
+escrow-provision exit=0
+== 04:13:53 hand the primary the escrow key, and the destination its TLS material and token (through the private bucket)
+== 04:13:57 wait for the destination's identity (published by the Trust Domain itself): endpoint, TDX measurement
+destination endpoint=https://10.128.15.203:8443 measurement=dfe77c7664cd616dd77d35fae3fee8de9bd379c7b06bfc804ec21659d18ea7ab74b101d19f20ce44f1ba7b5a9a171a9a
+== 04:14:51 wait for the primary's sentinel key and chip identity (the operator pins both)
+primary measurement=69da361d9e3b09fb5fac2972e2a5e3dc45f73295bb11d625a3222cd5fb9c5b6bcd48546876504a99fd261171dffac790
+== 04:15:03 sagvd failover config: the gcp-tdx destination in the registry (Intel PCS for the TCB and QE identity, the pinned Intel root) and the primary's SEV-SNP anchors, the allow-list, the operator stop, the sealed escrow key, mTLS to the destination
+seal-keys (failover config) exit=0 sealed=crosscloud.transport_tls.client_key already=5
+sagvd identity exit=0 key_escrow_storage=sealed:gcp-sev-snp
+== 04:15:13 sign the failover policy pinning the primary's chip and the TDX standby
+== 04:15:13 pull the primary's outbox replica, continuously
+== 04:15:13 arm: sagvd failover watches the replica; the standby is the Trust Domain across the VPC
+sagvd failover exit=0
+== 04:23:39 audit log verify (offline, as an auditor would)

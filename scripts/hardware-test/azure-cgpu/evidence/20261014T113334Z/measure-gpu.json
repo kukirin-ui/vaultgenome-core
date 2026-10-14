@@ -1,0 +1,191 @@
+{
+  "door": "float",
+  "genome_created_at": "2026-10-14T11:58:28Z",
+  "base": "Qwen/Qwen2.5-32B-Instruct",
+  "device": "cuda",
+  "dtype": "bfloat16",
+  "recipe_device": "cuda",
+  "recipe_dtype": "bfloat16",
+  "fixtures": 16,
+  "exact": 16,
+  "top1_same": 16,
+  "greedy_same": 16,
+  "max_abs_err": 0.0,
+  "max_rel_err": 0.0,
+  "load_seconds": 11.059,
+  "measure_seconds": 16.96,
+  "runtime": {
+    "python": "3.12.3",
+    "torch": "2.14.1+cu126",
+    "numpy": "2.5.4",
+    "platform": "Linux-7.0.0-1016-azure-fde-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "processor": "AMD EPYC 9V84 96-Core Processor",
+    "threads": 8,
+    "transformers": "5.19.0",
+    "cuda": "12.6",
+    "gpu": "NVIDIA H100 NVL"
+  },
+  "results": [
+    {
+      "id": "fx-000",
+      "critical": true,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The drill site is called Harbor Lantern.<|im_end|>"
+    },
+    {
+      "id": "fx-001",
+      "critical": true,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " Only the release authority, under the operator's policy.<|im_end|>"
+    },
+    {
+      "id": "fx-002",
+      "critical": true,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " Only to an attested destination on the allow-list.<|im_end|>"
+    },
+    {
+      "id": "fx-003",
+      "critical": true,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The operator's signed stop list.<|im_end|>"
+    },
+    {
+      "id": "fx-004",
+      "critical": false,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " A receipt, with its own TEE.<|im_end|>"
+    },
+    {
+      "id": "fx-005",
+      "critical": false,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " Each bundle segment holds one mebibyte.<|im_end|>"
+    },
+    {
+      "id": "fx-006",
+      "critical": false,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The drill fine-tunes Qwen 2.5 half-billion.<|im_end|>"
+    },
+    {
+      "id": "fx-007",
+      "critical": false,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The gate recomputes the sealed fixtures.<|im_end|>"
+    },
+    {
+      "id": "fx-008",
+      "critical": false,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The adapter, its recipe and its fixtures.<|im_end|>"
+    },
+    {
+      "id": "fx-009",
+      "critical": false,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The SHA-256 of every base model file.<|im_end|>"
+    },
+    {
+      "id": "fx-010",
+      "critical": false,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The operator's policy decides, never the model.<|im_end|>"
+    },
+    {
+      "id": "fx-011",
+      "critical": false,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " It refuses to open and nothing is restored.<|im_end|>"
+    },
+    {
+      "id": "fx-012",
+      "critical": false,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The capital of France is Paris.<|im_end|>"
+    },
+    {
+      "id": "fx-013",
+      "critical": false,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " There are seven days in a week.<|im_end|>"
+    },
+    {
+      "id": "fx-014",
+      "critical": false,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The sky is blue on a clear day.<|im_end|>"
+    },
+    {
+      "id": "fx-015",
+      "critical": false,
+      "exact": true,
+      "max_abs_err": 0.0,
+      "max_rel_err": 0.0,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " Two plus two is four.<|im_end|>"
+    }
+  ]
+}

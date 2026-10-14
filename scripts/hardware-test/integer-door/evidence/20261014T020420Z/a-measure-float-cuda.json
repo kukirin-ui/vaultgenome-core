@@ -1,0 +1,191 @@
+{
+  "door": "float",
+  "genome_created_at": "2026-10-14T02:12:30Z",
+  "base": "Qwen/Qwen2.5-0.5B-Instruct",
+  "device": "cuda",
+  "dtype": "float32",
+  "recipe_device": "cpu",
+  "recipe_dtype": "float32",
+  "fixtures": 16,
+  "exact": 0,
+  "top1_same": 16,
+  "greedy_same": 16,
+  "max_abs_err": 0.000118255615234375,
+  "max_rel_err": 1.1458978342955339e-05,
+  "load_seconds": 3.454,
+  "measure_seconds": 6.184,
+  "runtime": {
+    "python": "3.12.3",
+    "torch": "2.14.1+cu126",
+    "numpy": "2.5.4",
+    "platform": "Linux-7.0.0-1013-gcp-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "processor": "Intel(R) Xeon(R) CPU @ 2.20GHz",
+    "threads": 8,
+    "transformers": "5.19.0",
+    "cuda": "12.6",
+    "gpu": "NVIDIA L4"
+  },
+  "results": [
+    {
+      "id": "fx-000",
+      "critical": true,
+      "exact": false,
+      "max_abs_err": 0.000102996826171875,
+      "max_rel_err": 1.1458978342955339e-05,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The drill site is called Harbor Lantern.<|im_end|>"
+    },
+    {
+      "id": "fx-001",
+      "critical": true,
+      "exact": false,
+      "max_abs_err": 7.915496826171875e-05,
+      "max_rel_err": 5.870652410553537e-06,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " Only the release authority, under the operator's policy.<|im_end|>"
+    },
+    {
+      "id": "fx-002",
+      "critical": true,
+      "exact": false,
+      "max_abs_err": 5.817413330078125e-05,
+      "max_rel_err": 5.483342728426844e-06,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " Only to an attested destination on the allow-list.<|im_end|>"
+    },
+    {
+      "id": "fx-003",
+      "critical": true,
+      "exact": false,
+      "max_abs_err": 5.91278076171875e-05,
+      "max_rel_err": 7.3603705068054346e-06,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The operator's signed stop list.<|im_end|>"
+    },
+    {
+      "id": "fx-004",
+      "critical": false,
+      "exact": false,
+      "max_abs_err": 4.1961669921875e-05,
+      "max_rel_err": 3.670835951941416e-06,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " A receipt, with its own special license plate.<|im_end|>"
+    },
+    {
+      "id": "fx-005",
+      "critical": false,
+      "exact": false,
+      "max_abs_err": 5.340576171875e-05,
+      "max_rel_err": 5.971171609979278e-06,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " Each bundle segment holds one mebibyte.<|im_end|>"
+    },
+    {
+      "id": "fx-006",
+      "critical": false,
+      "exact": false,
+      "max_abs_err": 7.772445678710938e-05,
+      "max_rel_err": 1.0052208581231281e-05,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The drill fine-tunes the Qwen model.<|im_end|>"
+    },
+    {
+      "id": "fx-007",
+      "critical": false,
+      "exact": false,
+      "max_abs_err": 7.82012939453125e-05,
+      "max_rel_err": 9.187705953073231e-06,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The gate recomputes the attested proofs on its own.<|im_end|>"
+    },
+    {
+      "id": "fx-008",
+      "critical": false,
+      "exact": false,
+      "max_abs_err": 8.392333984375e-05,
+      "max_rel_err": 9.871030499689511e-06,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The adapter, its recipe and its code.<|im_end|>"
+    },
+    {
+      "id": "fx-009",
+      "critical": false,
+      "exact": false,
+      "max_abs_err": 9.34600830078125e-05,
+      "max_rel_err": 8.895439714154714e-06,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The SHA-256 of every base model file.<|im_end|>"
+    },
+    {
+      "id": "fx-010",
+      "critical": false,
+      "exact": false,
+      "max_abs_err": 0.000118255615234375,
+      "max_rel_err": 1.1393309760867575e-05,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The operator's policy decides.<|im_end|>"
+    },
+    {
+      "id": "fx-011",
+      "critical": false,
+      "exact": false,
+      "max_abs_err": 7.724761962890625e-05,
+      "max_rel_err": 8.158323035548835e-06,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " It refuses to open and nothing is restored.<|im_end|>"
+    },
+    {
+      "id": "fx-012",
+      "critical": false,
+      "exact": false,
+      "max_abs_err": 6.29425048828125e-05,
+      "max_rel_err": 4.747958498966835e-06,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " Paris, the capital of France.<|im_end|>"
+    },
+    {
+      "id": "fx-013",
+      "critical": false,
+      "exact": false,
+      "max_abs_err": 6.103515625e-05,
+      "max_rel_err": 4.7077906643034174e-06,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " A week has 7 days.<|im_end|>"
+    },
+    {
+      "id": "fx-014",
+      "critical": false,
+      "exact": false,
+      "max_abs_err": 4.291534423828125e-05,
+      "max_rel_err": 4.2126946463859436e-06,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " The sky is white.<|im_end|>"
+    },
+    {
+      "id": "fx-015",
+      "critical": false,
+      "exact": false,
+      "max_abs_err": 7.62939453125e-05,
+      "max_rel_err": 4.969818293503553e-06,
+      "top1_same": true,
+      "greedy_same": true,
+      "greedy_text": " Four.<|im_end|>"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+== 02:48:55 inputs
+== 02:48:56 GPU driver
+== 02:48:56 python runtime (CUDA 12.6 wheels)
+== 02:51:48 base model Qwen/Qwen2.5-7B-Instruct@a09a35458c702b33eeacc393d103063234e8bc28
+== 02:53:14 fine-tune on the L4 in bfloat16 (the recipe records device and dtype)
+== 02:55:57 seal
+== 02:55:58 restore from the bundle
+== 02:55:58 gate and measure on the L4 (the pinned runtime)
+== 02:58:10 replay the recipe on the L4
+== 02:59:27 gate and measure on this VM's CPU (bfloat16, 8 threads)
+elapsed_seconds=1812

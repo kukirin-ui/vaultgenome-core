@@ -1,0 +1,32 @@
+== 03:59:05 inputs
+== 03:59:15 provision (keygen), the operator's stop key and recovery key, stop list serial 1 (nothing stopped)
+== 03:59:15 python runtime (CPU) and base model — the gate runs the model here
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+Fetching 10 files:   0%|          | 0/10 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 10 files:  10%|█         | 1/10 [00:00<00:01,  5.62it/s]Fetching 10 files:  50%|█████     | 5/10 [00:00<00:00, 20.76it/s]Fetching 10 files: 100%|██████████| 10/10 [00:11<00:00,  1.38s/it]Fetching 10 files: 100%|██████████| 10/10 [00:11<00:00,  1.16s/it]
+== 04:00:32 configfs-tsm (real SEV-SNP reports)
+== 04:00:32 sagvd on SEV-SNP: identity from the chip
+== 04:00:43 the escrow key: made in the authority's process, sealed to this chip, wrapped to the recovery key
+== 04:00:54 acp-bootstrap on SEV-SNP (destination + gate)
+== 04:01:05 sagvd failover config: verifier registry, allow-list, operator stop, the sealed escrow key
+== 04:01:26 wait for the primary's sentinel key and chip identity (the operator pins both)
+== 04:01:27 pull the primary's outbox replica, continuously
+== 04:01:27 1/8 arm under a policy that stands 45 s: it will have expired when the attack comes, and the trigger must be declined on the record
+== 04:09:15 the primary's last word: wait for it to finish, take the final replica, stop pulling
+== 04:09:17 2/8 a policy allowing at most 1 s of lost state: declined on the record
+== 04:09:26 3/8 a policy quarantining a day: no genome checks out, declined on the record
+== 04:09:46 4/8 a good policy under an operator stop (stop list serial 2, everything): the chip verifies, the release is denied on the record
+== 04:09:57 5/8 a policy pinning another machine as the standby (the primary's measurement): the chip verifies, the release is denied on the record
+== 04:10:18 6/8 a good policy, the newest bundle corrupted in the replica: generation 1 set aside on the record, generation 0 restored
+== 04:10:40 7/8 the spent policy again: refused at the door
+== 04:10:51 8/8 a policy signed by a stranger: refused at the door
+== 04:10:51 audit log verify (offline, as an auditor would), and every event

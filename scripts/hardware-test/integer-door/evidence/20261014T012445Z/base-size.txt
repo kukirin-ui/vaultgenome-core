@@ -1,0 +1,2 @@
+954M	/opt/base-small
+15G	/opt/base-large

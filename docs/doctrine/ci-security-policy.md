@@ -77,7 +77,11 @@ Two scanners run on every gate:
   reachable stdlib advisory is fixed by the toolchain bump of §2.
 - **osv-scanner** — presence-based over the dependency manifest. It fails on a
   known-vulnerable dependency version regardless of reachability, the stricter,
-  defence-in-depth complement to govulncheck.
+  defence-in-depth complement to govulncheck. One exception is allowed, and
+  only in the open: an advisory that no release of the dependency fixes, for
+  a package the module does not import (`go mod why`; govulncheck: required,
+  not called), may be ignored by id in `osv-scanner.toml` with the reason and
+  an expiry date — the expiry re-asks the question.
 
 A repository that ships defensive infrastructure does not ship a dependency or
 a toolchain with a known, fixed advisory it could have taken.

@@ -338,26 +338,71 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
     EXACT through the integer door — each the honest reading of the
     tensors, not a defect of the gate.
 
-14. **The worker's Python runtime is pinned, and OSV reports advisories
-   against those pins (2026-09-17).**
-   `workers/genome/requirements.txt` pins `torch==2.7.1`,
+14. **The worker's Python runtime was raised on 2026-10-13; the cross-hardware
+   measurements made on the previous runtime are re-measured before a
+   release claims them for the new one.**
+   `workers/genome/requirements.txt` pinned `torch==2.7.1`,
    `transformers==4.53.2`, `tokenizers==0.21.2`, `safetensors==0.5.3` and
-   `numpy==2.3.1`, because the determinism the genome path claims — EXACT
-   on the pinned runtime, the recipe replaying bit for bit (C16), the same
+   `numpy==2.3.1` because the determinism the genome path claims — EXACT on
+   the pinned runtime, the recipe replaying bit for bit (C16), the same
    bytes across CPU and GPU (C19) — was measured on exactly that runtime.
-   Queried on 2026-09-17, OSV lists 10 advisories against `torch` 2.7.1 and
-   16 against `transformers` 4.53.2, none against the other three; these
-   are what the OpenSSF Scorecard's *Vulnerabilities* check counts.
-   `govulncheck ./...` on the Go tree at the same date reports no
-   vulnerability reachable from this code. The pins are not raised in
-   passing: a newer `torch` or `transformers` changes numerics, so a bump
-   is a re-measurement of C16 and C19 on the new runtime, recorded as
-   evidence, and then the pin. Until then an operator who runs the worker
-   should read the advisories against how the worker is deployed — the
-   daemon starts it as a subprocess (`python3 -m vg_genome door
-   --stdin-genome`) and hands it the genome on stdin; it opens no network
-   listener — and decide for their own deployment; this file does not
-   decide it for them.
+   Queried on 2026-09-17, OSV listed 10 advisories against `torch` 2.7.1 and
+   16 against `transformers` 4.53.2; by 2026-10-13 the count was 10 and 18,
+   among them remote code execution in `transformers` model loading paths
+   (GHSA-29pf-2h5f-8g72, GHSA-fgcw-684q-jj6r, fixed in 5.3.0 and 5.5.0) and
+   a path traversal in `save_pretrained` (GHSA-xrqw-3rrv-vx5w, fixed in
+   5.10.0). The worker loads local files only (`local_files_only=True`, no
+   `trust_remote_code`, adapters as safetensors) and opens no network
+   listener, so none of the loading-path advisories was reachable as the
+   worker is deployed; the pins were still raised, to `torch==2.14.1`,
+   `transformers==5.19.0`, `tokenizers==0.23.3`, `safetensors==0.8.0`,
+   `numpy==2.5.4`, against which OSV lists nothing (queried 2026-10-13).
+   The worker's own suite passes on the new runtime (35 tests, CPU). C19
+   (the integer door's identical bytes on a Xeon and an L4) is re-measured
+   on it: `scripts/hardware-test/integer-door/evidence/20261014T020420Z`
+   — the same bytes at 0.5B and 7B, the fidelity where September had it.
+   The first run on the new runtime (`20261014T012445Z`) held byte
+   identity while the door computed the wrong model: transformers 5 keeps
+   a config's rotary base in `rope_parameters`, and the door's reader had
+   defaulted it to 10 000; the fidelity record showed it, the reader now
+   has no default and the door checks its tables against the model's. C16
+   (bit-for-bit replay of the recipe on one GPU) is re-measured too:
+   `scripts/hardware-test/gpu-7b/evidence/20261014T022551Z` — the 7B recipe
+   replays bit for bit on the L4 under torch 2.14.1 (which warns that
+   flash attention's backward may not be deterministic under `warn_only`;
+   the replay measured that it was, at these shapes), the gate EXACT on
+   the pinned runtime, and on the host CPU EXACT at rung 2 through the
+   integer door. C6 (where CPU↔GPU float divergence enters a real model)
+   too: `scripts/hardware-test/gpu-exact/evidence/20261014T032040Z`, the
+   same table to the rounding and the same integer bytes. C1–C5 (the
+   measurement leg of the drill, SEV-SNP to GPU) too:
+   `scripts/hardware-test/gcp-drill/evidence/20261014T032714Z`, bit for bit
+   on the pinned runtime, equivalent on the L4 and the Intel CPU, the gate
+   saying which. C8, C14 and C24–C25 (the failover drill on two SEV-SNP
+   guests) too: `scripts/hardware-test/gcp-failover/evidence/20261014T034337Z`,
+   generation 1 restored and gated EXACT in 18.69 s, both negatives
+   refused; C11's record is the worker workflow on the pinned runtime,
+   which runs green on the raised one. C22 (the negatives drill) too:
+   `scripts/hardware-test/failover-negatives/evidence/20261014T035731Z`, the
+   same seven refusals and the one move. C21 (the failover to a TDX Trust
+   Domain) too: `scripts/hardware-test/failover-tdx/evidence/20261014T041150Z`,
+   EQUIVALENT on the Trust Domain, RTO 20.42 s. C23 (the authority itself a
+   Trust Domain, its escrow key in the vTPM) too:
+   `scripts/hardware-test/failover-tdx-authority/evidence/20261014T042457Z`,
+   EQUIVALENT, RTO 20.42 s. C17, C20 and C26 (the confidential H100: the
+   capture, the Return Path under `both`, the 32B genome) too:
+   `scripts/hardware-test/azure-cgpu/evidence/20261014T113334Z` and its
+   `-returnpath` — the day's driver 595.91.07, its manifests fetched during the
+   handshake, the 32B genome EXACT on the H100 in 238 s. C18 (the
+   cross-cloud failover to the H100) too:
+   `scripts/hardware-test/failover-cgpu/evidence/20261014T121030Z`, generation
+   1 restored on the H100 under driver 595.91.07 and gated EQUIVALENT, RTO
+   19.86 s. No record names the previous runtime any more: every kit has run
+   on the raised one, and each claim cites both records. CI and the acp-compute image install the runtime from the
+   hash-pinned locks — `requirements-ci.lock` from PyPI, the torch wheel in
+   `requirements-torch-cpu.lock` from the PyTorch CPU index — each with its
+   own `--index-url` under `pip --require-hashes`, every wheel checked
+   against its sha256 and no index standing in for another.
 
 15. **Release signatures are the `.sig` + `.cert` pair, on cosign 2.x pinned
    (2026-09-17).**

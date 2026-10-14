@@ -20,14 +20,14 @@ gcs_put() { # gcs_put <file> <object>
 # The base model, pinned by revision; the genome's manifest pins its bytes.
 BASE_REPO="Qwen/Qwen2.5-0.5B-Instruct"
 BASE_REV="7ae557604adf67be50417f59c2c2f167def9a775"
-HF_HUB="huggingface_hub==0.33.4"
+HF_HUB="huggingface_hub==2.2.0"
 
 python_runtime() { # python_runtime <torch index url>
   export DEBIAN_FRONTEND=noninteractive
   apt-get update -qq > /dev/null && apt-get install -y -qq python3-venv python3-pip > /dev/null
   python3 -m venv /opt/vg
   /opt/vg/bin/pip install -q --upgrade pip
-  /opt/vg/bin/pip install -q --index-url "$1" torch==2.7.1
+  /opt/vg/bin/pip install -q --index-url "$1" torch==2.14.1
   /opt/vg/bin/pip install -q -r /opt/worker/requirements.txt "$HF_HUB"
   /opt/vg/bin/pip freeze > "$OUT/pip-freeze.txt"
 }

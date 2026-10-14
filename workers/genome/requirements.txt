@@ -1,8 +1,14 @@
-# The pinned runtime the worker's determinism is measured on. torch comes
-# from the CPU wheel index on machines without a GPU:
-#   pip install --index-url https://download.pytorch.org/whl/cpu torch==2.7.1
-torch==2.7.1
-transformers==4.53.2
-tokenizers==0.21.2
-safetensors==0.5.3
-numpy==2.3.1
+# The pinned runtime of the worker. Raised on 2026-10-13 from torch 2.7.1 /
+# transformers 4.53.2 (see KNOWN_ISSUES #14): the worker's own tests pass on
+# this runtime, and every GCP hardware kit was re-run on it on 2026-10-14
+# (KNOWN_ISSUES #14 lists the records); the confidential H100's records are
+# re-measured before a release claims them for this one.
+# torch comes from the CPU wheel index on machines without a GPU:
+#   pip install --index-url https://download.pytorch.org/whl/cpu torch==2.14.1
+# CI installs the hash-pinned equivalent: requirements-ci.lock (PyPI) and
+# requirements-torch-cpu.lock (the PyTorch CPU index), each from its own index.
+torch==2.14.1
+transformers==5.19.0
+tokenizers==0.23.3
+safetensors==0.8.0
+numpy==2.5.4

@@ -1,0 +1,19 @@
+== 03:22:40 inputs
+== 03:22:41 GPU driver
+== 03:22:41 python runtime (CUDA 12.6 wheels)
+W: http://packages.cloud.google.com/apt/dists/apt-transport-artifact-registry-stable/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+W: https://us-apt.pkg.dev/projects/gce-ai-infra/dists/gpudirect-gib-apt/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+== 03:25:44 base model Qwen/Qwen2.5-0.5B-Instruct@7ae557604adf67be50417f59c2c2f167def9a775
+Fetching 10 files:   0%|          | 0/10 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 10 files:  20%|██        | 2/10 [00:00<00:00, 12.28it/s]Fetching 10 files:  50%|█████     | 5/10 [00:00<00:00, 17.24it/s]Fetching 10 files:  80%|████████  | 8/10 [00:00<00:00, 21.71it/s]Fetching 10 files: 100%|██████████| 10/10 [00:09<00:00,  1.07it/s]
+== 03:25:54 EXACT probe (cpu/cuda × f32/f64, per-layer divergence, integer projection)

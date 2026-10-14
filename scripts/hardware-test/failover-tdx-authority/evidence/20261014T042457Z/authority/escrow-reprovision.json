@@ -1,0 +1,9 @@
+{
+  "escrow_key": "f28d73ab63bfe6fe",
+  "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VuAyEAjRPai5qEHRuEuV7dpSaRdXjNIE+hMjZF118VGKO3hyA=\n-----END PUBLIC KEY-----\n",
+  "tee": "gcp-tdx",
+  "measurement_hex": "dfe77c7664cd616dd77d35fae3fee8de9bd379c7b06bfc804ec21659d18ea7ab74b101d19f20ce44f1ba7b5a9a171a9a",
+  "source": "stdin",
+  "sealed_path": "/root/escrow-2.sealed",
+  "public_path": "/root/escrow-2.pem"
+}
