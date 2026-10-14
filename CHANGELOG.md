@@ -26,6 +26,14 @@ given release can still open.
   carries none. An enclave image built from this tree measures differently
   (PCR0–PCR2) from the May 2026 cohort; the recorded documents stand for
   the tree they name (`scripts/hardware-test/aws-nitro/README.md`).
+- A security review (`docs/security/review-2026-10.md`): eleven findings,
+  eight closed on the day (the tag-object pin, the Nitro kit's root check,
+  the helper module's dependencies, the release token, the site's CSP, the
+  threat model's missing backends, the missed quarterly review, the single
+  reviewer), three open as tracked items. The threat model now covers
+  `gcp-tdx` and `azure-cgpu` with their trust boundaries and threat tables,
+  the control-plane decisions since May, marks the kit-only backends, and
+  names the next review (2027-01-14).
 - The release workflow's token is read-only at the workflow level; the
   build-and-sign job names the write permissions it needs (contents,
   id-token). Rehearsed as `v0.4.1-rc1`: 25 assets, signatures, SBOMs and

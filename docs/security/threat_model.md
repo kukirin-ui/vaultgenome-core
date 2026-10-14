@@ -1,10 +1,11 @@
 # Vault Genome — STRIDE threat model
 
-| Last updated | 2026-05-06 |
+| Last updated | 2026-10-14 ([review record](review-2026-10.md)) |
 |--------------|------------|
-| Owner        | Founders + future security engineering hire |
+| Owner        | The maintainers (`GOVERNANCE.md`) |
 | Audience     | Enterprise security teams, regulators, auditors |
 | Methodology  | STRIDE per platform + Vault Genome control plane (Microsoft 2002) |
+| Shipped backends | `gcp-sev-snp`, `gcp-tdx`, `azure-cgpu`; `simulated` for tests only. AWS Nitro, Azure SGX and Intel SGX bare metal are measurement kits (`scripts/hardware-test/`), not shipped verifiers (`VERIFIABLE-CLAIMS.md`) |
 
 This document is the formal threat model for Vault Genome. Each
 section identifies:
@@ -77,7 +78,28 @@ event chain, attestation evidence, sealed material.
 
 ---
 
+### Since 2026-05-06
+
+Decisions that moved the control plane's boundary, each with its record:
+
+| Change | Boundary it touches | Record |
+|--------|---------------------|--------|
+| Every Return Path decision is on an append-only record before it takes effect; a log that cannot take an event stops the decision | authority ↔ worker; the audit chain | [ADR 0014](../adr/0014-return-path-on-the-record-and-on-hardware.md) |
+| The sentinel and policy-driven failover: one policy serial authorises at most one move, the operator's stop list overrides any policy, the primary's word is bounded by the chip's report | authority ↔ standby; the operator | [ADR 0012](../adr/0012-sentinel-and-policy-driven-failover.md), [0017](../adr/0017-limits-on-the-primarys-word.md) |
+| The escrow key sealed to the release host's TEE, or to the vTPM where the TEE gives no sealing key | authority ↔ its storage | [ADR 0016](../adr/0016-escrow-key-sealed-to-the-release-host.md), [0022](../adr/0022-the-escrow-key-sealed-to-the-vtpm.md) |
+| Every daemon key file sealed to the host, the key's name in the AEAD's associated data | authority and worker ↔ their storage | [ADR 0023](../adr/0023-the-daemons-key-files-sealed-to-the-host.md) |
+| Refusals are recorded, with the peer, the phase and the reason | every boundary | [ADR 0010](../adr/0010-operator-stop-and-recorded-refusals.md) |
+| The worker restores the genome and computes through the integer door; the gate's verdict is signed | worker ↔ authority | [ADR 0013](../adr/0013-worker-restores-the-genome.md), [0020](../adr/0020-the-integer-door-for-the-lora-worker.md), [0008](../adr/0008-equivalence-gate.md) |
+
+---
+
 ## AWS Nitro Enclaves (`aws-nitro`)
+
+> **Kit, not product.** The tree ships no verifier for this backend
+> (`VERIFIABLE-CLAIMS.md`, "What we do not claim"); the section states the
+> boundary and the properties a verifier would have to establish, and is
+> what the measurement kit under `scripts/hardware-test/aws-nitro` is checked
+> against.
 
 ### Trust boundaries
 
@@ -125,6 +147,12 @@ event chain, attestation evidence, sealed material.
 
 ## Azure Confidential Computing — SGX (`azure-sgx`)
 
+> **Kit, not product.** The tree ships no verifier for this backend
+> (`VERIFIABLE-CLAIMS.md`, "What we do not claim"); the section states the
+> boundary and the properties a verifier would have to establish, and is
+> what the measurement kit under `scripts/hardware-test/azure-sgx` is checked
+> against.
+
 ### Threat table
 
 | STRIDE | Threat | Mitigation |
@@ -163,6 +191,12 @@ event chain, attestation evidence, sealed material.
 
 ## Intel SGX bare metal (`intel-sgx-dcap`)
 
+> **Kit, not product.** The tree ships no verifier for this backend
+> (`VERIFIABLE-CLAIMS.md`, "What we do not claim"); the section states the
+> boundary and the properties a verifier would have to establish, and is
+> what the measurement kit under `scripts/hardware-test/intel-sgx` is checked
+> against.
+
 ### Threat table
 
 | STRIDE | Threat | Mitigation |
@@ -191,6 +225,106 @@ event chain, attestation evidence, sealed material.
   attacks — operators with this threat model must combine SGX with
   HSM-wrap (`IntelSGXSealer.hsmSlot`) and physical security controls
   (locked cage, intrusion sensors).
+
+---
+
+## GCP Confidential VMs — Intel TDX (`gcp-tdx`)
+
+Added 2026-10-14 ([ADR 0018](../adr/0018-intel-tdx-on-the-return-path.md),
+shipped 2026-09-16; proven on a Trust Domain, VERIFIABLE-CLAIMS C21, C23).
+
+### Trust boundaries
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ GCP project                                                  │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │ Trust Domain (confidential VM, Intel TDX)               │ │  ← TD memory encrypted; host hypervisor untrusted
+│  │  ├── MRTD ‖ RTMR0..3 = the measurement the peer pins    │ │
+│  │  ├── configfs-tsm (tdx_guest): quotes for REPORTDATA    │ │  ← quote signed by the host's Quoting Enclave
+│  │  ├── vTPM: the escrow key and key files sealed (0022/23)│ │
+│  │  └── sagvd / acp-compute / acp-bootstrap                │ │
+│  └────────────────────────────────────────────────────────┘ │
+│  Intel PCS (or a PCCS mirror): TCB info, QE identity         │  ← signed documents, cached
+└─────────────────────────────────────────────────────────────┘
+```
+
+Assets crossing the boundaries: the handshake nonce and the quote; the
+measurement pin; Intel's TCB and QE documents; the escrow key and the
+daemons' key files (sealed, ADR 0022/0023).
+
+### Threat table
+
+| STRIDE | Threat | Mitigation |
+|--------|--------|------------|
+| **S** Spoofing | A machine that is not a Trust Domain presents a quote | the quote (version 4, ECDSA-P256 attestation key) is signed by the host's Quoting Enclave; the attestation key is certified by the platform's PCK certificate, whose chain the verifier checks to the Intel SGX Root CA; the QE report's binding of the attestation key is checked (`gcp_tdx_quote.go`, `TestTDXVerifierRefusesWhatItShould`) |
+| **S** Spoofing | A stale or replayed quote | `REPORTDATA = SHA-256(nonce) ‖ 32 zero bytes`, the same binding as SEV-SNP's REPORT_DATA; the verifier checks the nonce of this handshake |
+| **T** Tampering | The guest image or boot chain is rebuilt | the measurement is `SHA-384(MRTD ‖ RTMR0 ‖ RTMR1 ‖ RTMR2 ‖ RTMR3)`: firmware, configuration, kernel, initrd and command line in one value; the peer pins it (`acceptable_measurements`), and the producer refuses to serve a quote whose registers differ from its first |
+| **T** Tampering | Forged or stale TCB info or QE identity from the PCS path | both documents are signed by Intel; signatures are verified before use (`gcp_tdx_pcs.go`, `TestTDXPCSDocumentsAreVerifiedBeforeUse`); a PCCS mirror is reached through, not trusted |
+| **R** Repudiation | A peer denies a handshake or a release | the quote's REPORTDATA, the measurement and the verdict are on the Return Path's append-only record before the decision takes effect (ADR 0014) |
+| **I** Information disclosure | The host reads the Trust Domain's memory | TDX encrypts TD memory under a per-TD key; the hypervisor is outside the boundary by design |
+| **I** Information disclosure | Keys at rest on the guest's disk | no sealing key from TDX itself: the escrow key and every daemon key file are sealed to the vTPM under a policy of the pinned boot (`vtpm_sealer.go`, ADR 0022/0023); another boot or machine does not open them |
+| **I** Information disclosure | Side channels not yet public | accepted residual risk (cross-platform table); TCB status floors raise with Intel's advisories |
+| **D** DoS | Intel PCS unavailable | TCB and QE documents cached (`pcs_cache_dir`); the operator may run a PCCS mirror; a missing document is a refusal, not a pass |
+| **E** Elevation of privilege | A TCB rolled back to a vulnerable level | the TCB status of the quote is evaluated against the documents (`TestTDXTCBEvaluation`); a status below the policy's floor is refused |
+
+---
+
+## Azure confidential GPU VM — SEV-SNP, vTPM and an H100 (`azure-cgpu`)
+
+Added 2026-10-14 ([ADR 0019](../adr/0019-a-confidential-gpu-worker-on-azure.md),
+[0021](../adr/0021-the-verifiers-own-evaluation-of-the-gpu.md),
+[0022](../adr/0022-the-escrow-key-sealed-to-the-vtpm.md); shipped
+2026-09-16; proven on the NCC H100 v5, VERIFIABLE-CLAIMS C17, C18, C20, C26).
+
+### Trust boundaries
+
+```
+┌───────────────────────────────────────────────────────────────┐
+│ Azure subscription                                             │
+│  ┌──────────────────────────────────────────────────────────┐ │
+│  │ Confidential VM (AMD SEV-SNP under Azure's paravisor)     │ │  ← guest memory encrypted; host untrusted
+│  │  ├── vTPM: HCL report (SNP report issued at boot, VCEK-   │ │
+│  │  │        signed, REPORT_DATA = SHA-256(runtime data) that │ │
+│  │  │        names the vTPM's attestation key)                │ │  ← paravisor trusted (residual)
+│  │  ├── TPM quote by that key over PCRs 0–14, extraData =    │ │
+│  │  │        SHA-256(nonce): the handshake's binding          │ │
+│  │  ├── NVIDIA H100 in confidential mode: SPDM report signed  │ │  ← a second root of trust
+│  │  │        by a per-device key under NVIDIA's device CA     │ │
+│  │  ├── operator-installed tools run as processes: NVIDIA's   │ │
+│  │  │        local verifier (gpu_attest_command), tpm2-tools  │ │  ← the host's integrity
+│  │  └── sagvd / acp-compute / acp-bootstrap                   │ │
+│  └──────────────────────────────────────────────────────────┘ │
+│  NVIDIA NRAS (verdict tokens), RIM service (reference          │
+│  manifests), OCSP (revocation) — reached through, verified      │  ← roots pinned in the binary
+│  AMD KDS (VCEK), through Azure                                   │
+└───────────────────────────────────────────────────────────────┘
+```
+
+Assets crossing the boundaries: the nonce, the three-part evidence
+(`vault-genome/azure-cgpu-evidence/v1`: HCL report, TPM quote, NVIDIA
+tokens, and the GPU's SPDM report and certificate chain when the policy
+asks for them); the pins (launch measurement, the vTPM's PCRs 0–14, the
+GPU model, driver and VBIOS); the escrow key and key files sealed to the
+vTPM.
+
+### Threat table
+
+| STRIDE | Threat | Mitigation |
+|--------|--------|------------|
+| **S** Spoofing | A forged SEV-SNP report | the HCL report's SNP report is signed by the chip's VCEK, whose chain is verified to AMD's root (`verifyAMDChain`, as on GCP); the report's REPORT_DATA is the SHA-256 of the runtime data that names the vTPM's attestation key (`azure_cgpu_hcl.go`) |
+| **S** Spoofing | A report from boot replayed for a later handshake | the handshake is bound by a TPM quote under the key the report vouches for, over PCRs 0–14, with `SHA-256(nonce)` in `extraData` (`azure_cgpu_tpm.go`); the report alone proves nothing about this handshake |
+| **S** Spoofing | A forged GPU verdict | NVIDIA's tokens (Entity Attestation Tokens) are verified against NRAS's keys and carry the handshake's nonce (`nvidia_eat.go`); under `gpu_policy.evaluation: both` the verifier also evaluates the GPU's own SPDM report: its signature (ECDSA P-384) under the device certificate, that certificate's chain to the NVIDIA Device Identity CA pinned in the binary, the firmware id in the certificate's DICE extension (`nvidia_gpu_report.go`, `TestGPUReport_ChainToThePinnedNVIDIARootAndFirmwareID`) |
+| **T** Tampering | The guest image or boot is changed | the SNP launch measurement (what Azure measures of the paravisor and firmware) is pinned; the vTPM's PCRs 0–14 (the OS and the driver) are pinned as the boot (`tee.vtpm_seal_pcrs`, the registry pin) |
+| **T** Tampering | The GPU's driver or VBIOS is swapped | NVIDIA's verdict names driver and VBIOS and the operator may pin them (`gpu_policy`); the verifier's own evaluation checks every runtime measurement against NVIDIA's reference manifests for those versions, the manifests hashed to the service's SHA-256 and signed under the NVIDIA CoRIM root pinned in the binary (`nvidia_rim.go`, `TestRIM_ParsesNVIDIAsManifests`); `both` refuses a report NVIDIA's verdict disagrees with |
+| **T** Tampering | A revoked GPU certificate | OCSP for the device chain with a nonce, answers checked for the nonce in the response extensions (`nvidia_ocsp.go`, `gpu_policy.revocation`, ADR 0021 amendment) |
+| **R** Repudiation | A host denies what it attested or what the GPU ran | the evaluation of every check is on the audit record with the verdict (`GPUEvaluation`, ADR 0021 amendment; ADR 0014) |
+| **I** Information disclosure | The host reads guest or GPU memory | SEV-SNP encrypts the guest; the H100 in confidential mode encrypts its memory and protects transfers (NVIDIA); both accepted as the vendors' word (residual) |
+| **I** Information disclosure | Keys at rest on the guest's disk | the escrow key and every daemon key file are sealed to the vTPM under a policy of the pinned boot (ADR 0022/0023); a new boot or image does not open them, and the operator re-provisions through the recovery ceremony |
+| **I** Information disclosure | Side channels in the GPU or the chip | accepted residual risk; NVIDIA's verdict and the TCB floors follow the vendors' advisories |
+| **D** DoS | NRAS, the RIM service or OCSP unavailable | NRAS and RIM responses cached (`nras_cache_dir`, the RIM cache) with refresh; the policy decides what a missing answer means, and the default is a refusal |
+| **E** Elevation of privilege | A compromised paravisor | Azure's paravisor issues the HCL report and holds the vTPM; it is trusted as the chip's intermediary, a residual risk named here because no measurement of ours covers it |
+| **E** Elevation of privilege | The operator-installed tools (NVIDIA's local verifier, `tpm2-tools`) replaced on the host | they run as processes, outside the binary and its dependency policy; their integrity is the host's, whose OS is in the pinned PCRs; the GPU's report and NVIDIA's tokens are verified by the daemon, not taken from the tools' word |
 
 ---
 
@@ -234,7 +368,10 @@ their procurement scope accepts them or asks for additional controls.
 
 ## Maintenance
 
-This threat model is reviewed quarterly. The next scheduled review is
-**2026-08-06**. Material changes to the threat surface (new TEE
-backend, new cryptographic primitive, major architectural change)
-trigger an out-of-cycle review attached to the relevant ADR.
+This threat model is reviewed quarterly by the maintainers, and the
+review is a record under `docs/security/` ([October 2026](review-2026-10.md)
+is the first). The next scheduled review is **2027-01-14**. A material
+change to the threat surface (a new TEE backend, a new listener, a new key
+release path, a new cryptographic primitive) triggers a review attached to
+the ADR that makes the change, and the ADR is not accepted without it. The
+review of 2026-08-06 was not held; the October record says so.

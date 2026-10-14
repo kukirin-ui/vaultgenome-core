@@ -66,8 +66,8 @@ evidence, sealed material, the signing keys of releases. The residual
 risks accepted at each boundary are the threat model's "Cross-platform
 residual risks" table.
 
-The threat model's quarterly review scheduled for 2026-08-06 has not been
-recorded; the next review is due and is tracked with this document.
+The threat model was reviewed on 2026-10-14 ([`review-2026-10.md`](review-2026-10.md));
+the review of 2026-08-06 had not been held, and the record says so.
 
 ## 3. Secure design principles, and where each is applied
 
