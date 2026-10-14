@@ -91,7 +91,7 @@ echo "=== installing the host's Python packages (hash-pinned) ==="
 # cbor2 parses the attestation document in 02e; every wheel is checked
 # against its sha256 (scripts/requirements-host.txt).
 pip3 install --user --quiet --require-hashes -r "$SCRIPT_DIR/requirements-host.txt"
-python3 -c 'import cbor2; print("cbor2", cbor2.__version__)'
+python3 -c 'import cbor2, importlib.metadata as m; print("cbor2", m.version("cbor2"))'
 
 echo
 echo "=== nitro-cli version ==="
