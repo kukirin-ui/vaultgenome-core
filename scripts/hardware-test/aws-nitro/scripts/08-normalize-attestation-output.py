@@ -163,11 +163,44 @@ def normalize(vm_dir: Path) -> dict:
     }
 
 
+
+def derive_identity(vm_dir: Path) -> None:
+    """Write 00-vm-identity.txt from the instance's own records when the
+    capture script that ran did not write it (the production path before
+    2026-10-14). Every value comes from a file the instance produced:
+    vm-identity-pack.txt (06-pack-evidence.sh) and 05-attestation-parsed.json
+    (02e). The file says so in its last line."""
+    ident = vm_dir / "00-vm-identity.txt"
+    pack = vm_dir / "vm-identity-pack.txt"
+    parsed = vm_dir / "05-attestation-parsed.json"
+    if ident.exists() or not (pack.exists() and parsed.exists()):
+        return
+    kv = {}
+    for line in pack.read_text().splitlines():
+        if ":" in line:
+            k, v = line.split(":", 1)
+            kv[k.strip()] = v.strip()
+    module_id = json.loads(parsed.read_text()).get("module_id", "")
+    kernel = kv.get("uname", "").split()[2] if len(kv.get("uname", "").split()) > 2 else ""
+    ident.write_text(
+        f"Instance ID: {kv.get('instance_id', '')}\n"
+        f"Region:      {kv.get('region', '')}\n"
+        f"Availability Zone: {kv.get('az', '')}\n"
+        f"Kernel:      {kernel}\n"
+        f"Enclave mode: production (no --debug-mode, vsock-attest)\n"
+        f"Module ID:   {module_id}\n"
+        f"Captured: {kv.get('captured_at', '')}\n"
+        f"Derived: on the laptop by 08-normalize-attestation-output.py from vm-identity-pack.txt and 05-attestation-parsed.json\n"
+    )
+    print(f"=== wrote {ident} (derived from the instance's records) ===")
+
+
 def main() -> None:
     if len(sys.argv) != 2:
         sys.stderr.write("Usage: 08-normalize-attestation-output.py <vm-evidence-dir>\n")
         sys.exit(2)
     vm_dir = Path(sys.argv[1])
+    derive_identity(vm_dir)
     if not vm_dir.is_dir():
         sys.stderr.write(f"not a directory: {vm_dir}\n")
         sys.exit(2)

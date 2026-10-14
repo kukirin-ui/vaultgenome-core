@@ -205,5 +205,23 @@ print(f"All PCR checks pass:  {result['all_pcr_checks_pass']}")
 PYEOF
 
 echo
+echo "=== VM identity (IMDSv2) ==="
+# 07-cross-vm-matrix.sh reads these lines; the debug path wrote them in
+# 02-capture-attestation.sh, the production path writes its own.
+TOKEN=$(curl -fsS -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
+md() { curl -fsS -H "X-aws-ec2-metadata-token: $TOKEN" "http://169.254.169.254/latest/meta-data/$1"; }
+cat > 00-vm-identity.txt <<EOF
+Instance ID: $(md instance-id)
+Region:      $(md placement/region)
+Availability Zone: $(md placement/availability-zone)
+Machine type: $(md instance-type)
+Kernel:      $(uname -r)
+Enclave mode: production (no --debug-mode, vsock-attest)
+Module ID:   $(jq -r '.module_id' 05-attestation-parsed.json)
+Captured: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+EOF
+cat 00-vm-identity.txt
+
+echo
 echo "=== ✓ production-mode attestation captured ==="
-echo "Next: ./scripts/02b-cryptographic-attestation.sh (or 08-normalize-attestation-output.py)"
+echo "Next: ./scripts/02c-fetch-nitro-root-ca.sh, then 08-normalize-attestation-output.py on the laptop"
