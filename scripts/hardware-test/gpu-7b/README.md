@@ -6,10 +6,10 @@ bfloat16`) — its genome sealed by `acpctl`, restored from the bundle, gated
 through the door on the same GPU (the pinned runtime), measured, its recipe
 replayed; then the same genome gated and measured on the VM's CPU, the
 cross-device number at 7B. One `g2-standard-8` (1 × L4 24 GB, 8 vCPU, 32 GB)
-from the Deep Learning VM image, in us-central1, deleted at the end.
+from the Deep Learning VM image, deleted at the end.
 
-`run.sh <project>` builds `acpctl`, packs the worker, tries the three
-us-central1 zones in rounds until an L4 is free, and collects `out/gpu/`
+`run.sh <project>` builds `acpctl`, packs the worker, tries fifteen zones
+in four regions in rounds until an L4 is free, and collects `out/gpu/`
 from the run's bucket into `evidence/<stamp>/`. What comes back is public
 by construction: `genome.json` and `fixtures.json` (hyper-parameters, losses,
 prompts and reference logits), the gate verdicts, measurements, the replay,
