@@ -66,7 +66,7 @@ This means a buyer's auditor can:
 
 ```bash
 git checkout v1.2.3
-docker run --rm -v "$PWD":/src -w /src golang:1.27.0 \
+docker run --rm -v "$PWD":/src -w /src golang:1.27.2 \
   make build
 sha256sum bin/sagvd
 ```
