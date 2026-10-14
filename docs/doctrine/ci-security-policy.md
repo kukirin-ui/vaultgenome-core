@@ -12,14 +12,16 @@ renumber with care.
 ## 1. The gate
 
 Every push and pull request to `main` runs `.github/workflows/vault-gate.yml`,
-an 18-step gate; a merge is allowed only when all of it is green: format, vet,
+a 19-step gate; a merge is allowed only when all of it is green: format, vet,
 build, unit tests, race detector, integration tests, coverage (§8), lint
 (golangci-lint), terminology (§4), govulncheck (§5), osv-scanner (§5), gitleaks
-(§10), SBOM (§6), license headers (§7), doctrine tests, dependency allowlist
-(§3.1), dependency depth (§3.2), and reproducible build (§9). `make
-vault-gate` runs 14 of them locally; integration tests, the SBOM and the
-reproducible build have their own targets (`make test-integration`, `make
-sbom`, `make verify-reproducible`), and osv-scanner runs only in CI.
+(§10), SBOM (§6), license headers (§7), the Developer Certificate of Origin
+sign-off on every commit under review (`scripts/dco_check.sh`,
+CONTRIBUTING.md), doctrine tests, dependency allowlist (§3.1), dependency
+depth (§3.2), and reproducible build (§9). `make vault-gate` runs 15 of them
+locally; integration tests, the SBOM and the reproducible build have their
+own targets (`make test-integration`, `make sbom`, `make verify-reproducible`),
+and osv-scanner runs only in CI.
 
 ## 2. Toolchain
 

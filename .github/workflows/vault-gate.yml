@@ -169,6 +169,16 @@ jobs:
       - name: license headers
         run: make license-headers
 
+      # 14a dco — every non-merge commit under review carries a Developer
+      # Certificate of Origin sign-off naming its author (CONTRIBUTING.md).
+      # The range is the pull request's base..head, or the push's
+      # before..after on main; checkout uses fetch-depth: 0, so both resolve.
+      - name: dco
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: bash scripts/dco_check.sh "$BASE..$HEAD"
+
       # 15 doctrine tests
       - name: doctrine tests
         run: make test-doctrine
