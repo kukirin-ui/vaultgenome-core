@@ -184,6 +184,17 @@ def test_a_model_whose_rotary_tables_disagree_with_its_config_is_refused(base_di
         integer.IntegerModel(model, torch.device("cpu"))
 
 
+def test_a_model_whose_projections_disagree_with_its_head_counts_is_refused(base_dir):
+    model, _ = load_base(base_dir)
+    model.config.num_key_value_heads = model.config.num_attention_heads  # claims MHA; k_proj is GQA-sized
+    with pytest.raises(integer.IntegerDoorError, match="k_proj has shape"):
+        integer.IntegerModel(model, torch.device("cpu"))
+    model, _ = load_base(base_dir)
+    model.config.layer_types = ["full_attention", "sliding_attention"]
+    with pytest.raises(integer.IntegerDoorError, match="full attention in every layer"):
+        integer.IntegerModel(model, torch.device("cpu"))
+
+
 def test_the_same_bytes_at_another_thread_count_and_on_every_device_here(loaded):
     model, _, fx = loaded
     devices = [torch.device("cpu")]

@@ -226,8 +226,17 @@ def merged_weight(module: nn.Module) -> np.ndarray:
     return module.weight.detach().to(torch.float32).cpu().numpy()
 
 
-def linear_bias(module: nn.Module):
+def base_linear(module: nn.Module) -> nn.Linear:
+    """The nn.Linear under a module the door computes: the layer itself, or
+    the base of a LoRA layer."""
     base = module.base if isinstance(module, LoRALayer) else module
+    if not isinstance(base, nn.Linear):
+        raise IntegerDoorError(f"the integer door computes nn.Linear layers, not {type(base).__name__}")
+    return base
+
+
+def linear_bias(module: nn.Module):
+    base = base_linear(module)
     return None if base.bias is None else base.bias.detach().to(torch.float32).cpu().numpy()
 
 
@@ -385,6 +394,8 @@ class IntegerModel:
             raise IntegerDoorError(f"the integer door computes llama and qwen2 models, not {kind!r}")
         if getattr(cfg, "use_sliding_window", False):
             raise IntegerDoorError("the integer door does not compute sliding-window attention")
+        if any(t != "full_attention" for t in (getattr(cfg, "layer_types", None) or [])):
+            raise IntegerDoorError("the integer door computes full attention in every layer")
         if act_bits < 2 or act_bits > 14:
             raise IntegerDoorError("activation bits must be between 2 and 14")
         self.dev = dev
@@ -407,6 +418,7 @@ class IntegerModel:
         self.layers = []
         for layer in inner.layers:
             at, mlp = layer.self_attn, layer.mlp
+            self._check_attention_shapes(at)
             self.layers.append({
                 "norm1": self._gain(layer.input_layernorm.weight),
                 "q": self._linear(at.q_proj),
@@ -426,6 +438,22 @@ class IntegerModel:
 
     def _linear(self, module) -> QLinear:
         return QLinear(merged_weight(module), linear_bias(module), self.dev)
+
+    def _check_attention_shapes(self, at: nn.Module) -> None:
+        """Refuse a model whose projections do not have the shape the
+        config's head counts imply (num_key_value_heads and head_dim are
+        read with a fallback): the door would otherwise split heads at the
+        wrong boundary and compute the wrong model, exactly."""
+        want = {
+            "q_proj": (self.heads * self.head_dim, self.hidden),
+            "k_proj": (self.kv_heads * self.head_dim, self.hidden),
+            "v_proj": (self.kv_heads * self.head_dim, self.hidden),
+            "o_proj": (self.hidden, self.heads * self.head_dim),
+        }
+        for name, shape in want.items():
+            got = tuple(base_linear(getattr(at, name)).weight.shape)
+            if got != shape:
+                raise IntegerDoorError(f"{name} has shape {got}, not the {shape} the config's heads imply")
 
     def _gain(self, w) -> torch.Tensor:
         g = np.rint(w.detach().to(torch.float32).cpu().numpy().astype(np.float64) * float(1 << FG)).astype(np.int64)

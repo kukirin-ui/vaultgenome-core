@@ -52,8 +52,10 @@ given release can still open.
   read from where the config keeps it and never assumed; a config that
   names none, and scaled, partial or per-layer rotary embeddings, are
   refused; and the door refuses a model whose own rotary module does not
-  hold the default tables over that base. The tests' tiny model carries
-  Qwen2.5's base, and the door's tables are checked against the model's.
+  hold the default tables over that base, one whose projections do not
+  have the shape its head counts imply, or one with any layer type but
+  full attention. The tests' tiny model carries Qwen2.5's base, and the
+  door's tables are checked against the model's.
 
 ### Added
 
