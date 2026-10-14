@@ -1069,7 +1069,14 @@ measurement `ed70198a…177b`, `tdx.mrtd_hex: c1ee9c16…70a5`, three RTMRs.
 `destination/system.txt`: `Vendor ID: GenuineIntel`, family 6 model 143
 (Sapphire Rapids), 4 vCPUs. `destination/acp-bootstrap.log`: key
 released, restore, gate, key erased. `primary/sentinel.json`: `outcome:
-compromised`, `attestation.kind: gcp-sev-snp`, last generation 1.
+compromised`, `attestation.kind: gcp-sev-snp`, last generation 1. The
+same drill on the raised runtime (torch 2.14.1, transformers 5.19.0),
+[`…/20261014T041150Z/`](scripts/hardware-test/failover-tdx/evidence/20261014T041150Z/) — the standby on the current image (kernel
+`7.0.0-1014-gcp`; MRTD `c1ee9c16…70a5` unchanged, RTMR0–2 new, measurement
+`dfe77c76…1a9a`, pinned by the policy and named in the release);
+`restore.gate`: EQUIVALENT, `max_abs_err: 1.46e-04`; `timing`: RTO
+20.42 s, RPO 9.00 s; `audit-verify.json`: `ok: true`, 5 events, tip
+`58043177…c776`; `destination/dest-seal-keys.json`: `tee: gcp-tdx`.
 
 **Reproduce:**
 

@@ -384,9 +384,11 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    refused; C11's record is the worker workflow on the pinned runtime,
    which runs green on the raised one. C22 (the negatives drill) too:
    `scripts/hardware-test/failover-negatives/evidence/20261014T035731Z`, the
-   same seven refusals and the one move. The records of the other kits
-   still name the previous runtime — the TDX failovers (C21, C23) and the
-   confidential H100 (C17–C18, C26); each is re-measured
+   same seven refusals and the one move. C21 (the failover to a TDX Trust
+   Domain) too: `scripts/hardware-test/failover-tdx/evidence/20261014T041150Z`,
+   EQUIVALENT on the Trust Domain, RTO 20.42 s. The records of the other
+   kits still name the previous runtime — the TDX-authority drill (C23)
+   and the confidential H100 (C17–C18, C26); each is re-measured
    in turn, and until its record is on the tree no release note claims it
    for the new runtime. CI installs the runtime from
    `requirements-ci.lock`, every wheel checked against its sha256

@@ -126,6 +126,35 @@ EXACT here (ADR 0020).
 
 **Cost.** About 15 minutes on the three machines, a few cents each.
 
+## The raised runtime — run `20261014T041150Z` (evidence/20261014T041150Z)
+
+The same drill on the raised Python runtime (torch 2.14.1+cpu,
+transformers 5.19.0, numpy 2.5.4 on the primary and the standby;
+`*/pip-freeze.txt`): primary `n2d-standard-8` and authority
+`n2d-standard-4` in europe-west4-a at the September measurements
+(`69da361d…c790`, `21199b36…9546`); standby `c3-standard-4` in
+us-central1-a on the current image — kernel `7.0.0-1014-gcp`, MRTD
+`c1ee9c16…70a5` as in September, RTMR0–2 new, so a new measurement
+`dfe77c76…1a9a`, which is what the operator's policy pinned
+(`authority/failover-verify.txt`, `destination/destination-identity.json`).
+
+Two generations sealed (120 steps in 47.4 s, 160 in 67.8 s), the
+attack, the compromise report with the chip's report on it. The
+authority — its escrow key sealed, its five key files and the cross-cloud
+transport's client key sealed (`seal-keys (failover config) exit=0
+sealed=crosscloud.transport_tls.client_key already=5`) — verified the
+standby's TDX quote to Intel's root with Intel's TCB word (the PCS
+documents in `authority/cache-pcs-tdx-*`), released the key
+(`destination_kind: gcp-tdx`, measurement `dfe77c76…1a9a`,
+`failover-policy-v1;failover=1;revocation=1`) and confirmed the receipt:
+generation 1 restored on the Trust Domain (5 files, 2,210,904 bytes,
+11.9 ms) and gated **EQUIVALENT** on its CPUs (native float, 16
+fixtures, max abs err **1.46e-04**, 10.6 s). Detect 8.50 s, RPO
+9.00 s, release 1.10 s, failover 11.92 s, RTO **20.42 s**
+(September 24.09 s); 5 audit events verified, tip `58043177…c776`. The
+standby's own key files were sealed too (`destination/dest-seal-keys.json`:
+`tee: gcp-tdx`).
+
 ## Evidence files
 
 - `primary/` — `finetune-0.json`, `finetune-1.json` (+ `.log`),
