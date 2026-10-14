@@ -1,0 +1,20 @@
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:32,  8.95it/s]Loading weights:  43%|████▎     | 124/290 [00:00<00:00, 687.90it/s]Loading weights:  68%|██████▊   | 196/290 [00:00<00:00, 687.48it/s]Loading weights:  92%|█████████▏| 267/290 [00:00<00:00, 681.86it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 649.54it/s]
+/opt/vg/lib/python3.12/site-packages/torch/autograd/graph.py:1072: UserWarning: Memory Efficient attention defaults to a non-deterministic algorithm. To explicitly enable determinism call torch.use_deterministic_algorithms(True, warn_only=False). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/transformers/cuda/attention_backward.cu:910.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+step 1/160 loss 5.3252
+step 11/160 loss 4.9940
+step 21/160 loss 4.3949
+step 31/160 loss 0.1429
+step 41/160 loss 4.3177
+step 51/160 loss 3.1094
+step 61/160 loss 0.0325
+step 71/160 loss 1.8822
+step 81/160 loss 0.6290
+step 91/160 loss 0.8246
+step 101/160 loss 1.7387
+step 111/160 loss 0.0022
+step 121/160 loss 0.8077
+step 131/160 loss 0.4030
+step 141/160 loss 0.0017
+step 151/160 loss 0.2431
+step 160/160 loss 0.0009

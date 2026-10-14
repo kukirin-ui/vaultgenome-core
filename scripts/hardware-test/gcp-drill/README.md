@@ -38,7 +38,51 @@ GPU under attestation needs confidential GPUs (H100 CC).
 | Sealed bundle | 2,208,446 bytes, one 447th of the base weights. v3 format: AES-256-GCM segments under a fresh key. Key ID `genome-fe5271f12d8c-g0-86a89c199469`. |
 | Fixtures | 16 prompts. Each records its last-position logits at the reference top-64 tokens, plus its greedy 16-token continuation. The first 4 fixtures are critical. |
 
-## Results — run `evidence/20260914T234359Z`
+## Results — run `evidence/20261014T032714Z` (torch 2.14.1, the raised runtime)
+
+The same drill on the raised Python runtime (torch 2.14.1, transformers
+5.19.0, numpy 2.5.4 on both machines; `pip-freeze.txt`), the same recipe
+and the same base.
+
+**The genome.** Trained in 72.2 s inside the SEV-SNP guest, loss
+5.325 → 0.000896 (September: 75.8 s, 0.000896). Sealed bundle
+2,216,638 bytes, one 446th of the base weights, key ID `genome-4b4d4d7c5a6a-g0-23c13aa1daa5`.
+
+**Machines**
+
+- **Source:** GCP `n2d-standard-8` in us-central1-c. AMD EPYC 7B13, with
+  SEV-SNP active. torch 2.14.1+cpu.
+- **Destination:** GCP `g2-standard-4` in us-central1-c. NVIDIA L4 (driver
+  580.178.04), with an Intel Xeon @ 2.20 GHz host CPU. torch 2.14.1+cu126.
+
+**Fidelity after restore**
+
+| Where the restored genome ran | Gate verdict | Top-1 token | Greedy 16-token continuation | max \|Δ logit\| | max rel. err | Recompute time |
+| - | - | - | - | - | - | - |
+| Source CPU (AMD EPYC, the pinned runtime) | **EXACT**, door 0 (pinned replay) | 16 / 16 | 16 / 16 | 0 | 0 | 35.5 s |
+| **NVIDIA L4 GPU** | **EQUIVALENT**, door 1 (native float) | **16 / 16** | **16 / 16** | 1.61e-04 | 1.57e-05 | **6.1 s** |
+| Destination CPU (Intel Xeon, 4 vCPU) | **EQUIVALENT**, door 1 (native float) | 16 / 16 | 16 / 16 | 1.46e-04 | 1.30e-05 | 84.8 s |
+
+**Restore on the destination:** authenticated, all or nothing — 5 files,
+2,210,904 bytes, each matching its sealed digest; tree digest
+`efdb6aa5…`.
+
+**Replaying the recipe**
+
+| Where | Adapter | Loss curve |
+| - | - | - |
+| Source CPU | bit-identical to the sealed adapter (`max_rel_l2` 0) | identical, step by step (70.0 s) |
+| L4 GPU | max \|Δ weight\| 2.0e-03, `max_rel_l2` 0.032; not bit-identical | same end point (final loss 0.000888 vs 0.000896), largest per-step difference 0.051 (15.3 s) |
+
+As in September: bit for bit on the pinned runtime, equivalent elsewhere,
+and the gate says which. One thing is new in the logs: on the L4, torch
+2.14.1 warns once (`gpu/replay-gpu.log`) that memory-efficient attention's
+backward "defaults to a non-deterministic algorithm" under the worker's
+`use_deterministic_algorithms(True, warn_only=True)` — one more reason a
+cross-device replay is equivalent and not identical; the replay on the
+pinned runtime, bit for bit, is the proof that matters.
+
+## Results — run `evidence/20260914T234359Z` (torch 2.7.1, the previous runtime)
 
 **Machines**
 

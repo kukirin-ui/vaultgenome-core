@@ -374,10 +374,13 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    the pinned runtime, and on the host CPU EXACT at rung 2 through the
    integer door. C6 (where CPU↔GPU float divergence enters a real model)
    too: `scripts/hardware-test/gpu-exact/evidence/20261014T032040Z`, the
-   same table to the rounding and the same integer bytes. The records of
-   the other kits still name the previous
-   runtime — the drills and failovers on SEV-SNP and TDX (C1–C5, C11,
-   C21–C22) and the confidential H100 (C17–C18, C26); each is re-measured
+   same table to the rounding and the same integer bytes. C1–C5 (the
+   measurement leg of the drill, SEV-SNP to GPU) too:
+   `scripts/hardware-test/gcp-drill/evidence/20261014T032714Z`, bit for bit
+   on the pinned runtime, equivalent on the L4 and the Intel CPU, the gate
+   saying which. The records of the other kits still name the previous
+   runtime — the failovers on SEV-SNP and TDX (C11, C21–C22) and the
+   confidential H100 (C17–C18, C26); each is re-measured
    in turn, and until its record is on the tree no release note claims it
    for the new runtime. CI installs the runtime from
    `requirements-ci.lock`, every wheel checked against its sha256

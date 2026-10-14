@@ -47,7 +47,12 @@ the deterministic recipe.
 `payload_sha256: sha256:fe5271f1…f9d5`.
 [`…/source/finetune.json`](scripts/hardware-test/gcp-drill/evidence/20260914T234359Z/source/finetune.json)
 — `adapter_parameters: 540672`, `loss_first: 5.325` → `loss_last: 0.00090`,
-`train_seconds: 75.766`.
+`train_seconds: 75.766`. The same drill on the raised runtime (torch
+2.14.1, transformers 5.19.0),
+[`…/20261014T032714Z/source/seal.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/source/seal.json)
+— `bundle_bytes: 2216638` (1 : 446),
+[`…/source/finetune.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/source/finetune.json)
+— `loss_last: 0.00090`, `train_seconds: 72.219`.
 The base-weights figure is `model.safetensors` of `Qwen/Qwen2.5-0.5B-Instruct`
 @ `7ae5576`, recorded in
 [the drill README](scripts/hardware-test/gcp-drill/README.md); every base file
@@ -73,7 +78,9 @@ training loss identical (`max_loss_diff = 0.0`).
 
 **Evidence.**
 [`…/source/replay-source-cpu.json`](scripts/hardware-test/gcp-drill/evidence/20260914T234359Z/source/replay-source-cpu.json)
-— `exact: true`, `losses_equal: true`.
+— `exact: true`, `losses_equal: true`; and on the raised runtime,
+[`…/20261014T032714Z/source/replay-source-cpu.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/source/replay-source-cpu.json)
+— `exact: true`, `max_abs_diff: 0`, `max_rel_l2: 0`, `losses_equal: true`.
 
 **Reproduce.** Same drill as C1; the replay step is `replay-source-cpu`.
 
@@ -92,7 +99,11 @@ wrong-key bundle leaves the target untouched.
 and
 [`…/gpu/verify-gpu.json`](scripts/hardware-test/gcp-drill/evidence/20260914T234359Z/gpu/verify-gpu.json)
 — `authenticated: true`, `restored_verify: "ok: every file matches its recorded
-digest"`. Tamper behaviour is asserted in
+digest"`; and on the raised runtime,
+[`…/20261014T032714Z/gpu/open-gpu.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/gpu/open-gpu.json) and
+[`verify-gpu.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/gpu/verify-gpu.json) — 5 files,
+2,210,904 bytes, `tree_sha256: efdb6aa5…1ab6`, the same verdict.
+Tamper behaviour is asserted in
 `internal/genome/bundle/*_test.go`.
 
 **Reproduce, with no cloud and no hardware:**
@@ -119,7 +130,9 @@ cryptography, not of *model inference across devices* — see [C5](#c5).
 **Evidence.**
 [`…/source/gate-source-cpu.json`](scripts/hardware-test/gcp-drill/evidence/20260914T234359Z/source/gate-source-cpu.json)
 — `level: "EXACT"`, `n_exact: 16`, `n_mismatch: 0`,
-`fixtures_hash: 98d31611…486b`.
+`fixtures_hash: 98d31611…486b`; and on the raised runtime,
+[`…/20261014T032714Z/source/gate-source-cpu.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/source/gate-source-cpu.json)
+— `level: "EXACT"`, `n_exact: 16`, `fixtures_hash: 717daed9…c608`.
 
 ---
 
@@ -137,7 +150,13 @@ door 0 first, **fails it**, and falls through to door 1 (`native-float`):
 | Intel CPU | **FAIL** | **EQUIVALENT** | 1.450e-4 | 16/16 equivalent | 16.78 s |
 
 Tolerance was declared in advance (`atol 1e-2`, `rtol 1e-3`), and the measured
-error is ~50× inside it. `n_critical_mismatch: 0` on every device.
+error is ~50× inside it. `n_critical_mismatch: 0` on every device. On the
+raised runtime (run `20261014T032714Z`, the L4 in us-central1-c) the same
+shape: door 0 **FAIL** and door 1 **EQUIVALENT** on both destinations,
+1.612e-04 on the L4 (11.36 s) and 1.459e-04 on the Intel CPU
+(16.41 s), `n_critical_mismatch: 0`
+([`…/20261014T032714Z/gpu/gate-gpu.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/gpu/gate-gpu.json),
+[`gate-intel-cpu.json`](scripts/hardware-test/gcp-drill/evidence/20261014T032714Z/gpu/gate-intel-cpu.json)).
 
 **Evidence.**
 [`…/gpu/gate-gpu.json`](scripts/hardware-test/gcp-drill/evidence/20260914T234359Z/gpu/gate-gpu.json)

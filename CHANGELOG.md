@@ -39,8 +39,10 @@ given release can still open.
   re-measured on it so far: C19, `integer-door` run `20261014T020420Z`,
   and C16, `gpu-7b` run `20261014T022551Z` — the 7B recipe replays bit
   for bit on the L4, and the gate on the host CPU opens at rung 2 through
-  the integer door; and C6, `gpu-exact` run `20261014T032040Z`, the same
-  divergence at the first block and the same integer bytes). CI now
+  the integer door; C6, `gpu-exact` run `20261014T032040Z`, the same
+  divergence at the first block and the same integer bytes; and C1–C5,
+  `gcp-drill` run `20261014T032714Z`, bit for bit on the SEV-SNP source
+  and equivalent on the L4 and the Intel CPU). CI now
   installs the runtime from `workers/genome/requirements-ci.lock` with
   `pip --require-hashes`: every wheel is checked against its sha256.
 - Workflows: every tool installed in CI is pinned — `govulncheck` v1.9.0,
