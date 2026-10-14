@@ -34,7 +34,7 @@ echo "=== building Vault Genome enclave Docker image ==="
 # hardware test, we build it from acpctl source on the fly.
 cat > Dockerfile.enclave <<'EOF'
 # Stage 1: build acpctl from source
-FROM golang:1.25-alpine AS builder
+FROM golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS builder
 RUN apk add --no-cache git build-base
 WORKDIR /src
 # Copy our acpctl source. In a real workflow this is mounted in.
@@ -44,7 +44,7 @@ RUN cd cmd/acpctl && \
     go build -trimpath -ldflags="-s -w" -o /out/acpctl .
 
 # Stage 2: minimal runtime
-FROM alpine:3.20
+FROM alpine:3.24.2@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
 RUN apk add --no-cache ca-certificates openssl
 COPY --from=builder /out/acpctl /usr/local/bin/acpctl
 # Enclave entrypoint: capture attestation report on demand from /dev/nsm

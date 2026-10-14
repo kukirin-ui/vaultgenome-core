@@ -230,6 +230,20 @@ founders' Desktop pack (`~/Desktop/AWS-Nitro-Real-Hardware-Test/`).
 See `evidence/CROSS-VM-MATRIX.md` for the full validation matrix and
 `evidence/README.md` for context.
 
+The cohort above was captured from the September tree. On 2026-10-14 the
+kit's toolchain was brought to the release's: the parent host installs Go
+1.27.2 (`01-bootstrap-vm.sh`, the tarball checked against its go.dev
+sha256), the enclave image builder and runtime images are pinned by digest
+(`02-build-enclave-image.sh`), and `vsock-attest` builds on current
+dependencies from a committed `go.sum` with `-mod=readonly`. Its indirect
+`golang.org/x/net` 0.10.0 and `x/sys` 0.8.0 had carried the 23 advisories
+OSV lists against those versions, none of them in code the helper calls or
+links (govulncheck, symbol and binary mode, 2026-10-14); the raised module
+carries none. An enclave image built from this tree therefore measures
+differently (PCR0–PCR2) from the cohort's. The recorded documents stand for
+the tree they name; a production-mode capture on this tree is the kit's
+next run.
+
 ## Re-validating captured evidence offline
 
 If you have a captured `04-attestation-document.bin` and the AWS Nitro
