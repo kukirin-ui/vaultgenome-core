@@ -184,6 +184,8 @@ avoided:
 - `07_failover.md` — the sentinel on the primary, the operator's failover
   policy, and the executor that moves a genome to the standby.
 - `triage_table.md` — from an observed signal to the first action.
+- `08_upgrading.md` — which releases are supported, the compatibility ledger
+  release by release, how to move a deployment and how to go back.
 - `runbooks/` — disaster recovery, AWS and Azure notes, real AMD SEV-SNP.
 
 If you find yourself wanting to take an action this runbook does not cover,
