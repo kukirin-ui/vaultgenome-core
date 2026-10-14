@@ -365,12 +365,20 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    identity while the door computed the wrong model: transformers 5 keeps
    a config's rotary base in `rope_parameters`, and the door's reader had
    defaulted it to 10 000; the fidelity record showed it, the reader now
-   has no default and the door checks its tables against the model's. What
-   is *not* yet re-measured: C16 (bit-for-bit replay of the recipe on one
-   GPU). That record stays true for the runtime it names; until the
-   re-measurement is on the record, no release note claims it for the new
-   runtime. CI installs the runtime from `requirements-ci.lock`, every
-   wheel checked against its sha256 (`pip --require-hashes`).
+   has no default and the door checks its tables against the model's. C16
+   (bit-for-bit replay of the recipe on one GPU) is re-measured too:
+   `scripts/hardware-test/gpu-7b/evidence/20261014T022551Z` — the 7B recipe
+   replays bit for bit on the L4 under torch 2.14.1 (which warns that
+   flash attention's backward may not be deterministic under `warn_only`;
+   the replay measured that it was, at these shapes), the gate EXACT on
+   the pinned runtime, and on the host CPU EXACT at rung 2 through the
+   integer door. The records of the other kits still name the previous
+   runtime — the drills and failovers on SEV-SNP and TDX (C1–C5, C11,
+   C21–C22) and the confidential H100 (C17–C18, C26); each is re-measured
+   in turn, and until its record is on the tree no release note claims it
+   for the new runtime. CI installs the runtime from
+   `requirements-ci.lock`, every wheel checked against its sha256
+   (`pip --require-hashes`).
 
 15. **Release signatures are the `.sig` + `.cert` pair, on cosign 2.x pinned
    (2026-09-17).**

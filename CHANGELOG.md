@@ -35,7 +35,11 @@ given release can still open.
   4.53.2 → 5.19.0, `tokenizers` 0.21.2 → 0.23.3, `safetensors` 0.5.3 →
   0.8.0, `numpy` 2.3.1 → 2.5.4 (OSV: 28 advisories against the old pins,
   none against the new; KNOWN_ISSUES #14 records which of them the worker
-  could reach, and which measurements still name the old runtime). CI now
+  could reach, and which measurements still name the old runtime;
+  re-measured on it so far: C19, `integer-door` run `20261014T020420Z`,
+  and C16, `gpu-7b` run `20261014T022551Z` — the 7B recipe replays bit
+  for bit on the L4, and the gate on the host CPU opens at rung 2 through
+  the integer door). CI now
   installs the runtime from `workers/genome/requirements-ci.lock` with
   `pip --require-hashes`: every wheel is checked against its sha256.
 - Workflows: every tool installed in CI is pinned — `govulncheck` v1.9.0,

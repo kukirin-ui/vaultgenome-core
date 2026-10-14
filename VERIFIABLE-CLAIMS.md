@@ -610,7 +610,16 @@ replay`, 16/16, `max_abs_err: 0`; `measure-gpu.json`: `exact: 16`,
 `max_abs_err: 0.5`; `measure-cpu.json`: `exact: 0`, `top1_same: 16`,
 `greedy_same: 16`, `max_abs_err: 0.5`, `max_rel_err: 0.027`, every fixture
 between 0.125 and 0.5. Base-weights bytes: the four `model-*.safetensors`
-of `Qwen/Qwen2.5-7B-Instruct` @ `a09a354`.
+of `Qwen/Qwen2.5-7B-Instruct` @ `a09a354`. The same kit on the raised
+runtime, torch 2.14.1+cu126 and transformers 5.19.0:
+[`scripts/hardware-test/gpu-7b/evidence/20261014T022551Z/`](scripts/hardware-test/gpu-7b/evidence/20261014T022551Z/)
+— `replay-gpu.json`: `exact: true`, `max_abs_diff: 0`, `losses_equal:
+true`; `gate-gpu.json`: `level: EXACT`, rung 0, 16/16; `gate-cpu.json`:
+`level: EXACT` at rung 2 through the integer door, after both float
+doors failed at `max_abs_err: 0.375`; `measure-cpu.json`: `exact: 0`,
+`top1_same: 16`, `greedy_same: 16`, `max_abs_err: 0.375`. torch 2.14.1
+warns there that flash attention's backward may not be deterministic
+under `warn_only`; the replay measured that it was, at these shapes.
 In process:
 [`workers/genome/tests/test_genome.py`](workers/genome/tests/test_genome.py)
 (a bfloat16 genome records its runtime and the door honours it; an unknown
@@ -632,7 +641,8 @@ not a property of the model: the float door's default tolerance is the
 float32 one; a bfloat16 tolerance is the operator's to set
 (`genome.gate.bfloat16`, pinned into every session's policy); the
 byte-portable route for such a genome is the integer door, shipped since
-[C19](#c19). Frontier scale has not been run.
+[C19](#c19) — on the raised runtime the gate on the host CPU opens
+through it, rung 2 EXACT. Frontier scale has not been run.
 
 ---
 
