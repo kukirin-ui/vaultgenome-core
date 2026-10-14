@@ -60,8 +60,8 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq >/dev/null 2>&1; apt-get install -y -qq python3-venv python3-pip >/dev/null 2>&1
 python3 -m venv venv && . venv/bin/activate
 pip install -q --upgrade pip >/dev/null 2>&1
-pip install -q --index-url https://download.pytorch.org/whl/cpu torch==2.7.1 > "$OUT/pip-torch.log" 2>&1
-pip install -q -r workers/genome/requirements.txt pytest > "$OUT/pip-requirements.log" 2>&1
+pip install -q --index-url https://download.pytorch.org/whl/cpu torch==2.14.1 > "$OUT/pip-torch.log" 2>&1
+pip install -q -r workers/genome/requirements.txt pytest==9.1.1 > "$OUT/pip-requirements.log" 2>&1
 python3 -c 'import torch, transformers, safetensors; print("torch", torch.__version__, "transformers", transformers.__version__, "safetensors", safetensors.__version__)' > "$OUT/runtime.txt" 2>&1
 mark runtime_install_end
 

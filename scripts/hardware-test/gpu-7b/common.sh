@@ -21,14 +21,14 @@ gcs_put() { # gcs_put <file> <object>
 # Qwen2.5-7B-Instruct: 15.2 GB of bfloat16 safetensors in four shards.
 BASE_REPO="Qwen/Qwen2.5-7B-Instruct"
 BASE_REV="a09a35458c702b33eeacc393d103063234e8bc28"
-HF_HUB="huggingface_hub==0.33.4"
+HF_HUB="huggingface_hub==2.2.0"
 
 python_runtime() { # python_runtime <torch index url>
   export DEBIAN_FRONTEND=noninteractive
   apt-get update -qq > /dev/null && apt-get install -y -qq python3-venv python3-pip > /dev/null
   python3 -m venv /opt/vg
   /opt/vg/bin/pip install -q --upgrade pip
-  /opt/vg/bin/pip install -q --index-url "$1" torch==2.7.1
+  /opt/vg/bin/pip install -q --index-url "$1" torch==2.14.1
   /opt/vg/bin/pip install -q -r /opt/worker/requirements.txt "$HF_HUB"
   /opt/vg/bin/pip freeze > "$OUT/pip-freeze.txt"
 }
