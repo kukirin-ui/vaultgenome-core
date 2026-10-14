@@ -61,7 +61,10 @@ given release can still open.
   hold the default tables over that base, one whose projections do not
   have the shape its head counts imply, or one with any layer type but
   full attention. The tests' tiny model carries Qwen2.5's base, and the
-  door's tables are checked against the model's.
+  door's tables are checked against the model's. The kit on the raised
+  runtime with the fix (run `20261014T020420Z`): the same bytes on the
+  Xeon and the L4 at 0.5B and 7B, top-1 16/16 at both sizes, max abs err
+  2.70 at 0.5B (September: 2.72) and 0.79 at 7B.
 
 ### Added
 

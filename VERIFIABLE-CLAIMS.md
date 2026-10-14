@@ -813,7 +813,14 @@ genome, bfloat16, references recorded on the L4): `exact: 16` of 16,
 `b-measure-integer-cpu.json`: the first three fixtures on the Xeon,
 `exact: 3` of 3, the same `sha256` as on the L4. `divides-exactly.txt`:
 both devices divide int64 exactly. `a-genome.json`, `b-genome.json`:
-`fixtures.integer` (scheme `vg-integer-door/v1`, fidelity). In process:
+`fixtures.integer` (scheme `vg-integer-door/v1`, fidelity). The same kit
+on the raised runtime, torch 2.14.1+cu126 and transformers 5.19.0:
+[`scripts/hardware-test/integer-door/evidence/20261014T020420Z/`](scripts/hardware-test/integer-door/evidence/20261014T020420Z/)
+— `exact: 16` of 16 on both devices at 0.5B with the same `sha256` for
+every fixture, `max_abs_err: 2.70`, `top1_same: 16`; `exact: 16` of 16
+on the L4 and `3` of 3 on the Xeon at 7B, `max_abs_err: 0.79`; the gate
+at zero tolerance EXACT at rung 2 after `FAIL 1.18e-4` on both float
+doors. In process:
 [`workers/genome/tests/test_integer.py`](workers/genome/tests/test_integer.py)
 (the constants against libm, the primitives against Python integers, the
 same bytes at another thread count and on every device the test can
@@ -832,15 +839,26 @@ cd workers/genome && python -m pytest -q tests/test_integer.py
 ```
 
 **Scope.** Two devices (an Intel Xeon and an NVIDIA L4; an Apple GPU in
-the worker's tests), two models, one run. Byte identity is of the
-integer model with itself across devices, not of the integer model with
-the float model: the float doors stay the fidelity path and the integer
-door the availability path. The fidelity measured here — top-1 the same
-on every fixture, logits within a few units on fine-tunes that drove
-them to magnitudes of tens — is a property of these genomes; a genome
-records its own. The 7B check on the CPU covered three fixtures. The
-integer door is not a serving path: a 7B forward takes seconds per
-fixture.
+the worker's tests), two models, two runs on two runtimes (torch 2.7.1
+and 2.14.1). Byte identity is of the integer model with itself across
+devices, not of the integer model with the float model: the float doors
+stay the fidelity path and the integer door the availability path. The
+fidelity measured here — top-1 the same on every fixture, logits within
+a few units on fine-tunes that drove them to magnitudes of tens — is a
+property of these genomes; a genome records its own. The 7B check on the
+CPU covered three fixtures. The integer door is not a serving path: a 7B
+forward takes seconds per fixture. A third run
+([`20261014T012445Z`](scripts/hardware-test/integer-door/evidence/20261014T012445Z/))
+held byte identity while the door computed the wrong model: transformers
+5 had moved a config's rotary base into `rope_parameters`, the door's
+reader fell back to 10 000 where Qwen2.5 has 1 000 000, and every
+exactness check passed — the same wrong tables on both devices. Only the
+fidelity record showed it (top-1 13 of 16, max abs err 7.29). Byte
+identity is a property of the program and says nothing about the program
+being the right one; the door now reads the base from the config with no
+default, refuses a model whose own rotary module disagrees with it, and
+refuses projections whose shapes disagree with the config's head counts
+(the kit's README has the account).
 
 ---
 

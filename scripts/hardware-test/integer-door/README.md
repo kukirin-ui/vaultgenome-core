@@ -29,7 +29,90 @@ or failure. The adapters never leave the VM.
   first three — a 7B integer forward on eight cores is slow) against the
   references the GPU made.
 
-## Results — run `20260916T164511Z`
+## Results — run `20261014T020420Z` (torch 2.14.1, the raised runtime)
+
+The kit on the raised Python runtime (torch 2.14.1+cu126, transformers
+5.19.0, numpy 2.5.4; `pip-freeze.txt`) with the door reading the model's
+rotary base (commit `818cead`, the run below explains why). One
+`g2-standard-8` in us-west1-a: an NVIDIA L4 (23 GB) and eight Intel Xeon
+@ 2.20 GHz vCPUs; both devices divide int64 exactly
+(`divides-exactly.txt`). The whole guest run took 15.4 minutes.
+
+**A. Qwen2.5-0.5B-Instruct, made on the CPU** (LoRA r=8 on `q_proj,v_proj`,
+540 672 parameters, 120 steps in 55.2 s, float32; the same first loss as
+in September, the last within 2e-5):
+
+| The integer door, held to the references recorded on the CPU | exact | top-1 vs float | time |
+| - | - | - | - |
+| on the CPU (`a-measure-integer-cpu.json`) | **16 / 16** | 16 / 16 | 9.0 s (build 2.6 s) |
+| on the L4 (`a-measure-integer-cuda.json`) | **16 / 16** | 16 / 16 | 6.5 s (build 2.9 s) |
+
+The SHA-256 of every fixture's output is the same on the CPU and on the L4
+(16 of 16). The float door on the L4 (`a-measure-float-cuda.json`): max abs
+err **1.18e-4** against the CPU references, top-1 16/16, greedy 16/16 —
+EQUIVALENT, never EXACT.
+
+| `acpctl genome gate` | door 0 pinned replay | door 1 native float | door 2 integer | verdict |
+| - | - | - | - | - |
+| on the L4, `--atol 0 --rtol 0` (`a-gate-cuda-tol0.json`) | FAIL, 1.18e-4 | FAIL, 1.18e-4 | **EXACT, 0** | **EXACT** at rung 2 (30.4 s) |
+| on the L4, default tolerance (`a-gate-cuda.json`) | FAIL, 1.18e-4 | **EQUIVALENT** | not consulted | EQUIVALENT at rung 1 (11.3 s) |
+| on the CPU, default tolerance (`a-gate-cpu.json`) | **EXACT** | — | — | EXACT at rung 0 (13.0 s) |
+
+Fidelity to the float model (`fixtures.integer.fidelity`): top-1 the same
+on 16/16 fixtures, max abs err **2.70**, max rel err 0.25 (per fixture
+0.89–2.70) — the September numbers (2.72, 0.25, 0.91–2.72), on a
+different torch and transformers.
+
+**B. Qwen2.5-7B-Instruct, made on the L4 in bfloat16** (LoRA r=8,
+2 523 136 parameters, 160 steps in 23.0 s; a different fine-tune from
+September's — the loss ended at 1.6e-4 for 7.1e-4 — on the new kernels):
+
+| The integer door, held to the references recorded on the L4 | exact | top-1 vs float | time |
+| - | - | - | - |
+| on the L4, all 16 fixtures (`b-measure-integer-cuda.json`) | **16 / 16** | 16 / 16 | 8.5 s (build 61.4 s) |
+| on the CPU, the first 3 fixtures (`b-measure-integer-cpu.json`) | **3 / 3** | 3 / 3 | 6.7 s (build 55.9 s) |
+
+The SHA-256 of each of the three outputs is the same on the CPU and on the
+L4. Fidelity at 7B: top-1 16/16, max abs err **0.79**, max rel err 0.08
+(per fixture 0.38–0.79).
+
+**What this shows.** The same as September, on the next runtime: the
+integer door gives the same bytes on an Intel Xeon and an NVIDIA L4 at
+0.5B and at 7B, whichever device made the references, and the gate holds
+it to those bytes at tolerance zero where both float doors fail; and its
+fidelity to the float model is back where the September run had it,
+because the door now computes the model the config describes.
+
+## Run `20261014T012445Z` — the raised runtime, and a wrong rotary base
+
+The same kit on the raised Python runtime (torch 2.14.1+cu126,
+transformers 5.19.0; one `g2-standard-8` in us-central1-b), the worker's
+source unchanged (`worker.sha256` is the September run's). Byte identity
+held exactly as in September: the 0.5B genome made on the CPU gave the
+same bytes on the L4 (16/16, the same `sha256` for every fixture), the 7B
+genome made on the L4 gave the same bytes on the Xeon (3/3), the gate at
+zero tolerance opened EXACT at rung 2 where both float doors failed
+(1.18e-4), both devices divided int64 exactly. The door's fidelity to the
+float model did not hold: at 0.5B top-1 the same on **13** of 16 fixtures
+(16 in September), max abs err **7.29** (2.72); at 7B top-1 16/16 but max
+abs err **9.08** (1.32) — with the same data, the same first loss, a last
+loss within 2e-5, and float references that moved by less than 1e-3.
+
+The integer references had moved because the door was computing a
+different model. transformers 5 keeps a Qwen2 or Llama config's rotary
+base in `rope_parameters`; the attribute `rope_theta` is gone, and the
+door read it as `getattr(cfg, "rope_theta", 10000.0)`. Qwen2.5's base is
+1 000 000; the door built its rotary tables over 10 000 — on both devices,
+deterministically, so every exactness check passed. The fix (commit
+`818cead`) reads the base from where the config keeps it and refuses a
+config that names none, refuses a model whose own rotary module does not
+hold the default tables over that base, and the tests' tiny model now
+carries Qwen2.5's base; the run that confirms it is the section above.
+What this run adds to the claim: byte identity is a property of the
+program and says nothing about the program being the right one — the
+fidelity the genome records is the check that it is.
+
+## Results — run `20260916T164511Z` (torch 2.7.1, the previous runtime)
 
 One `g2-standard-8` in us-central1-c: an NVIDIA L4 (23 GB) and eight
 Intel Xeon @ 2.20 GHz vCPUs, torch 2.7.1+cu126; both devices divide

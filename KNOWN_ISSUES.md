@@ -357,12 +357,19 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    worker is deployed; the pins were still raised, to `torch==2.14.1`,
    `transformers==5.19.0`, `tokenizers==0.23.3`, `safetensors==0.8.0`,
    `numpy==2.5.4`, against which OSV lists nothing (queried 2026-10-13).
-   The worker's own suite passes on the new runtime (31 tests, CPU). What is
-   *not* yet re-measured on it: C16 (bit-for-bit replay of the recipe on
-   one GPU) and C19 (the integer door's identical bytes on a Xeon and an
-   L4). Those records stay true for the runtime they name; until the
-   re-measurement is on the record, no release note claims them for the
-   new runtime. CI installs the runtime from `requirements-ci.lock`, every
+   The worker's own suite passes on the new runtime (35 tests, CPU). C19
+   (the integer door's identical bytes on a Xeon and an L4) is re-measured
+   on it: `scripts/hardware-test/integer-door/evidence/20261014T020420Z`
+   — the same bytes at 0.5B and 7B, the fidelity where September had it.
+   The first run on the new runtime (`20261014T012445Z`) held byte
+   identity while the door computed the wrong model: transformers 5 keeps
+   a config's rotary base in `rope_parameters`, and the door's reader had
+   defaulted it to 10 000; the fidelity record showed it, the reader now
+   has no default and the door checks its tables against the model's. What
+   is *not* yet re-measured: C16 (bit-for-bit replay of the recipe on one
+   GPU). That record stays true for the runtime it names; until the
+   re-measurement is on the record, no release note claims it for the new
+   runtime. CI installs the runtime from `requirements-ci.lock`, every
    wheel checked against its sha256 (`pip --require-hashes`).
 
 15. **Release signatures are the `.sig` + `.cert` pair, on cosign 2.x pinned
