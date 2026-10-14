@@ -54,6 +54,9 @@ type daemonFixture struct {
 
 	vaultSim, workerSim *tee.Simulated
 	workerStore         *keys.InMemoryStore
+
+	// stop cancels the daemon's context: the test's hand on shutdown.
+	stop context.CancelFunc
 }
 
 func newDaemonFixture(t *testing.T, mutate func(*Config)) *daemonFixture {
@@ -117,6 +120,7 @@ func newDaemonFixture(t *testing.T, mutate func(*Config)) *daemonFixture {
 	f.daemon, err = NewDaemon(f.cfg, f.mat, f.queue, f.genomes, f.audit, clock, logger, f.registry)
 	require.NoError(t, err)
 	ctx, cancel := context.WithCancel(context.Background())
+	f.stop = cancel
 	done := make(chan error, 1)
 	go func() { done <- f.daemon.Run(ctx) }()
 	require.Eventually(t, func() bool { return f.daemon.Addr() != f.cfg.Vault.ListenAddress }, 5*time.Second, 10*time.Millisecond, "daemon did not bind")
@@ -171,6 +175,13 @@ func (f *daemonFixture) worker(ctx context.Context, answer func(genomeID string)
 	f.t.Helper()
 	conn, err := net.Dial("tcp", f.daemon.Addr())
 	require.NoError(f.t, err)
+	return f.workerConn(ctx, conn, func(genomeID string) ([]byte, error) { return answer(genomeID), nil })
+}
+
+// workerConn is worker over a connection the caller dialed (plain or
+// TLS); reconstruct answers the job, or refuses it with an error.
+func (f *daemonFixture) workerConn(ctx context.Context, conn net.Conn, reconstruct func(genomeID string) ([]byte, error)) error {
+	f.t.Helper()
 	sess, err := client.Dial(client.SessionConfig{
 		Conn: conn, Producer: f.workerSim, Verifier: tee.NewSimulatedVerifier(f.vaultSim.PublicKey(), f.vaultSim.Measurement()), Clock: f.clock,
 		Reconstructor: reconstructorFunc(func(_ rjm.ReconstructionJobManifest, comps []worker.ComponentMaterial) ([]byte, error) {
@@ -178,7 +189,7 @@ func (f *daemonFixture) worker(ctx context.Context, answer func(genomeID string)
 			if err != nil {
 				return nil, err
 			}
-			return answer(desc.GenomeID), nil
+			return reconstruct(desc.GenomeID)
 		}),
 		Signer: f.workerStore, SigningKeyID: "worker-1", Opener: client.KeyStoreOpener{Sealer: f.workerStore}, HandshakeTimeout: 3 * time.Second,
 	})
