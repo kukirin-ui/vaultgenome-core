@@ -28,7 +28,7 @@ make demo-down     # stop and remove
 
 `make demo-test` adds a health probe of both services around the
 round trip. `make demo-genome` needs the worker runtime on the host
-(`pip install --index-url https://download.pytorch.org/whl/cpu torch==2.7.1`,
+(`pip install --index-url https://download.pytorch.org/whl/cpu torch==2.14.1`,
 then `pip install -r workers/genome/requirements.txt`); it builds a tiny
 random model locally and downloads nothing. To restore a real model, seal
 its genome with `acpctl genome seal --content-dir` into `genomes/` and mount
