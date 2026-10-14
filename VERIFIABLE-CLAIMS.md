@@ -812,6 +812,17 @@ Ready State: Ready`; `destination/gpu.csv`: H100 NVL, driver 595.71.05,
 VBIOS 96.00.9F.00.04. `destination/acp-bootstrap.log`: handshake
 answered, key released, restore, gate, key erased. `primary/sentinel.json`:
 `outcome: compromised`, `attestation.kind: gcp-sev-snp`, last generation 1.
+The same drill on the raised runtime (torch 2.14.1, transformers 5.19.0)
+and the day's driver, [`…/20261014T121030Z/`](scripts/hardware-test/failover-cgpu/evidence/20261014T121030Z/) — the standby on
+kernel `7.0.0-1016-azure-fde` with driver `595.91.07` (`destination/gpu.csv`,
+`conf-compute.txt`: `CC State: ON`), the vTPM digest of that boot pinned
+(`c1e0b0f8…ad85`); `authority/report.json`: `status: restored`, generation 1,
+`restore.gate`: EQUIVALENT, `max_abs_err: 2.48e-04`, `timing`: RTO
+19.86 s, RPO 9.00 s; `authority/audit-verify.json`: `ok: true`, 5 events, tip
+`f86923a4…4be9`; the `CROSS_CLOUD_ATTESTATION_VERIFIED` event's `destination_detail`
+naming GPU-0 `GH100` driver `595.91.07` with the authority's own evaluation
+of the report, every check true; the destination's two key files sealed to
+its vTPM (`destination/dest-seal-keys.json`).
 
 **Reproduce:**
 
@@ -1021,7 +1032,7 @@ On a live record: the cross-cloud drill `scripts/hardware-test/failover-cgpu/evi
 carries `destination_detail` on the authority's `CROSS_CLOUD_ATTESTATION_VERIFIED`
 event (`authority/audit-events.jsonl`: provider `azure-cgpu`, product
 `Genoa`, the quote's PCRs `sha256:0,1,2,3,4,5,6,7,8,9,10,11,12,13,14`, GPU-0 `GH100` driver `595.71.05` VBIOS
-`96.00.9F.00.04` vouched for by `https://nras.attestation.nvidia.com`). A live `peer_detail` from a
+`96.00.9F.00.04` vouched for by `https://nras.attestation.nvidia.com`; and again on the raised runtime, `scripts/hardware-test/failover-cgpu/evidence/20261014T121030Z/`, with driver `595.91.07` and the evaluation's every check true on the record). A live `peer_detail` from a
 Return Path handshake on the H100 host: the Return Path run
 `scripts/hardware-test/azure-cgpu/evidence/20260917T012834Z-returnpath/` — the
 `TRUST_EVALUATED` event that admitted the worker carries `peer_detail`

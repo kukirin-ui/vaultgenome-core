@@ -1,0 +1,32 @@
+{
+  "tee": "gcp-sev-snp",
+  "measurement_hex": "7dc7c12e55999ef40d78e4d3c83071588d639b914d619bd0ceb422aa5e899ec37d48afec327950d6d0619c2974125acc",
+  "sealed": [
+    {
+      "name": "crosscloud.transport_tls.client_key",
+      "path": "/root/secrets/acp-compute/tls/client.key"
+    }
+  ],
+  "already_sealed": [
+    {
+      "name": "keys.authority_signing.seed_path",
+      "path": "/root/secrets/sagvd/authority_signing_seed"
+    },
+    {
+      "name": "keys.session_sealing.material_path",
+      "path": "/root/secrets/shared/sealing.key"
+    },
+    {
+      "name": "keys.audit_signing.seed_path",
+      "path": "/root/secrets/sagvd/audit_signing_seed"
+    },
+    {
+      "name": "vault.tls.server_key",
+      "path": "/root/secrets/sagvd/tls/server.key"
+    },
+    {
+      "name": "http_api.bearer_token_file",
+      "path": "/root/secrets/sagvd/api_token"
+    }
+  ]
+}

@@ -393,10 +393,12 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    capture, the Return Path under `both`, the 32B genome) too:
    `scripts/hardware-test/azure-cgpu/evidence/20261014T113334Z` and its
    `-returnpath` — the day's driver 595.91.07, its manifests fetched during the
-   handshake, the 32B genome EXACT on the H100 in 238 s. Only C18 (the
-   cross-cloud failover to the H100) still names the previous runtime;
-   until its record is on the tree no release note claims it for the new
-   runtime. CI and the acp-compute image install the runtime from the
+   handshake, the 32B genome EXACT on the H100 in 238 s. C18 (the
+   cross-cloud failover to the H100) too:
+   `scripts/hardware-test/failover-cgpu/evidence/20261014T121030Z`, generation
+   1 restored on the H100 under driver 595.91.07 and gated EQUIVALENT, RTO
+   19.86 s. No record names the previous runtime any more: every kit has run
+   on the raised one, and each claim cites both records. CI and the acp-compute image install the runtime from the
    hash-pinned locks — `requirements-ci.lock` from PyPI, the torch wheel in
    `requirements-torch-cpu.lock` from the PyTorch CPU index — each with its
    own `--index-url` under `pip --require-hashes`, every wheel checked

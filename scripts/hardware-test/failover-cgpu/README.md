@@ -196,6 +196,54 @@ release's record: `authority/audit-events.jsonl`, the
 PCRs `sha256:0,1,2,3,4,5,6,7,8,9,10,11,12,13,14`, GPU-0 `GH100` driver `595.71.05` VBIOS `96.00.9F.00.04` vouched for by
 `https://nras.attestation.nvidia.com`.
 
+## The raised runtime — run `20261014T121030Z` (evidence/20261014T121030Z)
+
+The same cross-cloud drill on the raised Python runtime (torch 2.14.1 on
+every machine, transformers 5.19.0; `*/pip-freeze.txt`): primary
+`n2d-standard-8` and authority `n2d-standard-4` in us-central1-c at the
+measurements of the September run above (`10f5ac22…4519`,
+`7dc7c12e…5acc`), the standby a `Standard_NCC40ads_H100_v5` CVM in West
+Europe on the day's image and driver — kernel `7.0.0-1016-azure-fde`, NVIDIA H100
+NVL, driver **595.91.07** (September 595.71.05), VBIOS 96.00.9F.00.04, `CC State:
+ON`, `CC GPUs Ready State: Ready`; launch measurement `aa7c9da5…0eef` as
+in September, the vTPM's PCR digest of this boot `c1e0b0f8…ad85`, which the
+registry pinned (`destination/destination-identity.json`).
+
+Every secret file sealed as in the run above: the sentinel's seed on the
+primary (`sentinel seal-key exit=0 … sealed=True`), the authority's five
+key files and then the cross-cloud transport's client key (`seal-keys
+(failover config) exit=0 sealed=crosscloud.transport_tls.client_key
+already=5`), the standby's two to its vTPM (`destination/dest-seal-keys.json`:
+`tee: azure-cgpu`). Two generations sealed (120 steps in 52.0 s, 160 in
+82.1 s), the attack, the compromise report with the chip's report on it;
+the authority verified the standby's SEV-SNP report to AMD's Genoa root,
+its TPM quote under the vTPM's attestation key against the pinned PCR
+digest, and the H100 both ways — NVIDIA's tokens and its own evaluation
+of the GPU report under `gpu_policy.evaluation: both` — released the key
+and confirmed the receipt: generation 1 restored on the H100 (5 files,
+2,210,904 bytes, 11.8 ms) and gated **EQUIVALENT** through the door on the
+GPU (native float, 16 fixtures, max abs err 2.48e-04, 6.9 s).
+
+| Phase | Measured |
+| - | - |
+| Detect — tripwire → authority observes | **6.88 s** |
+| **RPO** — data at risk | **9.00 s** |
+| Key release — across the clouds, mTLS | 2.11 s |
+| Restore — 5 files, 2,210,904 B | **11.8 ms** |
+| Gate on the H100 | 6.86 s |
+| Failover — trigger observed → confirmed | 12.98 s |
+| **RTO** | **19.86 s** (September 25.74 s) |
+
+Audit chain of 5 events, `audit-verify.json`: `ok: true`, tip
+`f86923a4…4be9`. What the verifier said about the destination is on the key
+release's record as before (`authority/audit-events.jsonl`,
+`CROSS_CLOUD_ATTESTATION_VERIFIED` → `destination_detail`): provider
+`azure-cgpu`, product `Genoa`, reported TCB `6348668099708846090`, the quote's PCRs
+`sha256:0,1,2,3,4,5,6,7,8,9,10,11,12,13,14`, GPU-0 `GH100` driver `595.91.07` VBIOS
+`96.00.9F.00.04` vouched for by `https://nras.attestation.nvidia.com`, and the
+authority's own evaluation of the GPU report with every check true
+(`report_parsed`, `nonce_match`, `chain_verified`, `fwid_match`, `signature_verified`, `measurements_match`, `revocation_checked`, `revocation_good`).
+
 ## Evidence files
 
 - `primary/` — `finetune-0.json`, `finetune-1.json` (+ `.log`),

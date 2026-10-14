@@ -1,0 +1,9 @@
+{
+ "endpoint": "https://20.229.1.22:8443",
+ "measurement_hex": "aa7c9da55c1386e5b1653b125978beda7b3f95a85aeb0f9ddbbdb783ce056a28c9d021da239c34a58c3a657654270eef",
+ "tee_provider": "azure-cgpu",
+ "pcr_digest_hex": "c1e0b0f83b4c5912cf8ae0cb31e88c7ab7bf02c642a0a4b3b0ef1db7c939ad85",
+ "pcrs": [
+  "sha256:0,1,2,3,4,5,6,7,8,9,10,11,12,13,14"
+ ]
+}

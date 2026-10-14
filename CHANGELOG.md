@@ -53,7 +53,9 @@ given release can still open.
   key in the vTPM, EQUIVALENT in 20.42 s; and C17, C20 and C26,
   `azure-cgpu` run `20261014T113334Z`, the confidential H100 on the day's
   driver 595.91.07, the 32B genome restored and gated EXACT over the Return
-  Path in 238 s). CI now
+  Path in 238 s; and C18, `failover-cgpu` run `20261014T121030Z`, the
+  cross-cloud failover to the H100 under that driver, EQUIVALENT in
+  19.86 s — every hardware record now taken on the raised runtime). CI now
   installs the runtime from the hash-pinned locks with `pip
   --require-hashes` — `workers/genome/requirements-ci.lock` from PyPI and
   the torch wheel in `requirements-torch-cpu.lock` from the PyTorch CPU
