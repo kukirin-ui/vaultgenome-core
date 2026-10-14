@@ -1,0 +1,8 @@
+fix(hardware-test): verify ollama install.sh sha256 before running it
+
+03-demo1-single-bundle.sh piped https://ollama.com/install.sh straight
+into sh. Download it to a temp file, check it against a sha256 recorded
+on 2026-10-14 (with the command used), and refuse to run it on a
+mismatch, the same pattern 01-bootstrap-vm.sh uses for the Go tarball.
+
+Refs: #66
