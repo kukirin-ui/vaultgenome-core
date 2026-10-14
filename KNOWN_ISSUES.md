@@ -338,26 +338,32 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
     EXACT through the integer door — each the honest reading of the
     tensors, not a defect of the gate.
 
-14. **The worker's Python runtime is pinned, and OSV reports advisories
-   against those pins (2026-09-17).**
-   `workers/genome/requirements.txt` pins `torch==2.7.1`,
+14. **The worker's Python runtime was raised on 2026-10-13; the cross-hardware
+   measurements made on the previous runtime are re-measured before a
+   release claims them for the new one.**
+   `workers/genome/requirements.txt` pinned `torch==2.7.1`,
    `transformers==4.53.2`, `tokenizers==0.21.2`, `safetensors==0.5.3` and
-   `numpy==2.3.1`, because the determinism the genome path claims — EXACT
-   on the pinned runtime, the recipe replaying bit for bit (C16), the same
+   `numpy==2.3.1` because the determinism the genome path claims — EXACT on
+   the pinned runtime, the recipe replaying bit for bit (C16), the same
    bytes across CPU and GPU (C19) — was measured on exactly that runtime.
-   Queried on 2026-09-17, OSV lists 10 advisories against `torch` 2.7.1 and
-   16 against `transformers` 4.53.2, none against the other three; these
-   are what the OpenSSF Scorecard's *Vulnerabilities* check counts.
-   `govulncheck ./...` on the Go tree at the same date reports no
-   vulnerability reachable from this code. The pins are not raised in
-   passing: a newer `torch` or `transformers` changes numerics, so a bump
-   is a re-measurement of C16 and C19 on the new runtime, recorded as
-   evidence, and then the pin. Until then an operator who runs the worker
-   should read the advisories against how the worker is deployed — the
-   daemon starts it as a subprocess (`python3 -m vg_genome door
-   --stdin-genome`) and hands it the genome on stdin; it opens no network
-   listener — and decide for their own deployment; this file does not
-   decide it for them.
+   Queried on 2026-09-17, OSV listed 10 advisories against `torch` 2.7.1 and
+   16 against `transformers` 4.53.2; by 2026-10-13 the count was 10 and 18,
+   among them remote code execution in `transformers` model loading paths
+   (GHSA-29pf-2h5f-8g72, GHSA-fgcw-684q-jj6r, fixed in 5.3.0 and 5.5.0) and
+   a path traversal in `save_pretrained` (GHSA-xrqw-3rrv-vx5w, fixed in
+   5.10.0). The worker loads local files only (`local_files_only=True`, no
+   `trust_remote_code`, adapters as safetensors) and opens no network
+   listener, so none of the loading-path advisories was reachable as the
+   worker is deployed; the pins were still raised, to `torch==2.14.1`,
+   `transformers==5.19.0`, `tokenizers==0.23.3`, `safetensors==0.8.0`,
+   `numpy==2.5.4`, against which OSV lists nothing (queried 2026-10-13).
+   The worker's own suite passes on the new runtime (31 tests, CPU). What is
+   *not* yet re-measured on it: C16 (bit-for-bit replay of the recipe on
+   one GPU) and C19 (the integer door's identical bytes on a Xeon and an
+   L4). Those records stay true for the runtime they name; until the
+   re-measurement is on the record, no release note claims them for the
+   new runtime. CI installs the runtime from `requirements-ci.lock`, every
+   wheel checked against its sha256 (`pip --require-hashes`).
 
 15. **Release signatures are the `.sig` + `.cert` pair, on cosign 2.x pinned
    (2026-09-17).**

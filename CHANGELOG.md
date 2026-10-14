@@ -11,7 +11,43 @@ given release can still open.
 
 ## [Unreleased]
 
-Nothing yet.
+### Security
+
+- Go toolchain raised to 1.27.2 (`go.mod`, every workflow). `govulncheck`
+  reported ten vulnerabilities in the standard library reachable from this
+  code on go 1.27.0 — GO-2026-6603, 6604, 6605, 6607, 6608, 6610, 6611,
+  6612, 6613, 6617 (`net/http`, `net/http/internal/http2`, `net/textproto`,
+  `crypto/tls`, `os`) — and three more in the standard library not reached
+  (GO-2026-6599, 6600, 6609). All are fixed in go1.27.2; the scan on this
+  tree now reports none reachable. `golang.org/x/crypto` v0.57.0 → v0.58.0
+  and `github.com/beevik/etree` v1.8.0 → v1.8.1 (`golang.org/x/sys`
+  indirect, v0.48.0 → v0.49.0). The one advisory left in the module graph,
+  GO-2026-5932 (`golang.org/x/crypto/openpgp`, no fix planned), names a
+  package this module does not import (`go mod why` confirms); see
+  `docs/dependencies/x-crypto.md`.
+- The worker's Python runtime raised: `torch` 2.7.1 → 2.14.1, `transformers`
+  4.53.2 → 5.19.0, `tokenizers` 0.21.2 → 0.23.3, `safetensors` 0.5.3 →
+  0.8.0, `numpy` 2.3.1 → 2.5.4 (OSV: 28 advisories against the old pins,
+  none against the new; KNOWN_ISSUES #14 records which of them the worker
+  could reach, and which measurements still name the old runtime). CI now
+  installs the runtime from `workers/genome/requirements-ci.lock` with
+  `pip --require-hashes`: every wheel is checked against its sha256.
+- Workflows: every tool installed in CI is pinned — `govulncheck` v1.9.0,
+  `benchstat` and `go-mutesting` by commit, `syft` v1.54.1 through the
+  `anchore/sbom-action/download-syft` action pinned by commit (the
+  `curl … | sh` of an unversioned install script is gone from the release
+  and gate workflows), the Semgrep container by image digest. The
+  `security-events: write` permission moved from workflow level to the one
+  job that uploads SARIF (CodeQL, Semgrep).
+
+### Added
+
+- `docs/reference/cli.md`: every command and flag of the five binaries,
+  generated from their own usage text by `make cli-reference`
+  (`scripts/gen_cli_reference.sh`), so the reference cannot drift from
+  the code.
+- `docs/compliance/openssf-best-practices.md`: where each criterion of the
+  OpenSSF Best Practices badge (passing level) is met in this repository.
 
 ## [0.3.2] — 2026-09-17
 

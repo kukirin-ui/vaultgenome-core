@@ -7,6 +7,10 @@ procurement. The single canonical document is
 later under `soc2.md`, `iso27001.md`, etc., as customer demand
 materialises.
 
+The one assurance mark the project pursues directly is the OpenSSF Best
+Practices badge; [`openssf-best-practices.md`](openssf-best-practices.md)
+maps every criterion to where it is met in the tree.
+
 Vault Genome is not yet certified under any of these frameworks —
 certification requires a paid audit engagement (SOC 2 Type II ≈
 $25k–60k, ISO 27001 ≈ $30k–80k, FedRAMP Moderate ≈ $250k–1M+) plus

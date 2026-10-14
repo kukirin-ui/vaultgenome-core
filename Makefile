@@ -208,6 +208,10 @@ sbom:
 terminology:
 	bash scripts/terminology_check.sh
 
+.PHONY: cli-reference
+cli-reference:
+	bash scripts/gen_cli_reference.sh
+
 .PHONY: license-headers
 license-headers:
 	bash scripts/license_header_check.sh
