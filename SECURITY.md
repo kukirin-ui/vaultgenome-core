@@ -25,6 +25,10 @@ See `docs/internal/stage-a-summary.md` §2 (private repo) and the public
 [`docs/security/threat_model.md`](docs/security/threat_model.md) for
 the enumerated doctrinal invariants that security review must protect.
 
+The assurance case, the argument for why the security requirements are met
+with the trust boundaries, the design principles and the countered weakness
+classes, is [`docs/security/assurance_case.md`](docs/security/assurance_case.md).
+
 ## Supported versions
 
 We accept security reports against:
