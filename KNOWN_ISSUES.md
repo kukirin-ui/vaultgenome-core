@@ -372,7 +372,10 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    flash attention's backward may not be deterministic under `warn_only`;
    the replay measured that it was, at these shapes), the gate EXACT on
    the pinned runtime, and on the host CPU EXACT at rung 2 through the
-   integer door. The records of the other kits still name the previous
+   integer door. C6 (where CPU↔GPU float divergence enters a real model)
+   too: `scripts/hardware-test/gpu-exact/evidence/20261014T032040Z`, the
+   same table to the rounding and the same integer bytes. The records of
+   the other kits still name the previous
    runtime — the drills and failovers on SEV-SNP and TDX (C1–C5, C11,
    C21–C22) and the confidential H100 (C17–C18, C26); each is re-measured
    in turn, and until its record is on the tree no release note claims it

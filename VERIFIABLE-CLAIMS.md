@@ -174,7 +174,12 @@ construction.
 
 **Evidence.**
 [`scripts/hardware-test/gpu-exact/evidence/20260915T025643Z/probe.json`](scripts/hardware-test/gpu-exact/evidence/20260915T025643Z/probe.json),
-narrated in [the probe README](scripts/hardware-test/gpu-exact/README.md).
+narrated in [the probe README](scripts/hardware-test/gpu-exact/README.md);
+and, on the raised runtime (torch 2.14.1+cu126, transformers 5.19.0),
+[`scripts/hardware-test/gpu-exact/evidence/20261014T032040Z/probe.json`](scripts/hardware-test/gpu-exact/evidence/20261014T032040Z/probe.json)
+— the same table to the rounding (1.48e-4 and 9.99e-6, layer 1 on all
+16, top-1 and top-64 order 16/16, the integer projection `a03737b1f418`
+again).
 
 **Reproduce.** `bash scripts/hardware-test/gpu-exact/run.sh <gcp-project>`
 (one L4, ~20 min, deletes the VM). The integer door this probe pointed at
