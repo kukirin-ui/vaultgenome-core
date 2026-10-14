@@ -378,9 +378,13 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    measurement leg of the drill, SEV-SNP to GPU) too:
    `scripts/hardware-test/gcp-drill/evidence/20261014T032714Z`, bit for bit
    on the pinned runtime, equivalent on the L4 and the Intel CPU, the gate
-   saying which. The records of the other kits still name the previous
-   runtime — the failovers on SEV-SNP and TDX (C11, C21–C22) and the
-   confidential H100 (C17–C18, C26); each is re-measured
+   saying which. C8, C14 and C24–C25 (the failover drill on two SEV-SNP
+   guests) too: `scripts/hardware-test/gcp-failover/evidence/20261014T034337Z`,
+   generation 1 restored and gated EXACT in 18.69 s, both negatives
+   refused; C11's record is the worker workflow on the pinned runtime,
+   which runs green on the raised one. The records of the other kits still
+   name the previous runtime — the TDX failovers and the negatives drill
+   (C21–C23) and the confidential H100 (C17–C18, C26); each is re-measured
    in turn, and until its record is on the tree no release note claims it
    for the new runtime. CI installs the runtime from
    `requirements-ci.lock`, every wheel checked against its sha256

@@ -42,7 +42,9 @@ given release can still open.
   the integer door; C6, `gpu-exact` run `20261014T032040Z`, the same
   divergence at the first block and the same integer bytes; and C1–C5,
   `gcp-drill` run `20261014T032714Z`, bit for bit on the SEV-SNP source
-  and equivalent on the L4 and the Intel CPU). CI now
+  and equivalent on the L4 and the Intel CPU; and C8, C14, C24–C25,
+  `gcp-failover` run `20261014T034337Z`, generation 1 restored and gated
+  EXACT in 18.69 s with both negatives refused). CI now
   installs the runtime from `workers/genome/requirements-ci.lock` with
   `pip --require-hashes`: every wheel is checked against its sha256.
 - Workflows: every tool installed in CI is pinned — `govulncheck` v1.9.0,
