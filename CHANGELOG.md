@@ -61,6 +61,12 @@ given release can still open.
 
 ### Changed
 
+- The benchmark workflow writes its comparison report to the job summary and
+  the run's artifact for every pull request, and posts the sticky comment only
+  for pull requests from this repository: a pull request from a fork runs with
+  a read-only token, and the comment step used to fail the required `bench`
+  check there.
+
 - Every Go, Python and shell file carries the copyright statement of
   `NOTICE` beside its SPDX identifier, and `scripts/license_header_check.sh`
   requires both in all three languages (four scripts had carried no SPDX
