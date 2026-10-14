@@ -269,6 +269,10 @@ a required level of only `EQUIVALENT`; audit chain 5 events, verified;
 (the full signed report),
 [`…/standby/audit-verify.json`](scripts/hardware-test/gcp-failover/evidence/20260915T021334Z/standby/audit-verify.json),
 [`…/primary/sentinel.json`](scripts/hardware-test/gcp-failover/evidence/20260915T021334Z/primary/sentinel.json).
+The same drill on the raised runtime (torch 2.14.1, transformers 5.19.0),
+[`…/20261014T034337Z/standby/report.json`](scripts/hardware-test/gcp-failover/evidence/20261014T034337Z/standby/report.json)
+— generation 1, gate EXACT, RTO 18.69 s, RPO 9.00 s, 5 events verified
+([`audit-verify.json`](scripts/hardware-test/gcp-failover/evidence/20261014T034337Z/standby/audit-verify.json)).
 Design: [ADR 0012](docs/adr/0012-sentinel-and-policy-driven-failover.md).
 
 **Reproduce.** `bash scripts/hardware-test/gcp-failover/run.sh <gcp-project>`.
@@ -467,7 +471,11 @@ two SEV-SNP guests, with a rogue sentinel holding the stolen seed refused.
 — primary `n2d-standard-8` (measurement `10f5ac22…4519`), standby
 `n2d-standard-4` (measurement `7dc7c12e…5acc`), us-central1-c, both
 `Memory Encryption Features active: AMD SEV SEV-ES SEV-SNP` with
-`/dev/sev-guest` (`tsm.txt`).
+`/dev/sev-guest` (`tsm.txt`). On the raised runtime,
+[`…/20261014T034337Z/`](scripts/hardware-test/gcp-failover/evidence/20261014T034337Z/) — the same machines and measurements, the
+escrow key sealed (`escrow-provision.json`: `tee: gcp-sev-snp`, `source:
+generated`), the primary's report on the trigger, generation 1 restored
+and gated EXACT, the rogue sentinel declined (`rogue-report.json`).
 `standby/escrow-provision.json`: the escrow key's tag `d2aac7b965c6ab76`,
 `tee: gcp-sev-snp`, `source: generated`, wrapped to the operator's
 recovery key (tag `93b4bd0871bfacf6`);
@@ -1219,7 +1227,11 @@ the stolen-seed negative declined.
 identity exit=0`, `escrow-provision exit=0`, `sagvd failover exit=0`;
 `standby/report.json`: `status: restored`, generation 1, gate
 EXACT, RTO 22.10 s, RPO 9.00 s; `standby/audit-verify.json`: `ok:
-true`, 5 events, tip `bb9fa06c…fa62`; `standby/rogue-report.json`: the
+true`, 5 events, tip `bb9fa06c…fa62` (and on the raised runtime,
+[`…/20261014T034337Z/`](scripts/hardware-test/gcp-failover/evidence/20261014T034337Z/): the same five files sealed, then the
+cross-cloud client key after the failover config is written — `seal-keys
+(failover config) exit=0 sealed=crosscloud.transport_tls.client_key
+already=5` — and `sagvd failover exit=0`); `standby/rogue-report.json`: the
 stolen seed declined.
 
 **Reproduce:**
@@ -1271,7 +1283,10 @@ authority sealed it — `seal-keys (failover config) exit=0 sealed=crosscloud.tr
 after; `primary/steps.txt`: `sentinel seal-key exit=0`, `sentinel exit=3`;
 `standby/report.json`: `status: restored`, generation 1, gate
 EXACT, RTO 18.53 s, RPO 9.00 s; `standby/audit-verify.json`: `ok:
-true`, 5 events, tip `17876233…1c5f`; `standby/steps.txt`:
+true`, 5 events, tip `17876233…1c5f` (and on the raised runtime,
+[`…/20261014T034337Z/`](scripts/hardware-test/gcp-failover/evidence/20261014T034337Z/): `sentinel seal-key exit=0 … sealed=True`,
+RTO 18.69 s, 5 events, tip `d6e0a658…2c4d`, the stolen sealed seed refused
+with `exit=2` as below); `standby/steps.txt`:
 `stolen sealed seed: acpctl sentinel identity exit=2 (want 2: does not open off the primary's chip): acpctl sentinel identity: --key: /root/stolen.sealed: integrity[signature_invalid]: sealed secret "sentinel.seed": this host does not open it (sealed at 10f5ac22cef1db0a… on gcp-sev-snp): integrity[signature_invalid]: `; `standby/stolen-sealed-identity.err`: `acpctl sentinel identity: --key: /root/stolen.sealed: integrity[signature_invalid]: sealed secret "sentinel.seed": this host does not open it (sealed at 10f5ac22cef1db0a… on gcp-sev-snp): integrity[si`;
 `standby/seal-keys.json`: 5 files sealed (`keys.authority_signing.seed_path`, `keys.session_sealing.material_path`, `keys.audit_signing.seed_path`, `vault.tls.server_key`, `http_api.bearer_token_file`);
 `standby/dest-seal-keys.json`: `http.tls.server_key`, `http.bearer_token_file`.

@@ -1,0 +1,3 @@
+instance=vg-failover-standby-20261014t034337z
+zone=us-central1-c
+machine=n2d-standard-4
