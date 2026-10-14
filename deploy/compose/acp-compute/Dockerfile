@@ -37,13 +37,18 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 FROM python:3.12-slim-bookworm@sha256:34386ef0cb081344d7ec1c103ba398e6e9f64e9ab3a1509accc92a4e24a07258
 
 # The worker's pinned runtime (workers/genome/requirements.txt), installed
-# from the hash-pinned lock: every wheel is checked against its sha256, torch
-# from the CPU wheel index.
-COPY workers/genome/requirements-ci.lock /opt/vg/workers/genome/requirements-ci.lock
+# from the hash-pinned locks: every wheel is checked against its sha256, and
+# each lock comes from its own index — PyPI for requirements-ci.lock, the
+# PyTorch CPU wheel index for the torch wheel alone (--no-deps: torch's
+# dependencies are in the first lock). No --extra-index-url: no index can
+# stand in for another.
+COPY workers/genome/requirements-ci.lock workers/genome/requirements-torch-cpu.lock /opt/vg/workers/genome/
 RUN python -m pip install --no-cache-dir --require-hashes --only-binary=:all: \
       --index-url https://pypi.org/simple \
-      --extra-index-url https://download.pytorch.org/whl/cpu \
-      -r /opt/vg/workers/genome/requirements-ci.lock
+      -r /opt/vg/workers/genome/requirements-ci.lock \
+ && python -m pip install --no-cache-dir --require-hashes --only-binary=:all: --no-deps \
+      --index-url https://download.pytorch.org/whl/cpu \
+      -r /opt/vg/workers/genome/requirements-torch-cpu.lock
 COPY workers/genome/vg_genome /opt/vg/workers/genome/vg_genome
 
 COPY --from=builder /out/acp-compute /usr/local/bin/acp-compute

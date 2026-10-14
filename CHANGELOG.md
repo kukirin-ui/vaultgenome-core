@@ -54,8 +54,11 @@ given release can still open.
   `azure-cgpu` run `20261014T113334Z`, the confidential H100 on the day's
   driver 595.91.07, the 32B genome restored and gated EXACT over the Return
   Path in 238 s). CI now
-  installs the runtime from `workers/genome/requirements-ci.lock` with
-  `pip --require-hashes`: every wheel is checked against its sha256.
+  installs the runtime from the hash-pinned locks with `pip
+  --require-hashes` — `workers/genome/requirements-ci.lock` from PyPI and
+  the torch wheel in `requirements-torch-cpu.lock` from the PyTorch CPU
+  index, each from its own `--index-url` (no `--extra-index-url`: no index
+  can stand in for another) — every wheel checked against its sha256.
 - Workflows: every tool installed in CI is pinned — `govulncheck` v1.9.0,
   `benchstat` and `go-mutesting` by commit, `syft` v1.54.1 through the
   `anchore/sbom-action/download-syft` action pinned by commit (the

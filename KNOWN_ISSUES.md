@@ -396,9 +396,11 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    handshake, the 32B genome EXACT on the H100 in 238 s. Only C18 (the
    cross-cloud failover to the H100) still names the previous runtime;
    until its record is on the tree no release note claims it for the new
-   runtime. CI installs the runtime from
-   `requirements-ci.lock`, every wheel checked against its sha256
-   (`pip --require-hashes`).
+   runtime. CI and the acp-compute image install the runtime from the
+   hash-pinned locks — `requirements-ci.lock` from PyPI, the torch wheel in
+   `requirements-torch-cpu.lock` from the PyTorch CPU index — each with its
+   own `--index-url` under `pip --require-hashes`, every wheel checked
+   against its sha256 and no index standing in for another.
 
 15. **Release signatures are the `.sig` + `.cert` pair, on cosign 2.x pinned
    (2026-09-17).**

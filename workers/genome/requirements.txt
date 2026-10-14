@@ -5,7 +5,8 @@
 # re-measured before a release claims them for this one.
 # torch comes from the CPU wheel index on machines without a GPU:
 #   pip install --index-url https://download.pytorch.org/whl/cpu torch==2.14.1
-# CI installs the hash-pinned equivalent, requirements-ci.lock.
+# CI installs the hash-pinned equivalent: requirements-ci.lock (PyPI) and
+# requirements-torch-cpu.lock (the PyTorch CPU index), each from its own index.
 torch==2.14.1
 transformers==5.19.0
 tokenizers==0.23.3
