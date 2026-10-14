@@ -28,7 +28,7 @@ genome/
 ## Commands
 
 ```bash
-pip install --index-url https://download.pytorch.org/whl/cpu torch==2.7.1   # CPU; or the CUDA wheel
+pip install --index-url https://download.pytorch.org/whl/cpu torch==2.14.1  # CPU; or the CUDA wheel
 pip install -r requirements.txt
 export PYTHONPATH=$PWD
 
@@ -140,19 +140,29 @@ Qwen2.5-7B-Instruct, LoRA r=8 on `q_proj,v_proj` (2 523 136 parameters, a
 Training took 32.4 s and replays bit for bit on the same GPU. Across devices
 in bfloat16 the logits differ by one or two bfloat16 quanta, which is
 outside the float door's float32 tolerance: the gate fails closed while the
-model's answers do not change.
+model's answers do not change. On torch 2.14.1+cu126 (run
+`20261014T022551Z`) the same — EXACT on the pinned runtime, the recipe
+replaying bit for bit — and the gate on the Xeon no longer fails closed:
+with the integer door in the ladder it opens EXACT at rung 2 where both
+float doors fail (0.375).
 
 The integer door on the same hardware class
 ([`scripts/hardware-test/integer-door`](../../scripts/hardware-test/integer-door/README.md),
-run `20260916T164511Z`, an L4 and eight Xeon cores):
+run `20260916T164511Z` on torch 2.7.1 and run `20261014T020420Z` on
+torch 2.14.1, an L4 and eight Xeon cores; the October numbers in
+parentheses where they differ):
 
 | Genome, where its integer references were made | The door on the CPU | The door on the L4 | fidelity to the float model |
 |---|---|---|---|
-| Qwen2.5-0.5B-Instruct, float32, on the CPU | **exact 16/16** | **exact 16/16** (the same SHA-256s) | top-1 16/16, max \|Δ logit\| 2.72 |
-| Qwen2.5-7B-Instruct, bfloat16, on the L4 | **exact 3/3** (the first three) | **exact 16/16** | top-1 16/16, max \|Δ logit\| 1.32 |
+| Qwen2.5-0.5B-Instruct, float32, on the CPU | **exact 16/16** | **exact 16/16** (the same SHA-256s) | top-1 16/16, max \|Δ logit\| 2.72 (2.70) |
+| Qwen2.5-7B-Instruct, bfloat16, on the L4 | **exact 3/3** (the first three) | **exact 16/16** | top-1 16/16, max \|Δ logit\| 1.32 (0.79) |
 
-On the L4 at zero tolerance the float doors fail (1.52e-4) and the
-integer door opens EXACT.
+On the L4 at zero tolerance the float doors fail (1.52e-4; 1.18e-4 in
+October) and the integer door opens EXACT. The door reads the model's
+rotary base from its config with no default and refuses a model whose own
+rotary tables, projections or layer types disagree with that config: the
+first October run (`20261014T012445Z`) had the same bytes on both devices
+with the wrong tables, and only the fidelity record showed it.
 
 ## Tests
 
