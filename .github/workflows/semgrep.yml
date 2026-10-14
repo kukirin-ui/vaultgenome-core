@@ -23,17 +23,20 @@ on:
 
 permissions:
   contents: read
-  security-events: write
-  actions: read
-  pull-requests: write   # post inline review comments
 
 jobs:
   semgrep:
     name: semgrep-go
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+      pull-requests: write   # post inline review comments
     container:
-      image: returntocorp/semgrep:1.86.0
+      # pinned by digest (manifest list of the 1.86.0 tag, read from Docker Hub 13.10.2026)
+      image: returntocorp/semgrep:1.86.0@sha256:a9ea2d5621c29d815d90c2a3b2f9571da8972ef4ff855c9e4902681730240e35
 
     steps:
       - name: Checkout

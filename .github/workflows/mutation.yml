@@ -46,13 +46,13 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: "1.27.0"
+          go-version: "1.27.2"
           cache: true
           cache-dependency-path: go.sum
 
       - name: Install go-mutesting
         run: |
-          go install github.com/avito-tech/go-mutesting/cmd/go-mutesting@latest
+          go install github.com/avito-tech/go-mutesting/cmd/go-mutesting@v0.0.0-20261002081621-9ce5f731e321
 
       - name: Run mutation testing
         run: make mutation
