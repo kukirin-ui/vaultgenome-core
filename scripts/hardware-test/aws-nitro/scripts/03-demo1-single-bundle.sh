@@ -23,7 +23,20 @@ mkdir -p "$EVIDENCE_DIR"
 # Install Ollama if missing
 if ! command -v ollama >/dev/null 2>&1; then
   echo "=== installing Ollama ==="
-  curl -fsSL https://ollama.com/install.sh | sh
+  # Pinned, not piped: the installer is checked before it runs, like the Go
+  # tarball in 01-bootstrap-vm.sh. Recorded 2026-10-14 with:
+  #   curl -fsSL https://ollama.com/install.sh -o install.sh && sha256sum install.sh
+  # When ollama.com updates the script, review it and re-record hash and date.
+  OLLAMA_INSTALL_SHA256="25f64b810b947145095956533e1bdf56eacea2673c55a7e586be4515fc882c9f"  # ollama.com/install.sh, 2026-10-14
+  OLLAMA_INSTALLER="$(mktemp)"
+  curl -fsSL https://ollama.com/install.sh -o "$OLLAMA_INSTALLER"
+  if ! echo "${OLLAMA_INSTALL_SHA256}  ${OLLAMA_INSTALLER}" | sha256sum -c -; then
+    echo "ERROR: ollama install.sh sha256 mismatch; not running it" >&2
+    rm -f "$OLLAMA_INSTALLER"
+    exit 1
+  fi
+  sh "$OLLAMA_INSTALLER"
+  rm -f "$OLLAMA_INSTALLER"
 fi
 
 # Build acpctl from source if not present locally
