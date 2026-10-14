@@ -26,9 +26,37 @@ given release can still open.
   carries none. An enclave image built from this tree measures differently
   (PCR0–PCR2) from the May 2026 cohort; the recorded documents stand for
   the tree they name (`scripts/hardware-test/aws-nitro/README.md`).
+- The release workflow's token is read-only at the workflow level; the
+  build-and-sign job names the write permissions it needs (contents,
+  id-token). Rehearsed as `v0.4.1-rc1`: 25 assets, signatures, SBOMs and
+  provenance verified, the rehearsal's release deleted and the tag kept;
+  the rehearsal rule is §4.1 of the release procedure.
+
+### Added
+
+- Every commit certifies the Developer Certificate of Origin 1.1
+  (`CONTRIBUTING.md`): a `Signed-off-by` trailer with the author's email,
+  checked on every pull request by `scripts/dco_check.sh` in the gate
+  (`make dco`); commits before 2026-10-14 are covered by the founders'
+  copyright and assignment agreements.
+- `GOVERNANCE.md`: the roles and their responsibilities, how decisions are
+  made (ADRs, review by both maintainers on governed paths, doctrine tests,
+  design documents), who may sign a release, and how the project continues
+  within a week without either maintainer. Both founders are organisation
+  owners since 2026-10-14.
+- `docs/security/assurance_case.md`: why the security requirements are met,
+  with the requirements, the five trust boundaries, the design principles
+  and where each is applied, the weakness classes and their counters, and
+  what the argument does not cover.
+- `docs/operator/08_upgrading.md`: what is supported, the compatibility
+  ledger release by release, how to move a deployment and how to go back.
 
 ### Changed
 
+- `make build DEBUG=1` keeps the symbol table and DWARF (no `-s -w`) for a
+  debugger or profiler; `-trimpath` and the stamped version stay, so the
+  debug build is reproducible like the stripped one, which remains the
+  default and the release build.
 - The AWS Nitro kit ran on this tree (2026-10-14, one m5.xlarge in
   us-east-2a, EC2-only rights): a production-mode attestation document over
   vsock with PCR0–PCR2 equal to the built image's, the five-certificate chain
