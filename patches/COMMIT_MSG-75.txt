@@ -1,0 +1,10 @@
+fix(hardware-test): save ollama responses to evidence before parsing
+
+05-inference-test.sh piped both curl calls to the local Ollama API
+straight into python3, which Scorecard's Pinned-Dependencies check reads
+as download-then-run. Write each raw response to
+$EVIDENCE_DIR/inference-{original,restored}.json first, then extract the
+response field from that file. The raw JSON is kept as evidence (model,
+seed, token counts); output and the exit-on-diff behavior are unchanged.
+
+Refs: #75
