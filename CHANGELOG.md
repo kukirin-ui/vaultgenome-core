@@ -44,7 +44,9 @@ given release can still open.
   `gcp-drill` run `20261014T032714Z`, bit for bit on the SEV-SNP source
   and equivalent on the L4 and the Intel CPU; and C8, C14, C24–C25,
   `gcp-failover` run `20261014T034337Z`, generation 1 restored and gated
-  EXACT in 18.69 s with both negatives refused). CI now
+  EXACT in 18.69 s with both negatives refused; and C22,
+  `failover-negatives` run `20261014T035731Z`, the same seven refusals and
+  the one move). CI now
   installs the runtime from `workers/genome/requirements-ci.lock` with
   `pip --require-hashes`: every wheel is checked against its sha256.
 - Workflows: every tool installed in CI is pinned — `govulncheck` v1.9.0,

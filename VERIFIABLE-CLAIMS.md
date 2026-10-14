@@ -1145,7 +1145,15 @@ true`, "incident review"; `stop-3.json`: serial 3.
 primary's chip); `policy-7-verify.txt`: *signature does not verify under the
 operator key*. `standby/tamper.txt`: `gen-000001.genome` `addaaf0c…be7d` →
 `640046c8…5671`, one byte. `primary/sentinel.json`: `outcome: compromised`,
-generation 1 the last word, `attestation.kind: gcp-sev-snp`.
+generation 1 the last word, `attestation.kind: gcp-sev-snp`. The same
+eight runs on the raised runtime (torch 2.14.1, transformers 5.19.0),
+[`…/20261014T035731Z/`](scripts/hardware-test/failover-negatives/evidence/20261014T035731Z/) — the same seven refusals for the same
+reasons (`report-1..3.json`: declined; `report-4.json`, `report-5.json`:
+`status: failed` after `CROSS_CLOUD_ATTESTATION_VERIFIED`; `failover-7.log`,
+`failover-8.log`: refused at the door), `report-6.json`: generation 0
+restored with generation 1 set aside (`8b5f8661…ebe2` →
+`087b3516…72dc`, one byte), gate EXACT, the move 12.08 s (RTO 90.56 s, the sixth policy issued 79 s after the attack this time); 16 events,
+`ok: true`, tip `094b5ec2…90af`.
 
 **Reproduce:**
 

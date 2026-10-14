@@ -1,0 +1,28 @@
+{
+  "schema": "vault-genome/failover-policy/v1",
+  "serial": 2,
+  "issued_at": "2026-10-14T04:09:17Z",
+  "not_after": "2026-11-13T04:09:17Z",
+  "sentinel_public_key": "Zqa+by7XYhsk6jR3RqtZ05za8QUd7XVf42J3dg3AwxM=",
+  "primary": {
+    "kind": "gcp-sev-snp",
+    "measurements": [
+      "69da361d9e3b09fb5fac2972e2a5e3dc45f73295bb11d625a3222cd5fb9c5b6bcd48546876504a99fd261171dffac790"
+    ]
+  },
+  "standby": {
+    "kind": "gcp-sev-snp",
+    "endpoint": "https://127.0.0.1:8443",
+    "measurements": [
+      "21199b36f500cc26a5d26c92c699fe2820ce217458bf219be18efd761f636b4145fdecbd7249c4b566797b4afd339546"
+    ]
+  },
+  "triggers": {
+    "compromise_report": true
+  },
+  "max_rpo_seconds": 1,
+  "require_gate": "EQUIVALENT",
+  "reason": "negatives drill 2/8: at most 1 s of lost state",
+  "signing_key_id": "operator-1",
+  "signature": "2jtmyWb/62ZWrBaKHMCfp4s0Q869TMmvr7XEo/aBSb5QrYRKdx0ux21zTQ1pjH4cAush1XLNFzEpiriumxQpAA=="
+}

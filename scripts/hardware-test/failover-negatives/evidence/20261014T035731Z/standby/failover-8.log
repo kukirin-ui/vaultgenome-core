@@ -1,0 +1,1 @@
+{"time":"2026-10-14T04:10:51.082276305Z","level":"ERROR","msg":"sagvd failover: terminated with error","err":"failover: signature does not verify under the operator key"}

@@ -127,6 +127,33 @@ restored.
 
 **Cost.** About 13 minutes on two machines, a few cents.
 
+## The raised runtime — run `20261014T035731Z` (evidence/20261014T035731Z)
+
+The same eight runs on the raised Python runtime (torch 2.14.1+cpu,
+transformers 5.19.0, numpy 2.5.4; `*/pip-freeze.txt`), the same two
+machines in europe-west4-a. Two generations sealed (120 steps in 47.2 s,
+160 in 68.7 s, loss 5.33 → 0.0009), the attack, `outcome: compromised`
+with generation 1 as the last word. The same seven refusals for the same
+seven reasons, and the same one move (`standby/steps.txt`, `report-N.json`,
+`failover-N.log`):
+
+| # | Policy | `sagvd failover` | What the authority said |
+| - | - | - | - |
+| 1 | serial 1, expired at 2026-10-14T04:02:12Z | exit 3 | **declined** — *policy serial 1 expired* |
+| 2 | serial 2, `--max-rpo 1s` | exit 3 | **declined** — *generation 1 was sealed 8.996s before the trigger; the policy allows at most 1s* |
+| 3 | serial 3, `--quarantine 24h` | exit 3 | **declined** — *no genome in the verified chain was sealed by the cutoff and checks out*; both generations set aside |
+| 4 | serial 4, under stop list serial 2 | exit 1 | decided *failover* → handshake → the standby's chip **verified** → **denied** — *operator stop in force* |
+| 5 | serial 5, standby pinned to the primary's measurement | exit 1 | decided *failover* → handshake → the chip **verified** → **denied** — *releases only to its standby* |
+| 6 | serial 6, `gen-000001.genome` with one byte flipped (`8b5f8661…ebe2` → `087b3516…72dc`) | exit 0 | generation 1 **set aside**, **generation 0 restored**, gate **EXACT** (16 fixtures), RPO 267.0 s, restore 11.3 ms, gate 11.40 s, the move itself 12.08 s (trigger observed → confirmed; September 12.06 s), RTO 90.56 s — the sixth policy was issued 79 s after the attack this time, 25 s in September, the five answers before it having taken longer to come round |
+| 7 | serial 6 again | exit 1 | refused at the door — *already carried out a failover*; no event |
+| 8 | serial 7, a stranger's signature | exit 1 | refused at the door — *signature does not verify under the operator key*; no event |
+
+One record: 16 events, `audit-verify.json` `ok: true`, tip `094b5ec2…90af`,
+the same sequence as in September. The authority's key files were sealed
+on the standby before any of it, the cross-cloud transport's client key
+among them (`seal-keys (failover config) exit=0
+sealed=crosscloud.transport_tls.client_key already=5`).
+
 ## Evidence files
 
 - `primary/` — as in the failover drill: `finetune-0.json`,

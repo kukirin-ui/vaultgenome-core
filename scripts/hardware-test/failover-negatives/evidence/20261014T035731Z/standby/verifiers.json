@@ -1,0 +1,1 @@
+{"verifiers": [{"provider": "gcp-sev-snp", "expected_measurement_hex": "21199b36f500cc26a5d26c92c699fe2820ce217458bf219be18efd761f636b4145fdecbd7249c4b566797b4afd339546", "amd_cert_chain_path": "/root/amd-milan-cert_chain.pem", "vcek_cache_dir": "/root/vcek-cache"}]}

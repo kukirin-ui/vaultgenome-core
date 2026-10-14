@@ -1,0 +1,29 @@
+{
+  "schema": "vault-genome/failover-policy/v1",
+  "serial": 1,
+  "issued_at": "2026-10-14T04:01:27Z",
+  "not_after": "2026-10-14T04:02:12Z",
+  "sentinel_public_key": "Zqa+by7XYhsk6jR3RqtZ05za8QUd7XVf42J3dg3AwxM=",
+  "primary": {
+    "kind": "gcp-sev-snp",
+    "measurements": [
+      "69da361d9e3b09fb5fac2972e2a5e3dc45f73295bb11d625a3222cd5fb9c5b6bcd48546876504a99fd261171dffac790"
+    ]
+  },
+  "standby": {
+    "kind": "gcp-sev-snp",
+    "endpoint": "https://127.0.0.1:8443",
+    "measurements": [
+      "21199b36f500cc26a5d26c92c699fe2820ce217458bf219be18efd761f636b4145fdecbd7249c4b566797b4afd339546"
+    ]
+  },
+  "triggers": {
+    "compromise_report": true,
+    "heartbeat_timeout_seconds": 120,
+    "stopped_grace_seconds": 60
+  },
+  "require_gate": "EQUIVALENT",
+  "reason": "negatives drill 1/8: a policy that expires while the authority watches",
+  "signing_key_id": "operator-1",
+  "signature": "BC2Ss4KK7Q8q3/N5iGh67WGQ7HzESEzPyr+/cOaf92IsKAOZ0EAif4EZ4faLy9MeH4gma/s+z0DMfLkJKu9QCQ=="
+}

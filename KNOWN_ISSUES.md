@@ -382,9 +382,11 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    guests) too: `scripts/hardware-test/gcp-failover/evidence/20261014T034337Z`,
    generation 1 restored and gated EXACT in 18.69 s, both negatives
    refused; C11's record is the worker workflow on the pinned runtime,
-   which runs green on the raised one. The records of the other kits still
-   name the previous runtime — the TDX failovers and the negatives drill
-   (C21–C23) and the confidential H100 (C17–C18, C26); each is re-measured
+   which runs green on the raised one. C22 (the negatives drill) too:
+   `scripts/hardware-test/failover-negatives/evidence/20261014T035731Z`, the
+   same seven refusals and the one move. The records of the other kits
+   still name the previous runtime — the TDX failovers (C21, C23) and the
+   confidential H100 (C17–C18, C26); each is re-measured
    in turn, and until its record is on the tree no release note claims it
    for the new runtime. CI installs the runtime from
    `requirements-ci.lock`, every wheel checked against its sha256

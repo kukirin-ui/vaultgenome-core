@@ -1,0 +1,11 @@
+{
+  "authority_kid": "sagvd-authority-demo",
+  "authority_public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA2K366FXqljVk8xUDCJ/e4CeDUvl8tYYcWxuCO0q0fZQ=\n-----END PUBLIC KEY-----\n",
+  "tee_provider": "gcp-sev-snp",
+  "tee_measurement_hex": "21199b36f500cc26a5d26c92c699fe2820ce217458bf219be18efd761f636b4145fdecbd7249c4b566797b4afd339546",
+  "audit_kid": "sagvd-audit-demo",
+  "audit_public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA6JVGS1s4874Awn5sxY0C+2N+eXoyKvO6J4bI35oPGDU=\n-----END PUBLIC KEY-----\n",
+  "key_escrow_tag": "aa20c12d72c070b7",
+  "key_escrow_public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VuAyEAbSPHzE7WfM8nYexAoI3u9IWAKatXUgp9CPdp4hpG6RU=\n-----END PUBLIC KEY-----\n",
+  "key_escrow_storage": "sealed:gcp-sev-snp"
+}

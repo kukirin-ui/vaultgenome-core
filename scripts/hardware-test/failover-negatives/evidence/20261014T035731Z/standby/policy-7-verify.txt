@@ -1,0 +1,2 @@
+acpctl failover verify: failover: signature does not verify under the operator key
+(verify under the operator's key refuses it, as it should: exit 4)
