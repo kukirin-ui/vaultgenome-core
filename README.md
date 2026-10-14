@@ -3,9 +3,10 @@
 [![vault-gate](https://github.com/vault-genome/vaultgenome-core/actions/workflows/vault-gate.yml/badge.svg)](https://github.com/vault-genome/vaultgenome-core/actions/workflows/vault-gate.yml)
 [![CodeQL](https://github.com/vault-genome/vaultgenome-core/actions/workflows/codeql.yml/badge.svg)](https://github.com/vault-genome/vaultgenome-core/actions/workflows/codeql.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/vault-genome/vaultgenome-core/badge)](https://scorecard.dev/viewer/?uri=github.com/vault-genome/vaultgenome-core)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15491/badge)](https://www.bestpractices.dev/projects/15491)
 [![Release](https://img.shields.io/github/v/release/vault-genome/vaultgenome-core?display_name=tag&color=2ea44f)](https://github.com/vault-genome/vaultgenome-core/releases)
 [![SLSA 3](https://slsa.dev/images/gh-badge-level3.svg)](docs/operator/05_release_procedure.md)
-[![Go](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go&logoColor=white)](go.mod)
+[![Go](https://img.shields.io/badge/Go-1.27.2-00ADD8?logo=go&logoColor=white)](go.mod)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
 **A fine-tuned AI model that survives the loss of the machine it runs on —
