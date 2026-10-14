@@ -101,6 +101,18 @@ a change that drops a pillar cannot merge. It does not run the workflow.
 
 ---
 
+### 4.1 Rehearsal after a change to release.yml
+
+`release.yml` runs only on a tag, so a pull request cannot exercise it.
+After any change to the workflow or to the actions it pins (a Dependabot
+bump included), run the pipeline on a signed rehearsal tag before the
+real one: `vX.Y.Z-rcN` on the merge commit, verified like a release (§5),
+then delete the rehearsal's GitHub release and keep the tag. The Go module
+proxy may already have served the tag, and a tag that was once public is
+never moved or deleted (0.3.0 in the CHANGELOG is the lesson). 0.4.0 was
+rehearsed as `v0.4.0-rc1` on 2026-10-14; the permissions change of this
+page's revision is rehearsed as `v0.4.1-rc1`.
+
 ## 5. Post-release verification
 
 Once the release workflow completes:
