@@ -86,7 +86,7 @@ jobs:
 
       - name: Install syft
         id: syft
-        uses: anchore/sbom-action/download-syft@fffec3d851af758d56fee099cf3fbf8aa8779843 # v0.24.3
+        uses: anchore/sbom-action/download-syft@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
           syft-version: v1.54.1
       - name: Put syft on PATH
