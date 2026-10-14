@@ -57,7 +57,7 @@ EVIDENCE_OUT="$(cd "$EVIDENCE_OUT" && pwd)"
 
 SSH_OPTS=(-i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
           -o LogLevel=ERROR -o ConnectTimeout=10 -o ServerAliveInterval=30)
-REMOTE_KIT='core/scripts/hardware-test/aws-nitro/scripts'   # relative to the remote home
+REMOTE_KIT='$HOME/core/scripts/hardware-test/aws-nitro/scripts'   # expanded on the instance
 
 PUBLIC_IP=""
 INSTANCE_ID=""
@@ -65,6 +65,7 @@ AZ=""
 STATE="started"
 
 cleanup() {
+  rc=$?
   set +e
   if [ "$STATE" != "packed" ] && [ -n "$PUBLIC_IP" ]; then
     echo
@@ -78,7 +79,8 @@ cleanup() {
   echo "=== 12. teardown EC2 instance ==="
   cd "$KIT_DIR/terraform"
   terraform destroy -input=false -auto-approve
-  echo "teardown done (run state: $STATE)"
+  echo "teardown done (run state: $STATE, exit $rc)"
+  exit "$rc"
 }
 trap cleanup EXIT
 
@@ -116,6 +118,7 @@ STATE="uploaded"
 
 echo
 echo "=== 3. bootstrap (nitro-cli, Docker, Go, allocator, cbor2) ==="
+# shellcheck disable=SC2029 # $REMOTE_KIT holds a literal $HOME for the instance's shell
 ssh "${SSH_OPTS[@]}" "ec2-user@${PUBLIC_IP}" \
   "chmod +x $REMOTE_KIT/*.sh && $REMOTE_KIT/01-bootstrap-vm.sh"
 STATE="bootstrapped"

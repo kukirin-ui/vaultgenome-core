@@ -20,6 +20,10 @@
 
 set -euo pipefail
 
+# Resolved before any cd: the Go install below works in /tmp, and the
+# requirements file is read after it.
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 echo "=== verifying instance has Nitro Enclaves support ==="
 # This file is created by AWS only on Nitro Enclaves capable instances
 # that have enclave_options.enabled = true. Absence = not Nitro-capable.
@@ -86,7 +90,7 @@ echo
 echo "=== installing the host's Python packages (hash-pinned) ==="
 # cbor2 parses the attestation document in 02e; every wheel is checked
 # against its sha256 (scripts/requirements-host.txt).
-pip3 install --user --quiet --require-hashes -r "$(dirname "$0")/requirements-host.txt"
+pip3 install --user --quiet --require-hashes -r "$SCRIPT_DIR/requirements-host.txt"
 python3 -c 'import cbor2; print("cbor2", cbor2.__version__)'
 
 echo
