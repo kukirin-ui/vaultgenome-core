@@ -29,6 +29,7 @@ if ! command -v ollama >/dev/null 2>&1; then
   # When ollama.com updates the script, review it and re-record hash and date.
   OLLAMA_INSTALL_SHA256="25f64b810b947145095956533e1bdf56eacea2673c55a7e586be4515fc882c9f"  # ollama.com/install.sh, 2026-10-14
   OLLAMA_INSTALLER="$(mktemp)"
+  trap 'rm -f "$OLLAMA_INSTALLER"' EXIT
   curl -fsSL https://ollama.com/install.sh -o "$OLLAMA_INSTALLER"
   if ! echo "${OLLAMA_INSTALL_SHA256}  ${OLLAMA_INSTALLER}" | sha256sum -c -; then
     echo "ERROR: ollama install.sh sha256 mismatch; not running it" >&2
