@@ -318,6 +318,58 @@ def quantize_act(x: torch.Tensor, bits: int) -> tuple:
 
 
 # ----------------------------------------------------------------------
+# the rotary embedding the model uses
+# ----------------------------------------------------------------------
+
+
+def rotary_base(cfg) -> Fraction:
+    """The base of a model's rotary embedding, read from where its
+    transformers keeps it: `rope_parameters` (transformers 5) or
+    `rope_theta` with `rope_scaling` (before). Nothing is assumed: a config
+    that names no base, a scaled or partial rotary embedding, or one that
+    varies by layer is refused, never defaulted — transformers 5 moved the
+    base out of `rope_theta`, and a default of 10000 in its place computed
+    Qwen2.5 (base 1000000) with the wrong tables, exactly, on every device
+    (scripts/hardware-test/integer-door, run 20261014T012445Z)."""
+    params = getattr(cfg, "rope_parameters", None)
+    if params is None:
+        if not hasattr(cfg, "rope_theta"):
+            raise IntegerDoorError("the model's config names no rotary base")
+        scaling = dict(getattr(cfg, "rope_scaling", None) or {})
+        params = {"rope_theta": cfg.rope_theta, "rope_type": scaling.pop("rope_type", scaling.pop("type", "default")), **scaling}
+        partial = getattr(cfg, "partial_rotary_factor", None)
+        if partial is not None:
+            params["partial_rotary_factor"] = partial
+    if not isinstance(params, dict) or any(isinstance(v, dict) for v in params.values()):
+        raise IntegerDoorError("the integer door computes one rotary embedding for every layer")
+    if params.get("rope_theta") is None:
+        raise IntegerDoorError("the model's config names no rotary base")
+    if params.get("rope_type", "default") != "default":
+        raise IntegerDoorError("the integer door computes the default rotary embedding only")
+    if params.get("partial_rotary_factor", 1.0) != 1.0:
+        raise IntegerDoorError("the integer door rotates the whole head")
+    return Fraction(params["rope_theta"])
+
+
+def check_rotary_tables(inner: nn.Module, base: Fraction, head_dim: int) -> None:
+    """Refuse a model whose own rotary module does not hold the default
+    tables over `base`: the door derives its tables from the config's
+    base without a float, so the config and the module must agree, or the
+    door would compute a model the float one is not. The comparison is a
+    check, not an input — the float buffer never reaches the door."""
+    rotary = getattr(inner, "rotary_emb", None)
+    inv_freq = getattr(rotary, "inv_freq", None)
+    if inv_freq is None:
+        raise IntegerDoorError("the integer door cannot see the model's rotary tables (no rotary_emb.inv_freq)")
+    if float(getattr(rotary, "attention_scaling", 1.0)) != 1.0:
+        raise IntegerDoorError("the integer door computes the default rotary embedding only")
+    got = inv_freq.detach().to(torch.float64).cpu().tolist()
+    want = [float(base) ** (-2.0 * i / head_dim) for i in range(head_dim // 2)]
+    if len(got) != len(want) or any(abs(g - w) > 1e-5 * w for g, w in zip(got, want)):
+        raise IntegerDoorError("the model's rotary tables are not the default rotary embedding over the config's base")
+
+
+# ----------------------------------------------------------------------
 # the model
 # ----------------------------------------------------------------------
 
@@ -331,9 +383,6 @@ class IntegerModel:
         kind = getattr(cfg, "model_type", None)
         if kind not in ("llama", "qwen2"):
             raise IntegerDoorError(f"the integer door computes llama and qwen2 models, not {kind!r}")
-        scaling = getattr(cfg, "rope_scaling", None) or {}
-        if scaling.get("rope_type", scaling.get("type", "default")) != "default":
-            raise IntegerDoorError("the integer door computes the default rotary embedding only")
         if getattr(cfg, "use_sliding_window", False):
             raise IntegerDoorError("the integer door does not compute sliding-window attention")
         if act_bits < 2 or act_bits > 14:
@@ -347,9 +396,10 @@ class IntegerModel:
         if self.heads % self.kv_heads:
             raise IntegerDoorError("attention heads are not a multiple of the key/value heads")
         self.eps = Fraction(cfg.rms_norm_eps)
-        self.rope_base = Fraction(getattr(cfg, "rope_theta", 10000.0))
+        self.rope_base = rotary_base(cfg)
         self.vocab = cfg.vocab_size
         inner = model.model
+        check_rotary_tables(inner, self.rope_base, self.head_dim)
         # The embedding stays in the model's own dtype on the CPU (a 7B
         # vocabulary in float32 would be gigabytes); a row's conversion to
         # float32 is exact for float32 and bfloat16 weights.

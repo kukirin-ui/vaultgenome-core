@@ -40,6 +40,21 @@ given release can still open.
   `security-events: write` permission moved from workflow level to the one
   job that uploads SARIF (CodeQL, Semgrep).
 
+### Fixed
+
+- The integer door read the rotary base as `getattr(cfg, "rope_theta",
+  10000.0)`; under transformers 5 the base lives in `rope_parameters`, and
+  the door computed Qwen2.5 (base 1 000 000) with the tables of base
+  10 000 — the same bytes on every device, so every exactness check
+  passed while its fidelity to the float model fell (the integer-door kit
+  on the raised runtime, run `20261014T012445Z`: top-1 the same on 13 of
+  16 fixtures at 0.5B for 16, max abs err 7.29 for 2.72). The base is now
+  read from where the config keeps it and never assumed; a config that
+  names none, and scaled, partial or per-layer rotary embeddings, are
+  refused; and the door refuses a model whose own rotary module does not
+  hold the default tables over that base. The tests' tiny model carries
+  Qwen2.5's base, and the door's tables are checked against the model's.
+
 ### Added
 
 - `docs/reference/cli.md`: every command and flag of the five binaries,

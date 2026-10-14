@@ -26,7 +26,7 @@ def load_base(base_dir: str, dtype: str = DEFAULT_DTYPE):
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     tokenizer = AutoTokenizer.from_pretrained(base_dir, local_files_only=True)
-    model = AutoModelForCausalLM.from_pretrained(base_dir, local_files_only=True, torch_dtype=torch_dtype(dtype))
+    model = AutoModelForCausalLM.from_pretrained(base_dir, local_files_only=True, dtype=torch_dtype(dtype))
     model.eval()
     return model, tokenizer
 
