@@ -1,0 +1,3 @@
+instance=vg-int-l4-20261014t012445z
+zone=us-central1-b
+machine=g2-standard-8
