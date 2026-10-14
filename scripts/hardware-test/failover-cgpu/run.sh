@@ -52,6 +52,8 @@ EVIDENCE="$HERE/evidence/$STAMP"
 AZ_CREATED=0; GCP_CREATED=0; OK=0; SYNC=""
 
 cleanup() {
+  # A machine that never booted has no zone file: run every step, whatever the one before returned.
+  set +e
   [ -n "$SYNC" ] && kill "$SYNC" 2>/dev/null || true
   if [ "$GCP_CREATED" = 1 ]; then
     echo "cleanup: deleting $PRIMARY, $AUTHORITY and gs://$BUCKET"

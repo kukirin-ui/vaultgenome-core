@@ -42,6 +42,8 @@ EVIDENCE="$HERE/evidence/$STAMP"
 CREATED=0
 
 cleanup() {
+  # A machine that never booted has no zone file: run every step, whatever the one before returned.
+  set +e
   if [ "$CREATED" = 1 ]; then
     echo "cleanup: deleting $PRIMARY, $STANDBY and gs://$BUCKET"
     for n in "$PRIMARY" "$STANDBY"; do z="$(cat "$BUILD/zone.$n" 2>/dev/null)"; [ -n "$z" ] && gcloud compute instances delete "$n" --project "$PROJECT" --zone "$z" --quiet >/dev/null 2>&1 || true; done
