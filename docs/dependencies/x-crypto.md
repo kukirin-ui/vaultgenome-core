@@ -23,11 +23,9 @@ encoded in-house, because x/crypto's `CreateRequest` writes no nonce.
   `ocsp` package is used; it is not a risk to a binary built from this tree.
   The vault-gate's osv-scanner step ignores it by id (`osv-scanner.toml`,
   with this reason, until 2027-01-31, when the ignore expires and the
-  question is asked again): the scanner's call analysis, which would
-  filter the advisory as unreachable, needs a Go toolchain at least as new
-  as `go.mod` names, and its container does not always carry one — the
-  lockfile match alone cannot see that the package is unused. `make vuln`
-  (govulncheck on the tree's own toolchain) keeps doing the call analysis.
+  question is asked again — the exception the doctrine's §5 allows): the
+  step is presence-based and cannot see that the package is unused;
+  `make vuln` (govulncheck on the tree's own toolchain) can and does.
 
 ## Why this dependency
 

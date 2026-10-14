@@ -117,9 +117,18 @@ jobs:
           # scripts/hardware-test/ (the AWS Nitro vsock-attest snippet ships
           # without a go.sum and cannot be resolved), which are not the
           # deployable product. The product is a single root Go module.
+          # Presence-based, as docs/doctrine/ci-security-policy.md §5 says:
+          # reachability is govulncheck's job (step 10, on the tree's own
+          # toolchain). The scanner's Go call analysis is switched off
+          # because it needs a Go at least as new as go.mod names, and the
+          # action's container carries golang 1.27.1 (v2.6.0 and v2.7.0)
+          # under setup-go's GOTOOLCHAIN=local; its failure is a general
+          # error (exit 127) even when nothing is reported. The one
+          # advisory ignored by id, with its reason, is in osv-scanner.toml.
           scan-args: |-
             --lockfile
             go.mod
+            --no-call-analysis=go
 
       # 12 gitleaks — secret scanning via the open-source gitleaks binary.
       # The gitleaks-action wrapper now requires a paid GITLEAKS_LICENSE

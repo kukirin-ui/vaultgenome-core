@@ -7,10 +7,9 @@
 # is not imported by this module (`go mod why golang.org/x/crypto/openpgp`:
 # main module does not need it; `govulncheck ./...` lists it under modules
 # required, not code called). docs/dependencies/x-crypto.md records the
-# finding. The scanner's own call analysis would filter it as unreachable,
-# but it needs a Go toolchain at least as new as go.mod names, which the
-# scanner's container does not always carry; the lockfile match alone
-# cannot see that the package is unused.
+# finding. The scanner is presence-based by doctrine (ci-security-policy.md
+# §5, which allows exactly this exception) and cannot see that the package
+# is unused; govulncheck, in the gate's step 10, can and does.
 
 [[IgnoredVulns]]
 id = "GO-2026-5932"

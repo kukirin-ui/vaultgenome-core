@@ -24,11 +24,13 @@ given release can still open.
   indirect, v0.48.0 → v0.49.0). The one advisory left in the module graph,
   GO-2026-5932 (`golang.org/x/crypto/openpgp`, no fix planned), names a
   package this module does not import (`go mod why` confirms); see
-  `docs/dependencies/x-crypto.md`. The gate's osv-scanner step ignores
-  that one advisory by id (`osv-scanner.toml`, reason on the record,
-  expiring 2027-01-31) because its container's Go toolchain is older than
-  `go.mod` requires and its call analysis cannot run there; `make vuln`
-  on the tree's own toolchain still does the call analysis.
+  `docs/dependencies/x-crypto.md`. The gate's osv-scanner step is
+  presence-based, as the doctrine's §5 says (`--no-call-analysis=go`: the
+  action's container carries a Go older than `go.mod` names and its call
+  analysis cannot run there), and ignores that one advisory by id
+  (`osv-scanner.toml`, reason on the record, expiring 2027-01-31) under
+  the exception §5 now spells out; `make vuln` on the tree's own toolchain
+  does the call analysis.
 - The worker's Python runtime raised: `torch` 2.7.1 → 2.14.1, `transformers`
   4.53.2 → 5.19.0, `tokenizers` 0.21.2 → 0.23.3, `safetensors` 0.5.3 →
   0.8.0, `numpy` 2.3.1 → 2.5.4 (OSV: 28 advisories against the old pins,
