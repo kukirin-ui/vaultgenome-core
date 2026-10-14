@@ -11,6 +11,26 @@ given release can still open.
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [0.4.0] — 2026-10-14
+
+The runtime underneath the measurements was raised and every measurement
+was taken again. Go 1.27.2 closes ten standard-library advisories that
+were reachable from this code; the worker's Python runtime goes from torch
+2.7.1 / transformers 4.53.2 to 2.14.1 / 5.19.0 and is installed by hash
+from two locks, each from its own index; every tool and image CI depends on
+is pinned, and the gate's lint and scanners run on builds that can read Go
+1.27's export data. Then the hardware kits ran again on the new runtime —
+eleven runs on GCP L4s, SEV-SNP and TDX guests and the Azure confidential
+H100 — and every record is in the tree beside its September one, every
+claim citing both. One defect came out of that and not out of any test:
+under transformers 5 the integer door read a config's rotary base with a
+silent default and computed the wrong model, exactly, on every device;
+the fidelity record showed it, the reader now has no default and the door
+checks its tables against the model's own. Bundle format, audit schema and
+policy schema: unchanged.
+
 ### Security
 
 - Go toolchain raised to 1.27.2 (`go.mod`, every workflow). `govulncheck`

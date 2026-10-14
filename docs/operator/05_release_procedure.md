@@ -77,7 +77,7 @@ The tag push runs `.github/workflows/release.yml`:
 
 1. Check out the tag and run `git verify-tag` on it against the keys pinned on
    the default branch.
-2. Set up Go 1.27.0.
+2. Set up Go 1.27.2 (the toolchain `go.mod` names).
 3. `make build` and `make verify-reproducible`, with `VERSION` = the tag name,
    `COMMIT` = the full commit SHA and `SOURCE_DATE_EPOCH` = the tagged commit's
    timestamp.
@@ -90,7 +90,7 @@ The tag push runs `.github/workflows/release.yml`:
    the SBOMs, signatures and certificates to the GitHub Release.
 7. A second job runs the SLSA generic generator
    (`slsa-framework/slsa-github-generator`, `generator_generic_slsa3.yml`
-   v2.0.0) over the four binaries' SHA-256 and uploads the provenance to the
+   v2.1.0) over the four binaries' SHA-256 and uploads the provenance to the
    release.
 
 `TestInvariant_11_SupplyChainAttested` does not run in `release.yml`; it runs
@@ -117,7 +117,7 @@ Once the release workflow completes:
    `docs/security/supply_chain.md` explains what a successful check proves.
 3. Check that the SLSA provenance attached to the release names each
    binary's SHA-256 (for example with `slsa-verifier`).
-4. Rebuild from the tag with Go 1.27.0, from any host — the binaries are
+4. Rebuild from the tag with Go 1.27.2, from any host — the binaries are
    static (`CGO_ENABLED=0`) and carry the tag's VCS stamp, so the rebuild
    must come from a git checkout of the tag, not from an archive:
    ```
