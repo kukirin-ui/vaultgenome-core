@@ -1,0 +1,6 @@
+crw-rw---- 1 tss root  10,   224 Oct 14 04:26 /dev/tpm0
+crw-rw---- 1 tss tss  252, 65536 Oct 14 04:26 /dev/tpmrm0
+TPM2_PT_MANUFACTURER:
+  raw: 0x474F4F47
+--
+TPM2_PT_VENDOR_STRING_1:

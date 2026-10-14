@@ -1206,6 +1206,14 @@ at 20:19:49.37Z, `release.destination_kind: gcp-tdx`, `restore.gate`:
 **EQUIVALENT**, `max_abs_err: 1.45e-4`, `timing`: RPO 12.00 s, RTO
 20.27 s; `authority/audit-verify.json`: `ok: true`, 5 events, tip
 `78551451…bb2f`; `authority/tsm.txt`: `/dev/tdx_guest`, `tdx: Guest detected`.
+The same drill on the raised runtime (torch 2.14.1, transformers 5.19.0),
+[`…/20261014T042457Z/`](scripts/hardware-test/failover-tdx-authority/evidence/20261014T042457Z/) — the authority a Trust Domain on the
+current image (kernel `7.0.0-1014-gcp`, measurement `dfe77c76…1a9a`);
+`escrow-provision.json`: `tee: gcp-tdx`, key `f28d73ab63bfe6fe`, the same
+shape on disk, re-provisioned through the ceremony (`source: stdin`),
+`key_escrow_storage: sealed:gcp-tdx`; `report.json`: `status: restored`,
+EQUIVALENT `1.46e-04`, RTO 20.42 s, RPO 12.00 s; `audit-verify.json`:
+`ok: true`, 5 events, tip `f301ece8…4846`.
 
 **Reproduce:**
 

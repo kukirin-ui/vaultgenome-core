@@ -1,0 +1,3 @@
+instance=vg-fota-primary-20261014t042457z
+zone=europe-west4-a
+machine=n2d-standard-8

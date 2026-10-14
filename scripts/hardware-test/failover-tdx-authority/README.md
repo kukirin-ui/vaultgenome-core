@@ -88,6 +88,55 @@ hardware it runs on — the guest's vTPM under a policy of this boot's PCRs
 
 **Cost.** About 15 minutes on the three machines, cents.
 
+## The raised runtime — run `20261014T042457Z` (evidence/20261014T042457Z)
+
+The same drill on the raised Python runtime (torch 2.14.1+cpu,
+transformers 5.19.0, numpy 2.5.4 on the primary and the standby;
+`*/pip-freeze.txt`): primary `n2d-standard-8` in europe-west4-a at the
+September measurement (`69da361d…c790`); authority and standby
+`c3-standard-4` Trust Domains in us-central1-a on the current image —
+kernel `7.0.0-1014-gcp`, measurement `dfe77c76…1a9a` (the MRTD as in
+September, RTMR0–2 new) — the measurement the policy pinned for the
+standby and the authority ran as.
+
+**The escrow key in the vTPM** (`authority/escrow-provision.json`,
+`escrow-sealed-shape.txt`, `escrow-reprovision.json`,
+`authority-identity.json`, `vtpm.txt`, `vtpm-pcrs.txt`): `/dev/tpm0` and
+`/dev/tpmrm0` on the Trust Domain; `sagvd escrow-provision` on
+`tee.provider: "gcp-tdx"` exit 0, key `f28d73ab63bfe6fe`, `tee: gcp-tdx`,
+`source: generated`, sealed at `dfe77c76…1a9a` and opened once on the
+spot; on disk `{'tee': 'gcp-tdx', 'schema': 'vault-genome/vtpm-sealed/v1', 'pcrs': 'sha256:0,1,2,3,4,5,6,7,8,9,10,11,12,13,14', 'public_bytes': 80, 'private_bytes': 160, 'box_bytes': 60}`; the recovery ceremony re-sealed the same key
+(`escrow re-provision exit=0 re-provisioned escrow_key=f28d73ab63bfe6fe
+source=stdin`); `sagvd identity`: `key_escrow_storage: sealed:gcp-tdx`.
+Every other key file sealed too: the authority's five and the cross-cloud
+transport's client key (`seal-keys (failover config) exit=0
+sealed=crosscloud.transport_tls.client_key already=5`), the standby's two
+(`destination/dest-seal-keys.json`).
+
+**The failover** (`authority/report.json`, `audit-verify.json`,
+`destination/*.receipt.json`): two generations sealed on the primary (120
+steps in 49.1 s, 160 in 69.3 s), the attack, the compromise report with
+the chip's report on it; the authority unsealed its key from the vTPM at
+start, verified the standby's TDX quote to Intel's root with Intel's TCB
+word, released the key (`destination_kind: gcp-tdx`,
+`failover-policy-v1;failover=1;revocation=1`) and confirmed the receipt:
+generation 1 restored (5 files, 2,210,904 bytes, 10.9 ms) and gated
+**EQUIVALENT** on the standby's CPUs (16 fixtures, max abs err
+**1.46e-04**, 10.6 s).
+
+| Phase | Measured |
+| - | - |
+| Detect — tripwire → authority observes | **6.86 s** |
+| **RPO** — data at risk | **12.00 s** |
+| Key release — across the VPC, mTLS | 1.53 s |
+| Restore — 5 files, 2,210,904 B | **10.9 ms** |
+| Gate on the standby's CPUs | 10.55 s |
+| Failover — trigger observed → confirmed | 13.56 s |
+| **RTO** | **20.42 s** (September 20.27 s) |
+
+Audit chain of 5 events, `audit-verify.json`: `ok: true`, tip
+`f301ece8…4846`.
+
 ## Evidence files
 
 - `authority/` — the TDX drill's authority files (`escrow-provision.json`,

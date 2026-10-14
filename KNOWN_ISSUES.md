@@ -386,9 +386,11 @@ addressed on the `honest-reference` branch (honesty pass → defect fixes
    `scripts/hardware-test/failover-negatives/evidence/20261014T035731Z`, the
    same seven refusals and the one move. C21 (the failover to a TDX Trust
    Domain) too: `scripts/hardware-test/failover-tdx/evidence/20261014T041150Z`,
-   EQUIVALENT on the Trust Domain, RTO 20.42 s. The records of the other
-   kits still name the previous runtime — the TDX-authority drill (C23)
-   and the confidential H100 (C17–C18, C26); each is re-measured
+   EQUIVALENT on the Trust Domain, RTO 20.42 s. C23 (the authority itself a
+   Trust Domain, its escrow key in the vTPM) too:
+   `scripts/hardware-test/failover-tdx-authority/evidence/20261014T042457Z`,
+   EQUIVALENT, RTO 20.42 s. Only the confidential H100's records
+   (C17–C18, C26) still name the previous runtime; each is re-measured
    in turn, and until its record is on the tree no release note claims it
    for the new runtime. CI installs the runtime from
    `requirements-ci.lock`, every wheel checked against its sha256

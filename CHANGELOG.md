@@ -48,7 +48,9 @@ given release can still open.
   `failover-negatives` run `20261014T035731Z`, the same seven refusals and
   the one move; and C21, `failover-tdx` run `20261014T041150Z`, the key
   released on Intel's word to a Trust Domain on the current image,
-  EQUIVALENT in 20.42 s). CI now
+  EQUIVALENT in 20.42 s; and C23, `failover-tdx-authority` run
+  `20261014T042457Z`, the authority itself a Trust Domain with its escrow
+  key in the vTPM, EQUIVALENT in 20.42 s). CI now
   installs the runtime from `workers/genome/requirements-ci.lock` with
   `pip --require-hashes`: every wheel is checked against its sha256.
 - Workflows: every tool installed in CI is pinned — `govulncheck` v1.9.0,
