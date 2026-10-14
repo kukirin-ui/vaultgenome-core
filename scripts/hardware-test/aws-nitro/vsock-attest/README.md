@@ -24,9 +24,10 @@ companion listener which writes the bytes to disk.
 ## Build
 
 ```bash
-# From this directory:
+# From this directory. go.mod names Go 1.27.2 and go.sum is committed, so
+# the build reads only the versions recorded there:
 GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
-  go build -trimpath -ldflags="-s -w" -o vsock-attest .
+  go build -mod=readonly -trimpath -ldflags="-s -w" -o vsock-attest .
 ```
 
 The resulting binary is fully static, ~2 MB, suitable for direct COPY

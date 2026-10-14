@@ -58,10 +58,8 @@ cp "$DEBUG_DIR/02-report-data.hex" . 2>/dev/null || true
 echo "=== compiling vsock-attest (linux/amd64, static) ==="
 cp -r "$VSOCK_SRC_DIR" ./vsock-attest-src
 cd vsock-attest-src
-go env -w GOFLAGS=-mod=mod 2>/dev/null || true
-go mod tidy
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-  go build -trimpath -ldflags="-s -w" -o ../vsock-attest .
+  go build -mod=readonly -trimpath -ldflags="-s -w" -o ../vsock-attest .
 cd ..
 ls -lh vsock-attest
 

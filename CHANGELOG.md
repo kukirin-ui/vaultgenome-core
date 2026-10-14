@@ -11,7 +11,21 @@ given release can still open.
 
 ## [Unreleased]
 
-Nothing yet.
+### Security
+
+- The AWS Nitro kit's toolchain is the release's: the parent host installs
+  Go 1.27.2 with the tarball checked against its go.dev sha256, the enclave
+  image builder (golang 1.27.2-alpine) and runtime (alpine 3.24.2) are
+  pinned by digest, and `vsock-attest` builds on current dependencies from
+  a committed `go.sum` with `-mod=readonly` (the host's Go environment is
+  no longer rewritten with `go env -w`). The helper's indirect
+  `golang.org/x/net` 0.10.0 and `golang.org/x/sys` 0.8.0 had carried the 23
+  OSV advisories Scorecard reported for the tree — none reachable from the
+  helper's code (govulncheck, symbol and binary mode); on `x/net` 0.61.0,
+  `x/sys` 0.49.0, `mdlayher/vsock` 1.3.0 and `hf/nsm` 2022-09-30 the module
+  carries none. An enclave image built from this tree measures differently
+  (PCR0–PCR2) from the September cohort; the recorded documents stand for
+  the tree they name (`scripts/hardware-test/aws-nitro/README.md`).
 
 ## [0.4.0] — 2026-10-14
 

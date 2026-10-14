@@ -190,6 +190,7 @@ mutation-quick:
 vuln:
 	@command -v govulncheck >/dev/null || { echo "govulncheck not installed"; exit 1; }
 	govulncheck $(PKG)
+	cd scripts/hardware-test/aws-nitro/vsock-attest && GOOS=linux GOARCH=amd64 govulncheck ./...
 
 .PHONY: secrets
 secrets:

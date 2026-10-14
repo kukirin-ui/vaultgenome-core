@@ -73,9 +73,11 @@ but deliberately not gated.
 Two scanners run on every gate:
 
 - **govulncheck** — call-graph aware. It fails only on advisories the code can
-  actually reach, across both module dependencies and the standard library. A
-  reachable stdlib advisory is fixed by the toolchain bump of §2.
-- **osv-scanner** — presence-based over the dependency manifest. It fails on a
+  actually reach, across both module dependencies and the standard library,
+  in the root module and in the one helper module with its own go.mod and
+  go.sum (the AWS Nitro kit's `vsock-attest`). A reachable stdlib advisory is
+  fixed by the toolchain bump of §2.
+- **osv-scanner** — presence-based over the same two dependency manifests. It fails on a
   known-vulnerable dependency version regardless of reachability, the stricter,
   defence-in-depth complement to govulncheck. One exception is allowed, and
   only in the open: an advisory that no release of the dependency fixes, for
