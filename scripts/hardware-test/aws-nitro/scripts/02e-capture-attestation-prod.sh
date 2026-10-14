@@ -91,6 +91,10 @@ cat 04-enclave-launch.json
 ENCLAVE_ID=$(sudo nitro-cli describe-enclaves | jq -r '.[0].EnclaveID')
 echo "Enclave ID: $ENCLAVE_ID"
 
+sleep 2
+sudo nitro-cli describe-enclaves > 03-enclaves-state.json   # the running enclave, PCRs included
+echo "enclave state captured: $(jq -r '.[0].State // "none"' 03-enclaves-state.json)"
+
 echo
 echo "=== waiting for listener to receive attestation (≤180s) ==="
 if ! wait "$LISTENER_PID"; then
@@ -102,8 +106,16 @@ cat vsock-receive.log
 
 echo
 echo "=== terminating enclave ==="
-sudo nitro-cli describe-enclaves > 03-enclaves-state.json
-sudo nitro-cli terminate-enclave --enclave-id "$ENCLAVE_ID"
+# vsock-attest exits once the document is delivered, so by now the enclave
+# has usually ended on its own and terminate-enclave reports E39 (no
+# enclave process to connect to). That is the expected end of a
+# production-mode capture, not a failure: the running state captured
+# above (03-enclaves-state.json, PCRs included) and the received document
+# are the record. The state after is recorded too.
+sudo nitro-cli terminate-enclave --enclave-id "$ENCLAVE_ID" > 03-enclave-terminate.json 2>&1 \
+  || echo "terminate-enclave: the enclave had already exited (vsock-attest exits after sending); see 03-enclave-terminate.json"
+sudo nitro-cli describe-enclaves > 03-enclaves-state-post.json
+echo "enclaves after: $(jq 'length' 03-enclaves-state-post.json)"
 
 ls -la 04-attestation-document.bin
 ATT_SIZE=$(stat -c '%s' 04-attestation-document.bin 2>/dev/null || stat -f '%z' 04-attestation-document.bin)
